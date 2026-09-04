@@ -10,11 +10,6 @@ dist/
 .astro/
 .output/
 
-# Env & secrets
-.env
-.env.*
-!.env.example
-
 # Editor
 .vscode/
 *.code-workspace
@@ -24,5 +19,7 @@ dist/
 
 # Vercel (berisi ID project lokal)
 .vercel/
-.vercel
+
+# Rahasia — satu blok, urutan penting (aturan terakhir yang menang)
 .env*
+!.env.example

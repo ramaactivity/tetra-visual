@@ -119,5 +119,9 @@ diatur di `astro.config.mjs` bagian `redirects`.
 
 ## Deploy
 
-Lihat **[DEPLOY.md](DEPLOY.md)** untuk langkah lengkap menaikkan website ke internet
-dan memasang domain.
+Website hidup di **<https://visual.tetraphoto.com>**.
+Setiap `git push` ke `main` otomatis men-deploy ulang.
+
+- **[DEPLOY.md](DEPLOY.md)** — langkah setup lengkap & penyelesaian masalah
+- **[KREDENSIAL.md](KREDENSIAL.md)** — akun, project ID, DNS, dan di mana tiap
+  rahasia disimpan (file ini tidak berisi rahasia apa pun)
