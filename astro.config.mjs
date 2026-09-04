@@ -4,8 +4,10 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   integrations: [sitemap()],
-  // GANTI setelah domain dibeli — dipakai untuk sitemap & tag Open Graph.
-  site: 'https://tetravisual.com',
+  // Alamat produksi. Dipakai untuk sitemap, canonical, dan tag Open Graph
+  // (gambar pratinjau saat link dishare ke WhatsApp/Instagram).
+  // Kalau nanti beli domain sendiri, ganti baris ini + public/robots.txt.
+  site: 'https://visual.tetraphoto.com',
 
   image: {
     // Astro mengubah JPG/PNG asli jadi WebP + srcset responsif saat build.

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tetravisual.com/sitemap-index.xml
+Sitemap: https://visual.tetraphoto.com/sitemap-index.xml

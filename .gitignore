@@ -21,3 +21,6 @@ dist/
 
 # Hasil screenshot pemeriksaan desain (dibuat ulang kapan saja)
 .shots/
+
+# Vercel (berisi ID project lokal)
+.vercel/

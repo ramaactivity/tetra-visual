@@ -1,0 +1,50 @@
+# Deploy Tetra Visual ke Vercel.
+#
+# Memakai pola CI-token yang sama dengan project tetra-photobooth, BUKAN
+# native Git integration. Alasannya: satu akun GitHub hanya bisa terhubung ke
+# satu akun Vercel dalam satu waktu, sehingga project yang tersebar di beberapa
+# akun Vercel saling merebut koneksi itu. Pola token tidak bergantung pada
+# koneksi GitHub<->Vercel, jadi tidak pernah saling mengganggu.
+#
+# Sebelum ini jalan, isi VERCEL_PROJECT_ID di bawah dan simpan secret
+# VERCEL_TOKEN di GitHub. Langkahnya ada di DEPLOY.md.
+
+name: Deploy to Vercel (Production)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # bisa dijalankan manual dari tab Actions
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: true
+
+env:
+  # Bukan rahasia — ini pengenal project, bukan kredensial.
+  VERCEL_ORG_ID: team_dTn9InAoDuNiGiK1ca7VOSBB # team visualtetra-9970
+  VERCEL_PROJECT_ID: GANTI_DENGAN_PROJECT_ID_BARU # dari .vercel/project.json
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel project settings
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      # WAJIB. Vercel Hobby menolak deploy yang email commit-nya tidak cocok
+      # dengan anggota team ("commit email could not be matched"). Karena login
+      # GitHub sengaja tidak disambungkan, metadata git dibuang supaya deploy
+      # diatribusikan ke pemilik token yang memang anggota team.
+      - name: Strip git metadata (deploy as token owner)
+        run: rm -rf .git
+
+      # Build DI VERCEL, jangan --prebuilt. Build lokal di runner pernah
+      # menggantung di "Building..." dan butuh setup package manager sendiri.
+      - name: Deploy
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
