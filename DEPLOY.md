@@ -101,13 +101,12 @@ Setelah `vercel link`, file `.vercel/project.json` muncul di folder ini
 cat .vercel/project.json
 ```
 
-Salin nilai `projectId`, lalu buka `.github/workflows/deploy.yml` dan ganti:
+Lalu jalankan satu perintah ini — ID-nya diisi otomatis ke workflow, tidak perlu
+menyalin manual:
 
-```yaml
-VERCEL_PROJECT_ID: GANTI_DENGAN_PROJECT_ID_BARU
+```bash
+npm run isi-id
 ```
-
-menjadi ID yang barusan Anda salin.
 
 ---
 
