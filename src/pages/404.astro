@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import { categories } from '../data/work';
+---
+
+<Base
+  title="Halaman Tidak Ditemukan"
+  description="Halaman yang Anda cari tidak ada. Lihat portofolio Tetra Visual atau hubungi kami langsung."
+>
+  <section class="nf wrap">
+    <div class="nf-copy">
+      <p class="eyebrow">Error 404</p>
+      <h1 class="nf-title">Halaman ini tidak ada.</h1>
+      <p class="nf-lead">
+        Mungkin alamatnya salah ketik, atau halamannya sudah pindah waktu website ini
+        dirapikan. Karyanya tetap ada — silakan pilih dari sini.
+      </p>
+
+      <div class="nf-actions">
+        <a class="btn btn-light" href="/">Kembali ke Beranda</a>
+        <a class="btn btn-ghost" href="/work">Lihat Semua Karya</a>
+      </div>
+
+      <ul class="nf-cats">
+        {categories.map((c) => <li><a href={`/work/${c.slug}`}>{c.name}</a></li>)}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    display: grid;
+    align-content: center;
+    min-height: 70svh;
+    padding-block: clamp(3rem, 8vw, 6rem);
+  }
+  .nf-copy { max-width: 48rem; }
+
+  .nf-title { font-size: var(--t-h1); margin-block: var(--s-3) var(--s-4); }
+  .nf-lead { color: var(--text-dim); max-width: 52ch; }
+
+  .nf-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-6); }
+
+  .nf-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    list-style: none;
+    margin: var(--s-7) 0 0;
+    padding: 0;
+  }
+  .nf-cats a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-size: var(--t-sm);
+    color: var(--text-dim);
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+  .nf-cats a:hover { color: var(--text); border-color: var(--text); }
+</style>

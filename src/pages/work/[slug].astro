@@ -18,7 +18,10 @@ export function getStaticPaths() {
 const { cat } = Astro.props;
 const photos = getPhotos(cat.slug);
 const lead = cat.videos[0];
-const leadImg = lead ? getCover(cat.slug, lead.cover) : undefined;
+// Latar hero pakai foto (bebas teks), bukan cover video.
+const heroImg = photos[cat.heroPhoto - 1] ?? photos[0];
+// Cover video tetap dipakai untuk gambar pratinjau saat link dishare.
+const shareImg = lead ? getCover(cat.slug, lead.cover) : heroImg;
 
 const others = categories.filter((c) => c.slug !== cat.slug);
 ---
@@ -26,44 +29,46 @@ const others = categories.filter((c) => c.slug !== cat.slug);
 <Base
   title={`${cat.name} — Fotografi & Videografi`}
   description={`${cat.blurb} ${cat.videos.length} video dan ${photos.length} foto dokumentasi ${cat.name.toLowerCase()} oleh ${site.name}.`}
-  ogImage={leadImg}
-  transparentHeader={Boolean(leadImg)}
+  ogImage={shareImg}
+  transparentHeader={Boolean(heroImg)}
 >
   {/* HERO KATEGORI */}
   {
-    leadImg && lead && (
+    heroImg && lead && (
       <section class="chero">
-        <Image class="chero-bg" src={leadImg} alt="" widths={[768, 1280, 1920]} sizes="100vw" loading="eager" fetchpriority="high" />
+        <Image class="chero-bg" src={heroImg} alt="" widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" />
         <div class="chero-veil" />
 
         <div class="wrap chero-inner">
-          <nav class="crumb" aria-label="Remah roti">
-            <a href="/work">Work</a>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{cat.name}</span>
-          </nav>
+          <div class="chero-copy">
+            <nav class="crumb" aria-label="Remah roti">
+              <a href="/work">Work</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">{cat.name}</span>
+            </nav>
 
-          <h1 class="chero-title">{cat.name}</h1>
-          <p class="chero-blurb">{cat.blurb}</p>
+            <h1 class="chero-title">{cat.name}</h1>
+            <p class="chero-blurb">{cat.blurb}</p>
 
-          <div class="chero-actions">
-            <button class="btn btn-light" type="button" data-video-id={lead.youtubeId} data-video-title={lead.title}>
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
-              Putar Video
-            </button>
-            <a
-              class="btn btn-ghost"
-              href={waLink(`Halo Tetra Visual, saya tertarik dengan dokumentasi ${cat.name}. Boleh minta info paket dan jadwalnya?`)}
-              target="_blank"
-              rel="noopener"
-            >
-              Tanya Paket {cat.name}
-            </a>
+            <div class="chero-actions">
+              <button class="btn btn-light" type="button" data-video-id={lead.youtubeId} data-video-title={lead.title}>
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+                Putar Video
+              </button>
+              <a
+                class="btn btn-ghost"
+                href={waLink(`Halo Tetra Visual, saya tertarik dengan dokumentasi ${cat.name}. Boleh minta info paket dan jadwalnya?`)}
+                target="_blank"
+                rel="noopener"
+              >
+                Tanya Paket {cat.name}
+              </a>
+            </div>
+
+            <p class="chero-stats">
+              {cat.videos.length} video · {photos.length} foto
+            </p>
           </div>
-
-          <p class="chero-stats">
-            {cat.videos.length} video · {photos.length} foto
-          </p>
         </div>
       </section>
     )
@@ -127,18 +132,20 @@ const others = categories.filter((c) => c.slug !== cat.slug);
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(0.7) saturate(1.05);
+    filter: brightness(0.8) saturate(1.05);
   }
 
   .chero-veil {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to top, var(--bg) 2%, rgba(10, 12, 14, 0.35) 50%, rgba(10, 12, 14, 0.6) 100%),
-      linear-gradient(to right, rgba(10, 12, 14, 0.8) 0%, transparent 65%);
+      linear-gradient(to top, var(--bg) 1%, rgba(10, 12, 14, 0.15) 40%, rgba(10, 12, 14, 0.45) 100%),
+      linear-gradient(to right, rgba(10, 12, 14, 0.88) 0%, rgba(10, 12, 14, 0.5) 38%, transparent 68%);
   }
 
-  .chero-inner { position: relative; max-width: 720px; }
+  /* Pembatas lebar harus di elemen dalam, karena .wrap memusatkan dirinya sendiri. */
+  .chero-inner { position: relative; }
+  .chero-copy { max-width: 34rem; }
 
   .crumb {
     display: flex;

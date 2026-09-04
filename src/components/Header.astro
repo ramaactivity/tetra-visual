@@ -11,7 +11,8 @@ const path = Astro.url.pathname;
 const links = [
   { href: '/work', label: 'Work' },
   { href: '/about', label: 'About' },
-  { href: '#contact', label: 'Contact' },
+  // Di HP link ini disembunyikan: tombol WhatsApp di sebelahnya sudah jadi kontak.
+  { href: '#contact', label: 'Contact', hideOnMobile: true },
 ];
 
 const isActive = (href: string) => href !== '#contact' && (path === href || path.startsWith(`${href}/`));
@@ -26,7 +27,11 @@ const isActive = (href: string) => href !== '#contact' && (path === href || path
   <nav class="nav" aria-label="Navigasi utama">
     {
       links.map((l) => (
-        <a href={l.href} class:list={['nav-link', { active: isActive(l.href) }]} aria-current={isActive(l.href) ? 'page' : undefined}>
+        <a
+          href={l.href}
+          class:list={['nav-link', { active: isActive(l.href), 'hide-sm': l.hideOnMobile }]}
+          aria-current={isActive(l.href) ? 'page' : undefined}
+        >
           {l.label}
         </a>
       ))
@@ -37,7 +42,14 @@ const isActive = (href: string) => href !== '#contact' && (path === href || path
       target="_blank"
       rel="noopener"
     >
-      Hubungi Kami
+      <svg class="nav-cta-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm5.8 14.13c-.25.69-1.44 1.32-1.99 1.37-.53.05-1.02.24-3.45-.72-2.91-1.15-4.75-4.15-4.89-4.34-.14-.2-1.16-1.55-1.16-2.95s.73-2.09.99-2.38c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.41-.07.64.49.24.57.8 1.97.87 2.11.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.16-.3.36-.42.49-.14.14-.29.29-.12.57.16.29.73 1.2 1.56 1.94 1.07.96 1.98 1.25 2.26 1.39.28.14.45.12.61-.07.17-.19.71-.83.9-1.11.19-.29.38-.24.64-.14.26.09 1.65.78 1.94.92.28.14.47.21.54.33.07.12.07.69-.18 1.36Z"
+        ></path>
+      </svg>
+      <span class="nav-cta-long">Hubungi Kami</span>
+      <span class="nav-cta-short">Chat</span>
     </a>
   </nav>
 </header>
@@ -80,7 +92,7 @@ const isActive = (href: string) => href !== '#contact' && (path === href || path
     line-height: 1;
   }
   .brand-mark { font-size: 1.15rem; color: var(--text); }
-  .brand-sub { font-size: 0.6rem; color: var(--brand); letter-spacing: 0.28em; }
+  .brand-sub { font-size: 0.6875rem; color: var(--brand); letter-spacing: 0.26em; }
 
   .nav {
     display: flex;
@@ -114,13 +126,21 @@ const isActive = (href: string) => href !== '#contact' && (path === href || path
   .nav-link:hover::after,
   .nav-link.active::after { width: 100%; }
 
-  @media (max-width: 560px) {
+  /* Label panjang di layar lebar, ringkas di HP — supaya header tidak meluber */
+  .nav-cta-short { display: none; }
+
+  @media (max-width: 700px) {
+    .hdr { gap: var(--s-3); padding-inline: var(--s-4); }
     .brand-sub { display: none; }
+    .hide-sm { display: none; }        /* "Contact" — tombol WhatsApp sudah menggantikannya */
     .nav { gap: var(--s-4); }
-    .nav-cta { padding-inline: var(--s-4); font-size: var(--t-xs); }
+    .nav-cta { padding-inline: var(--s-4); }
+    .nav-cta-long { display: none; }
+    .nav-cta-short { display: inline; }
   }
-  /* Di layar sangat sempit, tombol kontak tetap ada tapi teksnya diringkas */
-  @media (max-width: 380px) {
+
+  @media (max-width: 360px) {
+    .brand-mark { font-size: 1rem; }
     .nav-link { font-size: var(--t-xs); }
   }
 </style>

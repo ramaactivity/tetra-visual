@@ -10,7 +10,8 @@ const tiles = ORDER.map((slug) => {
   const cat = categories.find((c) => c.slug === slug)!;
   return {
     ...cat,
-    cover: getCover(cat.slug, cat.videos[0]?.cover ?? 1),
+    // Foto, bukan cover video: cover punya teks judul yang bikin grid terlihat ramai.
+    cover: getPhotos(cat.slug)[cat.heroPhoto - 1] ?? getCover(cat.slug, cat.videos[0]?.cover ?? 1),
     photoCount: getPhotos(cat.slug).length,
   };
 }).filter((t) => t.cover);
@@ -24,12 +25,14 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
   description={`Kumpulan karya ${site.name}: ${totalVideos} video dan ${totalPhotos} foto dokumentasi dari 8 kategori — corporate, event, sport, wedding, dan lainnya.`}
 >
   <section class="head wrap">
-    <p class="eyebrow">Portofolio</p>
-    <h1 class="head-title">Semua Karya</h1>
-    <p class="head-lead">
+    <div class="head-copy">
+      <p class="eyebrow">Portofolio</p>
+      <h1 class="head-title">Semua Karya</h1>
+      <p class="head-lead">
       {totalVideos} video dan {totalPhotos} foto, dikelompokkan dalam {tiles.length} kategori.
-      Pilih yang paling dekat dengan kebutuhan Anda.
-    </p>
+        Pilih yang paling dekat dengan kebutuhan Anda.
+      </p>
+    </div>
   </section>
 
   <section class="wrap">
@@ -60,10 +63,9 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
 </Base>
 
 <style>
-  .head {
-    padding-block: clamp(2.5rem, 7vw, 5rem) clamp(1.5rem, 4vw, 3rem);
-    max-width: 800px;
-  }
+  /* Pembatas lebar di elemen dalam — .wrap memusatkan dirinya sendiri. */
+  .head { padding-block: clamp(2.5rem, 7vw, 5rem) clamp(1.5rem, 4vw, 3rem); }
+  .head-copy { max-width: 48rem; }
   .head-title { font-size: var(--t-h1); margin-block: var(--s-3) var(--s-4); }
   .head-lead { color: var(--text-dim); max-width: 54ch; }
 

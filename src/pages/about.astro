@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import potret from '../assets/brand/foto-arief.jpg';
 import { categories } from '../data/work';
 import { getPhotos, clientLogos } from '../lib/images';
 import { site, waLink } from '../data/site';
@@ -21,21 +23,33 @@ const stats = [
   description={`${site.name} adalah tim kreatif fotografi dan sinematografi profesional. ${totalVideos} video dan ${totalPhotos} foto untuk ${clientLogos.length}+ brand.`}
 >
   <section class="intro wrap">
-    <p class="eyebrow">Tentang</p>
+    <div class="intro-copy">
+      <p class="eyebrow">Tentang</p>
 
-    <h1 class="intro-title">
-      Dokumentasi adalah seni<br />memuliakan ingatan.
-    </h1>
+      <h1 class="intro-title">Dokumentasi adalah seni memuliakan ingatan.</h1>
 
-    <div class="intro-body">
-      <p>
-        Tetra Visual is a dedicated creative collective specializing in professional
-        photography and cinematography. Whether it's the warmth of a personal story,
-        the dynamism of an event, or the strategic ambition of a business, we capture
-        it all with precision.
-      </p>
-      <p>We deliver more than just high-quality service; we craft visuals that endure.</p>
+      <div class="intro-body">
+        <p>
+          Tetra Visual is a dedicated creative collective specializing in professional
+          photography and cinematography. Whether it's the warmth of a personal story,
+          the dynamism of an event, or the strategic ambition of a business, we capture
+          it all with precision.
+        </p>
+        <p>We deliver more than just high-quality service; we craft visuals that endure.</p>
+      </div>
     </div>
+
+    <figure class="portrait">
+      <Image
+        src={potret}
+        alt="Potret pendiri Tetra Visual"
+        widths={[400, 640, 900]}
+        sizes="(max-width: 900px) 70vw, 32vw"
+        loading="eager"
+      />
+      {/* Ingin menambahkan nama & jabatan? Tulis di sini, mis:
+          <figcaption>Nama — Founder & Director</figcaption> */}
+    </figure>
   </section>
 
   <section class="wrap">
@@ -69,9 +83,30 @@ const stats = [
 </Base>
 
 <style>
+  /* Pembatas lebar di elemen dalam — .wrap memusatkan dirinya sendiri. */
   .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 6vw, 5rem);
     padding-block: clamp(3rem, 8vw, 6rem) clamp(2rem, 5vw, 3rem);
-    max-width: 900px;
+  }
+  .intro-copy { max-width: 46rem; }
+
+  .portrait { margin: 0; }
+  .portrait :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center 20%;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Di layar sempit potret pindah ke bawah teks, tidak dipaksa berdampingan */
+  @media (max-width: 900px) {
+    .intro { grid-template-columns: 1fr; }
+    .portrait { max-width: 22rem; }
   }
 
   .intro-title {

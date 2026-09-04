@@ -14,6 +14,10 @@ export interface Category {
   slug: string;
   name: string;
   blurb: string;
+  /** Nomor foto untuk latar hero kategori: photos/photo-NN.jpg.
+   *  Sengaja pakai FOTO, bukan cover video — cover selalu punya teks judul
+   *  yang menembus di belakang tulisan hero. */
+  heroPhoto: number;
   videos: Video[];
 }
 
@@ -22,6 +26,7 @@ export const categories: Category[] = [
     slug: 'event',
     name: 'Event',
     blurb: 'Dokumentasi acara, festival, dan kegiatan lapangan dari awal sampai akhir.',
+    heroPhoto: 2,
     videos: [
       { cover: 1, youtubeId: 'FbiLaV9gLls', title: 'Mountain & Jungle Course 2022', desc: 'Event Eiger Adventure di Kawasan Taman Nasional Gn. Ciremai' },
       { cover: 2, youtubeId: 'diQdijdLxcM', title: 'Women Adventure Camp 2024', desc: 'Event Eiger Adventure khusus Wanita di Kawasan Gn. Kembang' },
@@ -39,6 +44,7 @@ export const categories: Category[] = [
     slug: 'corporate',
     name: 'Corporate',
     blurb: 'Profil perusahaan, campaign brand, dan liputan korporat yang rapi dan terarah.',
+    heroPhoto: 37,
     videos: [
       { cover: 1, youtubeId: 'aParGEM6uxc', title: 'Jarambah Kampung Wisata', desc: 'Video Profile Promosi Wisata Kota Bogor bersama Dinas Pariwisata & Budaya Kota Bogor' },
       { cover: 2, youtubeId: 'ISI_ID_VIDEO_YOUTUBE_DISINI', title: 'Jajaki Rasa Kota Bogor', desc: 'Video Profile Promosi Kuliner Kota Bogor bersama Dinas Pariwisata & Budaya Kota Bogor' },
@@ -68,6 +74,7 @@ export const categories: Category[] = [
     slug: 'sport',
     name: 'Sport',
     blurb: 'Aksi cepat, momen menentukan, dan atmosfer pertandingan.',
+    heroPhoto: 49,
     videos: [
       { cover: 1, youtubeId: 'YokwXwv7kQo', title: 'Fun Run Bank Indonesia 2025', desc: 'Event Fun Run yang diadakan oleh Bank Indonesia Jakarta' },
       { cover: 2, youtubeId: 'dy1BP-Defv8', title: 'Fun Bike Erafone', desc: 'Event Fun Bike yang diadakan oleh Erafone Bogor' },
@@ -94,6 +101,7 @@ export const categories: Category[] = [
     slug: 'competition',
     name: 'Competition',
     blurb: 'Perlombaan dan kompetisi, dari persiapan sampai pengumuman juara.',
+    heroPhoto: 3,
     videos: [
       { cover: 1, youtubeId: 'vZilOdiUutU', title: 'Juara 1 Promosi Kuliner Kota Bogor', desc: 'Juara 1 Video Promosi Kuliner yang diadakan Oleh Gojeg x Disparbud Kota Bogor' },
       { cover: 2, youtubeId: 'e0jkaK_KqOs', title: 'Juara 1 Promosi Wisata Kota Bogor', desc: 'Juara 1 Video Promosi Wisata yang diadakan oleh Disparbud Kota Bogor' },
@@ -105,6 +113,7 @@ export const categories: Category[] = [
     slug: 'birthday',
     name: 'Birthday',
     blurb: 'Perayaan ulang tahun yang hangat, jujur, dan menyenangkan.',
+    heroPhoto: 20,
     videos: [
       { cover: 1, youtubeId: '0P_hxTu2P6U', title: 'Birthday Eunoia & Aqiqah Omeera', desc: '' },
       { cover: 2, youtubeId: 'grADQnRo4IM', title: 'Birthday Ali', desc: '' },
@@ -121,6 +130,7 @@ export const categories: Category[] = [
     slug: 'wedding',
     name: 'Wedding',
     blurb: 'Hari pernikahan diceritakan apa adanya, tanpa dibuat-buat.',
+    heroPhoto: 5,
     videos: [
       { cover: 1, youtubeId: 'gV6bi3FYxXw', title: 'Wedding of Firly & Bima', desc: 'Video dokumentasi utama dari momen sakral pernikahan ini.' },
       { cover: 2, youtubeId: 'ISI_ID_VIDEO_YOUTUBE_DISINI', title: 'Wedding of Rani & Wahab', desc: 'Momen haru saat prosesi akad nikah dan pemberkatan.' },
@@ -132,6 +142,7 @@ export const categories: Category[] = [
     slug: 'graduation',
     name: 'Graduation',
     blurb: 'Kelulusan dan wisuda, momen yang cuma datang sekali.',
+    heroPhoto: 3,
     videos: [
       { cover: 1, youtubeId: 'PwQ3eDwQe4M', title: 'Wisuda MAN 2 Koto Bogor tahun 2024', desc: '' },
       { cover: 2, youtubeId: 'Wk5VPgTjteE', title: 'Sidang S3 Mr. Jirui Dong', desc: '' },
@@ -142,6 +153,7 @@ export const categories: Category[] = [
     slug: 'other',
     name: 'Other',
     blurb: 'Karya lain yang tidak masuk kategori mana pun.',
+    heroPhoto: 12,
     videos: [
       { cover: 1, youtubeId: 'DyeLOCpA5d4', title: 'Gender Reveal Adiba & Egy', desc: '' },
       { cover: 2, youtubeId: 'yZQYRBtloaw', title: 'Gender Reveal Shabrina & Stenly', desc: '' },
