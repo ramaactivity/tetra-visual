@@ -138,7 +138,7 @@ Lalu jalankan satu perintah ini — ID-nya diisi otomatis ke workflow, tidak per
 menyalin manual:
 
 ```bash
-npm run isi-id
+npm run fill-id
 ```
 
 ---

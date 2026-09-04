@@ -10,8 +10,8 @@
     "check": "astro check",
     "shot": "node scripts/screenshot.mjs",
     "check:layout": "node scripts/check-layout.mjs",
-    "test": "node scripts/test-interaksi.mjs",
-    "isi-id": "node scripts/isi-project-id.mjs"
+    "test": "node scripts/test-interaction.mjs",
+    "fill-id": "node scripts/fill-project-id.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
