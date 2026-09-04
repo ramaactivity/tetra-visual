@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "shot": "node scripts/screenshot.mjs",
-    "check:layout": "node scripts/check-layout.mjs"
+    "check:layout": "node scripts/check-layout.mjs",
+    "test": "node scripts/test-interaksi.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
@@ -18,6 +19,8 @@
     "sharp": "^0.35.4"
   },
   "devDependencies": {
-    "playwright": "^1.62.1"
+    "@astrojs/check": "^0.9.10",
+    "playwright": "^1.62.1",
+    "typescript": "^6.0.3"
   }
 }

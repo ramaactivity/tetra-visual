@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import potret from '../assets/brand/foto-arief.jpg';
 import { categories } from '../data/work';
 import { getPhotos, clientLogos } from '../lib/images';
-import { site, waLink } from '../data/site';
+import { site } from '../data/site';
 
 const totalVideos = categories.reduce((n, c) => n + c.videos.length, 0);
 const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0);
