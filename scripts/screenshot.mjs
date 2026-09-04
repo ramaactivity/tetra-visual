@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 
 const OUT = '.shots';
-const base = 'http://localhost:4321';
+const base = process.env.BASE ?? 'http://localhost:4321';
 const pages = process.argv[2] ? [process.argv[2]] : ['/', '/work', '/work/corporate', '/about'];
 const viewports = [
   { name: 'mac', width: 1440, height: 900, dsf: 2 },
