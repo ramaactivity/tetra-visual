@@ -10,6 +10,20 @@ diperiksa: redirect di `next.config.ts` photobooth hanya menangkap host
 
 ---
 
+## Status: sudah dikerjakan
+
+- [x] Kode ter-push ke <https://github.com/ramaactivity/tetra-visual>
+- [x] Project Vercel `tetra-visual` dibuat di team `visualtetra-9970`
+- [x] Deploy produksi pertama berhasil — hidup di
+      <https://tetra-visual-ten.vercel.app>
+- [x] `VERCEL_PROJECT_ID` terisi di workflow
+- [x] Domain `visual.tetraphoto.com` didaftarkan ke project
+
+**Tersisa 2 langkah manual** (butuh login Anda): Langkah 4 (secret GitHub)
+dan Langkah 5b (record DNS di Hostinger).
+
+---
+
 ## Yang sudah siap di repo ini
 
 - `.github/workflows/deploy.yml` — deploy otomatis tiap `git push`
@@ -152,13 +166,13 @@ Login Hostinger → domain `tetraphoto.com` → **DNS / Nameservers** → tambah
 
 | Type | Name | Points to | TTL |
 |---|---|---|---|
-| CNAME | `visual` | `cname.vercel-dns.com` | biarkan default |
+| **A** | `visual` | `76.76.21.21` | biarkan default |
 
+> Ini yang diminta Vercel sendiri (`vercel domains inspect visual.tetraphoto.com`).
+> Bukan CNAME — Vercel merekomendasikan A record untuk kasus ini.
+>
 > Isi kolom Name **`visual`** saja, bukan `visual.tetraphoto.com` — Hostinger
 > menambahkan nama domainnya sendiri.
->
-> Kalau layar Vercel menampilkan nilai yang berbeda dari `cname.vercel-dns.com`,
-> **ikuti yang di layar Vercel** — mereka bisa mengubahnya sewaktu-waktu.
 
 **Jangan sentuh record lain.** Record `@` dan `www` milik situs photobooth —
 kalau diubah, tetraphoto.com bisa mati.
@@ -169,10 +183,10 @@ kalau diubah, tetraphoto.com bisa mati.
 Cek dari Terminal:
 
 ```bash
-dig +short CNAME visual.tetraphoto.com
+dig +short A visual.tetraphoto.com
 ```
 
-Kalau sudah menjawab `cname.vercel-dns.com`, DNS-nya sudah menyebar.
+Kalau sudah menjawab `76.76.21.21`, DNS-nya sudah menyebar.
 
 ---
 
@@ -225,6 +239,7 @@ Tidak ada yang terbuang dari pekerjaan sekarang.
 | Deploy jalan dua kali | Native Git integration ikut nyambung. Vercel → Settings → Git → **Disconnect**. |
 | Subdomain 404 setelah DNS aktif | Domain belum ditambahkan di project yang benar. Pastikan di project `tetra-visual`, bukan `tetra-photobooth`. |
 | `tetraphoto.com` ikut bermasalah | Berarti record `@` atau `www` ikut terubah. Kembalikan: `@` → A `76.76.21.21`, `www` → CNAME `cname.vercel-dns.com`. |
+| Vercel bilang domain "not configured" | DNS belum menyebar. Tunggu, lalu `vercel domains inspect visual.tetraphoto.com`. |
 
 ---
 

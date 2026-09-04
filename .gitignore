@@ -24,3 +24,5 @@ dist/
 
 # Vercel (berisi ID project lokal)
 .vercel/
+.vercel
+.env*

@@ -23,7 +23,7 @@ concurrency:
 env:
   # Bukan rahasia — ini pengenal project, bukan kredensial.
   VERCEL_ORG_ID: team_dTn9InAoDuNiGiK1ca7VOSBB # team visualtetra-9970
-  VERCEL_PROJECT_ID: GANTI_DENGAN_PROJECT_ID_BARU # dari .vercel/project.json
+  VERCEL_PROJECT_ID: prj_xzq56lAH7qOVhetV66HexfxNodBB
 
 jobs:
   deploy:
