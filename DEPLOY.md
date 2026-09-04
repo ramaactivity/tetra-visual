@@ -10,17 +10,36 @@ diperiksa: redirect di `next.config.ts` photobooth hanya menangkap host
 
 ---
 
-## Status: sudah dikerjakan
+## Status
 
-- [x] Kode ter-push ke <https://github.com/ramaactivity/tetra-visual>
-- [x] Project Vercel `tetra-visual` dibuat di team `visualtetra-9970`
-- [x] Deploy produksi pertama berhasil — hidup di
-      <https://tetra-visual-ten.vercel.app>
+**Website sudah hidup di <https://visual.tetraphoto.com>** (4 September 2026).
+
+- [x] Kode di <https://github.com/ramaactivity/tetra-visual>
+- [x] Project Vercel `tetra-visual` di team `visualtetra-9970`
+- [x] Deploy produksi berhasil
 - [x] `VERCEL_PROJECT_ID` terisi di workflow
-- [x] Domain `visual.tetraphoto.com` didaftarkan ke project
+- [x] Domain `visual.tetraphoto.com` terpasang & terverifikasi (CNAME di Hostinger)
+- [x] Diverifikasi: 9 halaman OK, URL lama dialihkan, 404 benar, robots &
+      sitemap benar, 9 uji interaksi lolos di domain live
+- [x] Diverifikasi: `tetraphoto.com` + www + /galeri + /pricelist tidak terganggu
 
-**Tersisa 2 langkah manual** (butuh login Anda): Langkah 4 (secret GitHub)
-dan Langkah 5b (record DNS di Hostinger).
+### Tersisa satu langkah manual
+
+**Secret `VERCEL_TOKEN` di GitHub** (Langkah 4). Tanpa ini, deploy otomatis
+tiap `git push` belum jalan — sementara ini deploy dilakukan manual dengan
+`vercel deploy --prod` dari Terminal.
+
+---
+
+## Catatan: jangan pakai vercel.json untuk pin framework
+
+Sempat dicoba `{"framework": "astro"}` — dua deploy berturut-turut menggantung
+(status UNKNOWN, build 0ms, tanpa log, 20+ menit) sampai harus dihapus manual.
+Tanpa file itu, build selesai normal 3 menit dan hasilnya benar; Vercel sudah
+mendeteksi Astro sendiri saat build. **Jangan tambahkan lagi.**
+
+Kalau deploy menggantung lagi: `vercel ls tetra-visual` untuk melihat yang
+UNKNOWN, lalu `vercel remove <url> --yes`, baru deploy ulang.
 
 ---
 
