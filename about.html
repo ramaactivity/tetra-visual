@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - M. Arief Rohman</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- PENGATURAN DASAR --- */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #12181b; 
+            color: white;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; 
+        }
+
+        /* --- NAVIGASI --- */
+        .nav-header {
+            padding: 30px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: transparent; 
+        }
+        .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: 2px; }
+        .menu { display: flex; gap: 30px; align-items: center; font-size: 0.8rem; font-weight: 700; }
+        .menu a { color: white; text-decoration: none; text-transform: uppercase; transition: color 0.3s; }
+        .menu a:hover { color: #d92027; }
+        .btn-merah { background-color: #d92027; padding: 10px 25px; border-radius: 20px; color: white !important; font-weight: 800; }
+        .btn-merah:hover { background-color: #a7181d; transform: scale(1.05); }
+
+        /* --- BAGIAN TENTANG SAYA (TANPA GAMBAR) --- */
+        .about-container {
+            display: flex;
+            justify-content: center; /* Pusatkan secara horizontal */
+            align-items: center;
+            max-width: 900px; /* Ukuran diperkecil agar teks tidak terlalu lebar */
+            margin: 60px auto; 
+            padding: 0 5%;
+            flex-grow: 1; 
+        }
+
+        .about-text {
+            flex: 1;
+            text-align: center; /* Teks dibuat rata tengah */
+        }
+        .about-text h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 0 0 20px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .about-text .garis {
+            width: 80px;
+            height: 4px;
+            background-color: #d92027;
+            margin: 0 auto 30px auto; /* Garis di tengah */
+        }
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 40px;
+            text-align: justify; /* Tetap justify untuk kerapihan paragraf */
+        }
+
+        /* --- PENGATURAN KHUSUS HP --- */
+        @media (max-width: 768px) {
+            .nav-header { 
+                padding: 20px 5%; 
+                flex-direction: column; 
+                align-items: center;
+                gap: 15px; 
+            }
+            .logo { display: none; }
+            .menu { 
+                flex-wrap: wrap; 
+                justify-content: center; 
+                gap: 10px 20px; 
+                width: 100%;
+                font-size: 0.8rem; 
+            }
+            
+            .menu a.btn-merah { display: none !important; }
+            
+            .about-container { 
+                margin: 40px auto; 
+            }
+            
+            .about-text h1 { 
+                font-size: 2.2rem; 
+                line-height: 1.2;
+            }
+            
+            .about-text p { 
+                font-size: 0.95rem; 
+                padding: 0 10px; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="nav-header">
+        <div class="logo"></div>
+        <div class="menu">
+            <a href="index.html">Home</a>
+            <a href="about.html" style="border-bottom: 2px solid #d92027; padding-bottom: 5px;">About</a>
+            <a href="halaman-kedua.html">Project</a>
+            <a href="index.html#contact-area">Contact</a>
+            <a href="index.html#portofolio-area" class="btn-merah">EXPLORE</a>
+        </div>
+    </header>
+
+    <section class="about-container">
+        <div class="about-text">
+            <h1>TETRA</h1>
+            <div class="garis"></div>
+            <p>
+                To us, documentation is the art of honoring memory. Tetra Visual is a dedicated creative collective specializing in professional photography and cinematography. Whether it’s the warmth of a personal story, the dynamism of an event, or the strategic ambition of a business, we capture it all with precision. 
+                <br><br>
+                We deliver more than just high-quality service; we craft visuals that endure.
+            </p>
+        </div>
+    </section>
+
+</body>
+</html>

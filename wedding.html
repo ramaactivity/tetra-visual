@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding - AIPROHMAN Portofolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- PENGATURAN DASAR --- */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0; padding: 0; background-color: #0f1115; color: white; overflow-x: hidden;
+        }
+
+        /* --- NAVIGASI ATAS --- */
+        .nav-header {
+            position: absolute; top: 0; left: 0; width: 100%; padding: 20px 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            box-sizing: border-box; z-index: 100;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+        .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: 2px; }
+        .back-btn { 
+            color: white; text-decoration: none; font-weight: 700; font-size: 0.9rem;
+            transition: color 0.3s; display: flex; align-items: center; gap: 5px;
+        }
+        .back-btn:hover { color: #d92027; }
+
+        /* --- LAYAR BESAR (HERO SECTION KHUSUS VIDEO) --- */
+        .hero-showcase {
+            height: 75vh; background-size: cover; background-position: center;
+            position: relative; display: flex; align-items: flex-end; padding: 50px 5%;
+            transition: background-image 0.3s ease-in-out; 
+            background-image: url('wedding/Foto-wedding-cover1.jpg'); 
+        }
+        .hero-showcase::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, #0f1115 0%, rgba(15,17,21,0.5) 50%, transparent 100%);
+            z-index: 1;
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 800px; }
+        .kategori-tag {
+            background-color: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; 
+            font-size: 0.8rem; font-weight: 700; display: inline-block; margin-bottom: 15px; letter-spacing: 1px;
+        }
+        .hero-title { font-size: 4rem; font-weight: 800; margin: 0 0 10px 0; text-transform: uppercase; text-shadow: 2px 2px 10px rgba(0,0,0,0.8);}
+        .hero-desc { font-size: 1.1rem; color: #ddd; margin-bottom: 30px; line-height: 1.6; text-shadow: 1px 1px 5px rgba(0,0,0,0.8);}
+        
+        .play-btn {
+            background-color: white; color: black; font-weight: 800; font-size: 1.2rem;
+            padding: 15px 40px; border: none; border-radius: 5px; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; transition: 0.3s;
+        }
+        .play-btn:hover { background-color: #d92027; color: white; transform: scale(1.05); }
+
+        /* --- BAGIAN 1: SLIDER COVER VIDEO (SAMPING) --- */
+        .thumbnail-section {
+            padding: 20px 5% 40px 5%; position: relative; z-index: 5;
+        }
+        .section-atas { margin-top: -50px; } 
+        .thumbnail-section h3 { font-size: 1.2rem; margin-bottom: 20px; letter-spacing: 1px; color: #fff;}
+        .thumbnail-section h3 span { font-size: 0.8rem; color: #888; font-weight: 400; margin-left: 10px; }
+
+        .row-geser {
+            display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px;
+            scroll-behavior: smooth; scrollbar-width: none; flex-wrap: nowrap;
+        }
+        .row-geser::-webkit-scrollbar { display: none; }
+
+        .video-card {
+            flex: 0 0 auto; width: 220px; height: 130px; border-radius: 8px; overflow: hidden; 
+            cursor: pointer; position: relative; transition: 0.3s; border: 2px solid transparent;
+        }
+        .video-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .video-card:hover { transform: scale(1.05); z-index: 10; }
+        .video-card.active { border: 3px solid white; transform: scale(1.05); z-index: 10; }
+        .video-card.active img { opacity: 0.7; }
+
+        /* --- BAGIAN 2: MASONRY GALLERY --- */
+        .masonry-gallery {
+            column-count: 4; column-gap: 15px; max-width: 1200px; margin: 0 auto;
+        }
+        .photo-box {
+            break-inside: avoid; margin-bottom: 15px;
+            border-radius: 8px; overflow: hidden; cursor: pointer; position: relative;
+        }
+        .photo-box img { 
+            width: 100%; height: auto; display: block; transition: transform 0.4s ease, filter 0.4s ease; 
+        }
+        .photo-box:hover img { transform: scale(1.05); filter: brightness(0.7); }
+
+        /* --- POPUP MODALS --- */
+        .video-modal, .photo-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.95); z-index: 1000; display: none; 
+            justify-content: center; align-items: center;
+        }
+        .video-content { width: 90%; max-width: 1000px; position: relative; }
+        #player { width: 100%; aspect-ratio: 16 / 9; border-radius: 10px; border: none; background-color: black; }
+        .photo-modal img { max-width: 80%; max-height: 90vh; border-radius: 8px; object-fit: contain; transition: opacity 0.3s ease; }
+        .close-btn { position: absolute; top: 20px; right: 40px; color: white; font-size: 2.5rem; cursor: pointer; font-weight: bold; z-index: 1002; }
+        
+        .modal-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            color: white; font-size: 3rem; font-weight: bold; cursor: pointer;
+            user-select: none; transition: color 0.3s; z-index: 1001; padding: 20px; 
+            text-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        }
+        .left-nav { left: 30px; }
+        .right-nav { right: 30px; }
+
+        @media (max-width: 768px) {
+            .nav-header { padding: 15px 5%; }
+            .logo { font-size: 1.2rem; }
+            .hero-showcase { height: 60vh; padding-bottom: 50px; justify-content: flex-start; }
+            .hero-content { text-align: left; display: flex; flex-direction: column; align-items: flex-start; width: 100%; }
+            .kategori-tag { font-size: 0.65rem; padding: 5px 15px; margin-bottom: 12px; }
+            .hero-title { font-size: 1.6rem; line-height: 1.2; margin-bottom: 12px; text-align: left; word-wrap: break-word; overflow-wrap: break-word; }
+            .hero-desc { font-size: 0.85rem; margin-bottom: 25px; line-height: 1.5; text-align: left; }
+            .play-btn { font-size: 0.95rem; padding: 12px 35px; border-radius: 25px; } 
+            .section-atas { margin-top: -40px; } 
+            .thumbnail-section { padding: 10px 5% 30px 5%; }
+            .thumbnail-section h3 { font-size: 1.1rem; margin-bottom: 15px; text-align: left; }
+            .thumbnail-section h3 span { display: block; margin-left: 0; margin-top: 5px; font-size: 0.75rem; } 
+            .video-card { width: 110px; height: 65px; border-radius: 6px; } 
+            .row-geser { gap: 8px; padding-bottom: 10px; }
+            .masonry-gallery { column-count: 3; column-gap: 5px; } 
+            .photo-box { margin-bottom: 5px; border-radius: 5px; } 
+            .modal-nav { font-size: 2rem; padding: 10px; }
+            .left-nav { left: 5px; }
+            .right-nav { right: 5px; }
+            .photo-modal img { max-width: 90%; }
+            .close-btn { top: 10px; right: 15px; font-size: 2rem;}
+        }
+    </style>
+</head>
+<body>
+
+    <header class="nav-header">
+        <div class="logo">AIPROHMAN</div>
+        <a href="index.html" class="back-btn">&#8592; KEMBALI</a>
+    </header>
+
+    <section class="hero-showcase" id="main-display">
+        <div class="hero-content">
+            <div class="kategori-tag">WEDDING VIDEO</div>
+            <h1 class="hero-title" id="display-title">Wedding of Firly & Bima</h1>
+            <p class="hero-desc" id="display-desc">Video dokumentasi utama dari momen sakral pernikahan ini.</p>
+            <button class="play-btn" id="play-btn">&#9658; Play Now</button>
+        </div>
+    </section>
+
+    <section class="thumbnail-section section-atas">
+        <h3>Video Documentation <span>(Geser &#8596;)</span></h3>
+        <div class="row-geser" id="thumb-container">
+            <div class="video-card active" data-image="wedding/Foto-wedding-cover1.jpg" data-video="https://www.youtube.com/embed/gV6bi3FYxXw" data-title="Wedding of Firly & Bima" data-desc="Video dokumentasi utama dari momen sakral pernikahan ini.">
+                <img src="wedding/Foto-wedding-cover1.jpg" alt="1">
+            </div>
+            <div class="video-card" data-image="wedding/Foto-wedding-cover2.jpg" data-video="https://www.youtube.com/embed/ISI_ID_VIDEO_YOUTUBE_DISINI" data-title="Wedding of Rani & Wahab" data-desc="Momen haru saat prosesi akad nikah dan pemberkatan.">
+                <img src="wedding/Foto-wedding-cover2.jpg" alt="2">
+            </div>
+            <div class="video-card" data-image="wedding/Foto-wedding-cover3.jpg" data-video="https://www.youtube.com/embed/JYtyYSmp8tk" data-title="Wedding of Intan & Rizki" data-desc="Kemeriahan acara resepsi dan kebahagiaan bersama keluarga.">
+                <img src="wedding/Foto-wedding-cover3.jpg" alt="3">
+            </div>
+            <div class="video-card" data-image="wedding/Foto-wedding-cover4.jpg" data-video="https://www.youtube.com/embed/ISI_ID_VIDEO_YOUTUBE_DISINI" data-title="Wedding of Lisna & Aji" data-desc="Sesi foto romantis dan momen kebersamaan kedua mempelai.">
+                <img src="wedding/Foto-wedding-cover4.jpg" alt="4">
+            </div>
+        </div>
+    </section>
+
+    <section class="thumbnail-section">
+        <h3>Galeri Foto Wedding</h3>
+        <div class="masonry-gallery">
+            <div class="photo-box"><img src="wedding/Foto-wedding1.jpg"></div>
+            <div class="photo-box"><img src="wedding/Foto-wedding2.jpg"></div>
+            <div class="photo-box"><img src="wedding/Foto-wedding3.jpg"></div>
+            <div class="photo-box"><img src="wedding/Foto-wedding4.jpg"></div>
+            <div class="photo-box"><img src="wedding/Foto-wedding5.jpg"></div>
+            <div class="photo-box"><img src="wedding/Foto-wedding6.jpg"></div>
+            <div class="photo-box"><img src="wedding/Foto-wedding7.jpg"></div>
+            <div class="photo-box"><img src="wedding/Foto-wedding8.jpg"></div>
+        </div>
+    </section>
+
+    <div class="video-modal" id="video-modal">
+        <div class="video-content">
+            <span class="close-btn" id="close-video-modal" style="top:-40px; right:0;">&times;</span>
+            <iframe id="player" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div class="photo-modal" id="photo-modal">
+        <span class="close-btn" id="close-photo-modal">&times;</span>
+        <span class="modal-nav left-nav" id="prev-photo">&#10094;</span> 
+        <img src="" id="photo-modal-img">
+        <span class="modal-nav right-nav" id="next-photo">&#10095;</span> 
+    </div>
+
+    <script>
+        const mainDisplay = document.getElementById('main-display');
+        const displayTitle = document.getElementById('display-title');
+        const displayDesc = document.getElementById('display-desc');
+        const videoCards = document.querySelectorAll('.video-card');
+        const playBtn = document.getElementById('play-btn');
+        const videoModal = document.getElementById('video-modal');
+        const closeVideoModalBtn = document.getElementById('close-video-modal');
+        const player = document.getElementById('player');
+
+        let currentVideoIndex = 0;
+        let currentVideoSrc = "https://www.youtube.com/embed/gV6bi3FYxXw";
+        const totalVideos = videoCards.length;
+
+        function gantiVideoUtama(index) {
+            document.querySelector('.video-card.active').classList.remove('active');
+            const cardBaru = videoCards[index];
+            cardBaru.classList.add('active');
+            mainDisplay.style.backgroundImage = `url('${cardBaru.getAttribute('data-image')}')`;
+            displayTitle.textContent = cardBaru.getAttribute('data-title');
+            displayDesc.textContent = cardBaru.getAttribute('data-desc');
+            currentVideoSrc = cardBaru.getAttribute('data-video');
+            cardBaru.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        videoCards.forEach((card, index) => {
+            card.addEventListener('click', function() {
+                currentVideoIndex = index;
+                gantiVideoUtama(currentVideoIndex);
+                window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            });
+        });
+
+        // SWIPE HERO
+        let heroStart = 0;
+        mainDisplay.addEventListener('touchstart', e => heroStart = e.changedTouches[0].screenX, {passive: true});
+        mainDisplay.addEventListener('touchend', e => {
+            let jarak = heroStart - e.changedTouches[0].screenX;
+            if (totalVideos > 1) {
+                if (jarak > 50) { currentVideoIndex = (currentVideoIndex + 1) % totalVideos; gantiVideoUtama(currentVideoIndex); }
+                else if (jarak < -50) { currentVideoIndex = (currentVideoIndex - 1 + totalVideos) % totalVideos; gantiVideoUtama(currentVideoIndex); }
+            }
+        }, {passive: true});
+
+        playBtn.addEventListener('click', () => { if(currentVideoSrc) { player.src = currentVideoSrc + "?autoplay=1"; videoModal.style.display = 'flex'; } });
+        closeVideoModalBtn.addEventListener('click', () => { videoModal.style.display = 'none'; player.src = ""; });
+
+        // LIGHTBOX
+        const photoModal = document.getElementById('photo-modal');
+        const photoModalImg = document.getElementById('photo-modal-img');
+        const photoBoxes = document.querySelectorAll('.photo-box img');
+        let currentPhotoIndex = 0;
+
+        photoBoxes.forEach((img, index) => {
+            img.parentElement.addEventListener('click', () => {
+                currentPhotoIndex = index;
+                photoModalImg.src = img.src;
+                photoModal.style.display = 'flex';
+            });
+        });
+
+        function gantiFoto(index) {
+            if (index < 0) currentPhotoIndex = photoBoxes.length - 1; 
+            else if (index >= photoBoxes.length) currentPhotoIndex = 0; 
+            else currentPhotoIndex = index;
+            photoModalImg.style.opacity = 0.5;
+            setTimeout(() => { photoModalImg.src = photoBoxes[currentPhotoIndex].src; photoModalImg.style.opacity = 1; }, 150);
+        }
+
+        document.getElementById('prev-photo').addEventListener('click', (e) => { e.stopPropagation(); gantiFoto(currentPhotoIndex - 1); });
+        document.getElementById('next-photo').addEventListener('click', (e) => { e.stopPropagation(); gantiFoto(currentPhotoIndex + 1); });
+        document.getElementById('close-photo-modal').addEventListener('click', () => photoModal.style.display = 'none');
+
+        // SWIPE PHOTO
+        let photoStart = 0;
+        photoModal.addEventListener('touchstart', e => photoStart = e.changedTouches[0].screenX, {passive: true});
+        photoModal.addEventListener('touchend', e => {
+            let jarak = photoStart - e.changedTouches[0].screenX;
+            if (jarak > 50) gantiFoto(currentPhotoIndex + 1);
+            else if (jarak < -50) gantiFoto(currentPhotoIndex - 1);
+        }, {passive: true});
+
+        window.onclick = e => { if(e.target === videoModal || e.target === photoModal) { videoModal.style.display = 'none'; photoModal.style.display = 'none'; player.src = ""; } };
+    </script>
+</body>
+</html>

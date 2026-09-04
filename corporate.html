@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate - AIPROHMAN Portofolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- PENGATURAN DASAR --- */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0; padding: 0; background-color: #0f1115; color: white; overflow-x: hidden;
+        }
+
+        /* --- NAVIGASI ATAS --- */
+        .nav-header {
+            position: absolute; top: 0; left: 0; width: 100%; padding: 20px 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            box-sizing: border-box; z-index: 100;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+        .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: 2px; }
+        .back-btn { 
+            color: white; text-decoration: none; font-weight: 700; font-size: 0.9rem;
+            transition: color 0.3s; display: flex; align-items: center; gap: 5px;
+        }
+        .back-btn:hover { color: #d92027; }
+
+        /* --- LAYAR BESAR (HERO SECTION) --- */
+        .hero-showcase {
+            height: 75vh; background-size: cover; background-position: center;
+            position: relative; display: flex; align-items: flex-end; padding: 50px 5%;
+            transition: background-image 0.3s ease-in-out; 
+            background-image: url('corporate/Foto-corporate-cover1.jpg'); 
+        }
+        .hero-showcase::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, #0f1115 0%, rgba(15,17,21,0.5) 50%, transparent 100%);
+            z-index: 1;
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 800px; }
+        .kategori-tag {
+            background-color: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; 
+            font-size: 0.8rem; font-weight: 700; display: inline-block; margin-bottom: 15px; letter-spacing: 1px;
+        }
+        .hero-title { font-size: 4rem; font-weight: 800; margin: 0 0 10px 0; text-transform: uppercase; text-shadow: 2px 2px 10px rgba(0,0,0,0.8);}
+        .hero-desc { font-size: 1.1rem; color: #ddd; margin-bottom: 30px; line-height: 1.6; text-shadow: 1px 1px 5px rgba(0,0,0,0.8);}
+        
+        .play-btn {
+            background-color: white; color: black; font-weight: 800; font-size: 1.2rem;
+            padding: 15px 40px; border: none; border-radius: 5px; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; transition: 0.3s;
+        }
+        .play-btn:hover { background-color: #d92027; color: white; transform: scale(1.05); }
+
+        /* --- SLIDER COVER VIDEO --- */
+        .thumbnail-section { padding: 20px 5% 40px 5%; position: relative; z-index: 5; }
+        .section-atas { margin-top: -50px; } 
+        .thumbnail-section h3 { font-size: 1.2rem; margin-bottom: 20px; letter-spacing: 1px; color: #fff;}
+        .thumbnail-section h3 span { font-size: 0.8rem; color: #888; font-weight: 400; margin-left: 10px; }
+
+        .row-geser {
+            display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px;
+            scroll-behavior: smooth; scrollbar-width: none; flex-wrap: nowrap;
+        }
+        .row-geser::-webkit-scrollbar { display: none; }
+
+        .video-card {
+            flex: 0 0 auto; width: 220px; height: 130px; border-radius: 8px; overflow: hidden; 
+            cursor: pointer; position: relative; transition: 0.3s; border: 2px solid transparent;
+        }
+        .video-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .video-card:hover { transform: scale(1.05); z-index: 10; }
+        .video-card.active { border: 3px solid white; transform: scale(1.05); z-index: 10; }
+
+        /* --- MASONRY GALLERY --- */
+        .masonry-gallery { column-count: 4; column-gap: 15px; max-width: 1200px; margin: 0 auto; }
+        .photo-box { break-inside: avoid; margin-bottom: 15px; border-radius: 8px; overflow: hidden; cursor: pointer; position: relative; }
+        .photo-box img { width: 100%; height: auto; display: block; transition: 0.4s ease; }
+        .photo-box:hover img { transform: scale(1.05); filter: brightness(0.7); }
+
+        /* --- MODALS --- */
+        .video-modal, .photo-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.95); z-index: 1000; display: none; 
+            justify-content: center; align-items: center;
+        }
+        #player { width: 90%; max-width: 1000px; aspect-ratio: 16/9; border-radius: 10px; border: none; }
+        .photo-modal img { max-width: 80%; max-height: 90vh; border-radius: 8px; object-fit: contain; transition: opacity 0.3s; }
+        .close-btn { position: absolute; top: 20px; right: 40px; color: white; font-size: 2.5rem; cursor: pointer; z-index: 1002; }
+        
+        .modal-nav {
+            position: absolute; top: 50%; transform: translateY(-50%); color: white;
+            font-size: 3rem; font-weight: bold; cursor: pointer; user-select: none;
+            padding: 20px; text-shadow: 0 5px 15px rgba(0,0,0,0.8); z-index: 1001;
+        }
+        .left-nav { left: 30px; }
+        .right-nav { right: 30px; }
+
+        @media (max-width: 768px) {
+            .nav-header { padding: 15px 5%; }
+            .logo { font-size: 1.2rem; }
+            .hero-showcase { height: 60vh; padding-bottom: 50px; justify-content: flex-start; align-items: flex-end; }
+            .hero-content { text-align: left; display: flex; flex-direction: column; align-items: flex-start; width: 100%; margin-bottom: 20px;}
+            .kategori-tag { font-size: 0.65rem; padding: 5px 15px; margin-bottom: 12px; }
+            .hero-title { font-size: 1.6rem; line-height: 1.2; margin-bottom: 12px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); word-wrap: break-word; overflow-wrap: break-word; }
+            .hero-desc { font-size: 0.85rem; margin-bottom: 25px; line-height: 1.5; max-width: 90%; }
+            .play-btn { font-size: 0.95rem; padding: 12px 35px; border-radius: 25px; } 
+            .section-atas { margin-top: -40px; } 
+            .video-card { width: 110px; height: 65px; } 
+            .row-geser { gap: 8px; padding-bottom: 10px; }
+            .masonry-gallery { column-count: 3; column-gap: 5px; } 
+            .photo-box { margin-bottom: 5px; border-radius: 5px; } 
+            .modal-nav { font-size: 2rem; }
+            .left-nav { left: 5px; }
+            .right-nav { right: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="nav-header">
+        <div class="logo"></div>
+        <a href="index.html" class="back-btn">&#8592; KEMBALI</a>
+    </header>
+
+    <section class="hero-showcase" id="main-display">
+        <div class="hero-content">
+            <div class="kategori-tag">CORPORATE VIDEO</div>
+            <h1 class="hero-title" id="display-title">Jarambah Kampung Wisata</h1>
+            <p class="hero-desc" id="display-desc">Video Profile Promosi Wisata Kota Bogor bersama Dinas Pariwisata & Budaya Kota Bogor</p>
+            <button class="play-btn" id="play-btn">&#9658; Play Now</button>
+        </div>
+    </section>
+
+    <section class="thumbnail-section section-atas">
+        <h3>Video Documentation <span>(Geser &#8596;)</span></h3>
+        <div class="row-geser" id="thumb-container">
+            <div class="video-card active" data-image="corporate/Foto-corporate-cover1.jpg" data-video="https://www.youtube.com/embed/aParGEM6uxc" data-title="Jarambah Kampung Wisata" data-desc="Video Profile Promosi Wisata Kota Bogor bersama Dinas Pariwisata & Budaya Kota Bogor"><img src="corporate/Foto-corporate-cover1.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover2.jpg" data-video="https://www.youtube.com/embed/ISI_ID_VIDEO_YOUTUBE_DISINI" data-title="Jajaki Rasa Kota Bogor" data-desc="Video Profile Promosi Kuliner Kota Bogor bersama Dinas Pariwisata & Budaya Kota Bogor"><img src="corporate/Foto-corporate-cover2.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover3.jpg" data-video="https://www.youtube.com/embed/Y4U8YTRUSn0" data-title="Pameran Kendaraan Listrik" data-desc="Event Kementerian Perindustrian tentang Promosi kendaraan Listrik"><img src="corporate/Foto-corporate-cover3.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover4.jpg" data-video="https://www.youtube.com/embed/2emcXkBfT8E" data-title="Bulan K3 Nasional_ Pertamina Patra Niaga" data-desc="Event Bulan K3 Nasional di Pertamina Patra Niaga Halim Perdana Kusuma"><img src="corporate/Foto-corporate-cover4.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover5.jpg" data-video="https://www.youtube.com/embed/RDUoQGuXrrI" data-title="Poly" data-desc="Grand Opening Poly Pondok Indah"><img src="corporate/Foto-corporate-cover5.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover6.jpg" data-video="https://www.youtube.com/embed/RiGwTOe41iw" data-title="PT. SYSLAB" data-desc="Company Profile PT. SYSLAB"><img src="corporate/Foto-corporate-cover6.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover7.jpg" data-video="https://www.youtube.com/embed/5kkF1jLINd0" data-title="Patria" data-desc="Event Internal Patria"><img src="corporate/Foto-corporate-cover7.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover8.jpg" data-video="https://www.youtube.com/embed/Iqoev27qKg8" data-title="Q-Dental Clinic" data-desc="Grand Opening Q-Dental Clinic di Kota Bogor"><img src="corporate/Foto-corporate-cover8.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover9.jpg" data-video="https://www.youtube.com/embed/59kg3vVwBHs" data-title="Temukan" data-desc="Grand Opening Temukan"><img src="corporate/Foto-corporate-cover9.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover10.jpg" data-video="https://www.youtube.com/embed/HGwMKs71EuQ" data-title="Outing DPMPD Tanggerang" data-desc=""><img src="corporate/Foto-corporate-cover10.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover11.jpg" data-video="https://www.youtube.com/embed/RtmuZ9r-z7w" data-title="Vivere Hotel" data-desc="Outing Vivere Hotel goes to 5G Resort Cijeruk"><img src="corporate/Foto-corporate-cover11.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover12.jpg" data-video="https://www.youtube.com/embed/b1AXu09HPfM" data-title="Universita Indonesia" data-desc="Rapat Kerja Bidang Riset & Inovasi"><img src="corporate/Foto-corporate-cover12.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover13.jpg" data-video="https://www.youtube.com/embed/hXdy6gQqql8" data-title="Astra Izuzu" data-desc="Outing Astra Izuzu Admin Culture DKI Jakarta"><img src="corporate/Foto-corporate-cover13.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover14.jpg" data-video="https://www.youtube.com/embed/FhLnoUYHFKc" data-title="Vitacimin" data-desc="Outing Vitacimi di Kebun Raya Bogor"><img src="corporate/Foto-corporate-cover14.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover15.jpg" data-video="https://www.youtube.com/embed/2cSXI3qOZMA" data-title="FLEX Living" data-desc="Grand Opening Flex Indonesia"><img src="corporate/Foto-corporate-cover15.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover16.jpg" data-video="https://www.youtube.com/embed/zggGjmZjuFI" data-title="Tarzan Studio" data-desc="Video Profile Tarzan Studio"><img src="corporate/Foto-corporate-cover16.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover17.jpg" data-video="https://www.youtube.com/embed/53-89lnpbF0" data-title="Nutrifood" data-desc="Outing Nutrifood di Taman Mini Indonesia Indah"><img src="corporate/Foto-corporate-cover17.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover18.jpg" data-video="https://www.youtube.com/embed/VeZeePX5SGM" data-title="Under Armor" data-desc="Grand Opening Store Under Armor di BSD"><img src="corporate/Foto-corporate-cover18.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover19.jpg" data-video="https://www.youtube.com/embed/q-UEu8IUWOw" data-title="Samsung" data-desc="Grand Opening Store Samsung di Jakarta"><img src="corporate/Foto-corporate-cover19.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover20.jpg" data-video="https://www.youtube.com/embed/N7DaqAbaXVg" data-title="Bank Artha Graha Internasional" data-desc="Decode & Connect BAGI Self Awareness Challenge"><img src="corporate/Foto-corporate-cover20.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover21.jpg" data-video="https://www.youtube.com/embed/bt61CORGedU" data-title="Energi Prima Nusantara" data-desc="Employe Gathering Energi Prima Nusantara"><img src="corporate/Foto-corporate-cover21.jpg"></div>
+            <div class="video-card" data-image="corporate/Foto-corporate-cover22.jpg" data-video="https://www.youtube.com/embed/l4qG8hjf3eM" data-title="PT. Pharma Metric Labs" data-desc="Employe Gathering goes to Cigwa"><img src="corporate/Foto-corporate-cover22.jpg"></div>
+        </div>
+    </section>
+
+    <section class="thumbnail-section">
+        <h3>Galeri Foto Corporate</h3>
+        <div class="masonry-gallery">
+            <div class="photo-box"><img src="corporate/Foto-corporate1.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate2.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate3.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate4.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate5.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate6.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate7.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate8.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate9.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate10.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate11.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate12.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate13.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate14.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate15.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate16.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate17.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate18.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate19.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate20.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate21.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate22.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate23.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate24.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate25.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate26.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate27.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate28.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate29.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate30.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate31.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate32.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate33.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate34.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate35.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate36.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate37.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate38.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate39.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate40.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate41.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate42.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate43.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate44.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate45.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate46.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate47.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate48.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate49.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate50.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate51.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate52.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate53.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate54.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate55.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate56.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate57.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate58.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate59.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate60.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate61.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate62.jpg"></div>
+            <div class="photo-box"><img src="corporate/Foto-corporate63.jpg"></div>
+        </div>
+    </section>
+
+    <div class="video-modal" id="video-modal">
+        <span class="close-btn" id="close-video-modal">&times;</span>
+        <iframe id="player" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    </div>
+
+    <div class="photo-modal" id="photo-modal">
+        <span class="close-btn" id="close-photo-modal">&times;</span>
+        <span class="modal-nav left-nav" id="prev-photo">&#10094;</span> 
+        <img src="" id="photo-modal-img">
+        <span class="modal-nav right-nav" id="next-photo">&#10095;</span> 
+    </div>
+
+    <script>
+        const mainDisplay = document.getElementById('main-display');
+        const displayTitle = document.getElementById('display-title');
+        const displayDesc = document.getElementById('display-desc');
+        const videoCards = document.querySelectorAll('.video-card');
+        const playBtn = document.getElementById('play-btn');
+        const videoModal = document.getElementById('video-modal');
+        const closeVideoModalBtn = document.getElementById('close-video-modal');
+        const player = document.getElementById('player');
+
+        let currentVideoSrc = "https://www.youtube.com/embed/aParGEM6uxc";
+        let currentVideoIndex = 0;
+
+        function gantiVideoUtama(index) {
+            document.querySelector('.video-card.active').classList.remove('active');
+            const cardBaru = videoCards[index];
+            cardBaru.classList.add('active');
+            mainDisplay.style.backgroundImage = `url('${cardBaru.getAttribute('data-image')}')`;
+            displayTitle.textContent = cardBaru.getAttribute('data-title');
+            displayDesc.textContent = cardBaru.getAttribute('data-desc');
+            currentVideoSrc = cardBaru.getAttribute('data-video');
+            cardBaru.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        videoCards.forEach((card, index) => {
+            card.addEventListener('click', function() {
+                currentVideoIndex = index;
+                gantiVideoUtama(currentVideoIndex);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // SWIPE HERO
+        let heroTouchStart = 0;
+        mainDisplay.addEventListener('touchstart', e => heroTouchStart = e.changedTouches[0].screenX, {passive: true});
+        mainDisplay.addEventListener('touchend', e => {
+            let jarak = heroTouchStart - e.changedTouches[0].screenX;
+            if (jarak > 50) { currentVideoIndex = (currentVideoIndex + 1) % videoCards.length; gantiVideoUtama(currentVideoIndex); }
+            else if (jarak < -50) { currentVideoIndex = (currentVideoIndex - 1 + videoCards.length) % videoCards.length; gantiVideoUtama(currentVideoIndex); }
+        }, {passive: true});
+
+        playBtn.addEventListener('click', () => { if(currentVideoSrc) { player.src = currentVideoSrc + "?autoplay=1"; videoModal.style.display = 'flex'; } });
+        closeVideoModalBtn.addEventListener('click', () => { videoModal.style.display = 'none'; player.src = ""; });
+
+        // LIGHTBOX
+        const photoBoxes = document.querySelectorAll('.photo-box img'); 
+        const photoModal = document.getElementById('photo-modal');
+        const photoModalImg = document.getElementById('photo-modal-img');
+        const prevBtn = document.getElementById('prev-photo');
+        const nextBtn = document.getElementById('next-photo');
+        let currentPhotoIndex = 0; 
+
+        photoBoxes.forEach((img, index) => {
+            img.parentElement.addEventListener('click', () => {
+                currentPhotoIndex = index; 
+                photoModalImg.src = img.src; 
+                photoModal.style.display = 'flex'; 
+            });
+        });
+
+        function gantiFoto(index) {
+            if (index < 0) currentPhotoIndex = photoBoxes.length - 1; 
+            else if (index >= photoBoxes.length) currentPhotoIndex = 0; 
+            else currentPhotoIndex = index;
+            photoModalImg.style.opacity = 0.5;
+            setTimeout(() => { photoModalImg.src = photoBoxes[currentPhotoIndex].src; photoModalImg.style.opacity = 1; }, 150);
+        }
+
+        nextBtn.addEventListener('click', (e) => { e.stopPropagation(); gantiFoto(currentPhotoIndex + 1); });
+        prevBtn.addEventListener('click', (e) => { e.stopPropagation(); gantiFoto(currentPhotoIndex - 1); });
+        document.getElementById('close-photo-modal').addEventListener('click', () => photoModal.style.display = 'none');
+
+        // SWIPE PHOTO
+        let photoStart = 0;
+        photoModal.addEventListener('touchstart', e => photoStart = e.changedTouches[0].screenX, {passive: true});
+        photoModal.addEventListener('touchend', e => {
+            let jarak = photoStart - e.changedTouches[0].screenX;
+            if (jarak > 50) gantiFoto(currentPhotoIndex + 1);
+            else if (jarak < -50) gantiFoto(currentPhotoIndex - 1);
+        }, {passive: true});
+
+        window.onclick = e => { if(e.target === videoModal || e.target === photoModal) { videoModal.style.display = 'none'; photoModal.style.display = 'none'; player.src = ""; } };
+    </script>
+</body>
+</html>

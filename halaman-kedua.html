@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semua Project - AIPROHMAN Portofolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- PENGATURAN DASAR --- */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0; padding: 0; background-color: #0f1115; color: white; overflow-x: hidden;
+        }
+
+        /* --- NAVIGASI --- */
+        .nav-header {
+            padding: 25px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0a0e10; 
+            border-bottom: 1px solid #222;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: 2px; }
+        .menu { display: flex; gap: 30px; align-items: center; font-size: 0.8rem; font-weight: 700; }
+        .menu a { color: white; text-decoration: none; text-transform: uppercase; transition: color 0.3s; }
+        .menu a:hover { color: #d92027; }
+        .btn-merah { background-color: #d92027; padding: 10px 25px; border-radius: 20px; color: white !important; font-weight: 800; }
+        .btn-merah:hover { background-color: #a7181d; transform: scale(1.05); }
+
+        /* --- MASONRY GALLERY --- */
+        .gallery-container { padding: 40px 5%; }
+        .masonry-gallery { column-count: 4; column-gap: 15px; max-width: 1300px; margin: 0 auto; }
+        
+        .photo-box {
+            break-inside: avoid; margin-bottom: 15px;
+            border-radius: 8px; overflow: hidden; cursor: pointer; position: relative;
+            opacity: 0; transform: scale(0.85) translateY(30px); 
+            animation: popSmooth 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        
+        @keyframes popSmooth {
+            0% { opacity: 0; transform: scale(0.85) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .photo-box img { width: 100%; height: auto; display: block; transition: 0.4s ease, filter 0.4s ease; }
+        .photo-box:hover img { transform: scale(1.05); filter: brightness(0.7); }
+
+        /* --- LIGHTBOX --- */
+        .photo-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.95); z-index: 1000; display: none; 
+            justify-content: center; align-items: center;
+        }
+        .modal-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            color: white; font-size: 3rem; font-weight: bold; cursor: pointer;
+            user-select: none; transition: color 0.3s; z-index: 1001; padding: 20px; 
+            text-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        }
+        .modal-nav:hover { color: #d92027; }
+        .left-nav { left: 30px; }
+        .right-nav { right: 30px; }
+        .photo-modal img { max-width: 80%; max-height: 90vh; border-radius: 8px; object-fit: contain; transition: opacity 0.3s ease; }
+        .close-btn { position: absolute; top: 20px; right: 40px; color: white; font-size: 2.5rem; cursor: pointer; font-weight: bold; z-index: 1002; }
+
+        @media (max-width: 1024px) { .masonry-gallery { column-count: 3; } }
+        @media (max-width: 768px) {
+            .nav-header { flex-direction: column; align-items: center; justify-content: center; padding: 20px 5%; gap: 0; }
+            .menu { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px 20px; width: 100%; margin: 0 auto; }
+            .logo { display: none; }
+            .menu a.btn-merah { display: none !important; }
+            .modal-nav { font-size: 2rem; }
+            .left-nav { left: 5px; }
+            .right-nav { right: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="nav-header">
+        <div class="logo"></div>
+        <div class="menu">
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="halaman-kedua.html" style="border-bottom: 2px solid #d92027; padding-bottom: 5px;">Project</a>
+            <a href="index.html#contact-area">Contact</a>
+            <a href="index.html#portofolio-area" class="btn-merah">EXPLORE</a>
+        </div>
+    </header>
+
+    <section class="gallery-container">
+        <div class="masonry-gallery" id="mega-gallery"></div>
+    </section>
+
+    <div class="photo-modal" id="photo-modal">
+        <span class="close-btn" id="close-photo-modal">&times;</span>
+        <span class="modal-nav left-nav" id="prev-photo">&#10094;</span> 
+        <img src="" id="photo-modal-img" alt="Foto Diperbesar">
+        <span class="modal-nav right-nav" id="next-photo">&#10095;</span> 
+    </div>
+
+    <script>
+        const categories = [
+            { name: 'event', prefix: 'Foto-event', count: 35 },
+            { name: 'corporate', prefix: 'Foto-corporate', count: 63 },
+            { name: 'sport', prefix: 'Foto-sport', count: 51 },
+            { name: 'competition', prefix: 'Foto-competition', count: 8 },
+            { name: 'birthday', prefix: 'Foto-birthday', count: 23 },
+            { name: 'wedding', prefix: 'Foto-wedding', count: 8 },
+            { name: 'graduation', prefix: 'Foto-graduation', count: 7 },
+            { name: 'other', prefix: 'Foto-other', count: 15 }
+        ];
+
+        const megaGallery = document.getElementById('mega-gallery');
+        let allImages = [];
+
+        // PERBAIKAN DI SINI: Menghapus "Galery-Foto/" agar sesuai dengan GitHub
+        categories.forEach(category => {
+            for (let i = 1; i <= category.count; i++) {
+                allImages.push(`${category.name}/${category.prefix}${i}.jpg`);
+            }
+        });
+
+        // SHUFFLE
+        for (let i = allImages.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allImages[i], allImages[j]] = [allImages[j], allImages[i]];
+        }
+
+        // RENDER HTML
+        let allImagesHTML = '';
+        allImages.forEach((imagePath, index) => {
+            let randomDelay = (Math.random() * 1.2).toFixed(2);
+            allImagesHTML += `
+                <div class="photo-box" style="animation-delay: ${randomDelay}s;">
+                    <img src="${imagePath}" alt="Portofolio ${index + 1}" loading="lazy">
+                </div>
+            `;
+        });
+        megaGallery.innerHTML = allImagesHTML;
+
+        // LIGHTBOX ENGINE
+        setTimeout(() => {
+            const photoBoxes = document.querySelectorAll('.photo-box img'); 
+            const photoModal = document.getElementById('photo-modal');
+            const photoModalImg = document.getElementById('photo-modal-img');
+            let currentPhotoIndex = 0; 
+
+            photoBoxes.forEach((img, index) => {
+                img.parentElement.addEventListener('click', function() {
+                    currentPhotoIndex = index; 
+                    photoModalImg.src = img.src; 
+                    photoModal.style.display = 'flex'; 
+                });
+            });
+
+            function gantiFoto(index) {
+                if (index < 0) currentPhotoIndex = photoBoxes.length - 1; 
+                else if (index >= photoBoxes.length) currentPhotoIndex = 0; 
+                else currentPhotoIndex = index;
+                photoModalImg.style.opacity = 0.5;
+                setTimeout(() => { photoModalImg.src = photoBoxes[currentPhotoIndex].src; photoModalImg.style.opacity = 1; }, 150);
+            }
+
+            document.getElementById('next-photo').onclick = (e) => { e.stopPropagation(); gantiFoto(currentPhotoIndex + 1); };
+            document.getElementById('prev-photo').onclick = (e) => { e.stopPropagation(); gantiFoto(currentPhotoIndex - 1); };
+            document.getElementById('close-photo-modal').onclick = () => photoModal.style.display = 'none';
+            window.onclick = (e) => { if(e.target === photoModal) photoModal.style.display = 'none'; };
+
+            // SWIPE ENGINE
+            let sAwal = 0;
+            photoModal.ontouchstart = (e) => sAwal = e.changedTouches[0].screenX;
+            photoModal.ontouchend = (e) => {
+                let jarak = sAwal - e.changedTouches[0].screenX;
+                if (jarak > 50) gantiFoto(currentPhotoIndex + 1);
+                else if (jarak < -50) gantiFoto(currentPhotoIndex - 1);
+            };
+        }, 100);
+    </script>
+</body>
+</html>

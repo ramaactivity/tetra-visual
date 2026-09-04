@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TETRA - Portofolio</title>
+    <style>
+        /* --- PENGATURAN DASAR --- */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap');
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; background-color: #12181b; color: white; overflow-x: hidden; }
+
+        /* --- WRAPPER BACKGROUND UTAMA --- */
+        .top-wrapper {
+            background: linear-gradient(to bottom, rgba(18, 24, 27, 0.6) 0%, rgba(18, 24, 27, 0.85) 60%, #0a0e10 100%), 
+                        url('backround/bg-utama1.jpg') center/cover no-repeat; 
+            transition: background 1.5s ease-in-out; position: relative; width: 100%;
+        }
+        .top-wrapper::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iMTAgMGg0MHY0MEgwVjB6bTIwIDIwaDIwdjIwSDIwVjIwek0wIDIwaDIwdjIwSDBWMjB6bTIwIDBIMHYyMGgyMFYyMHoiLz48L2c+PC9nPjwvc3ZnPg==') repeat;
+            opacity: 0.5; z-index: 1; pointer-events: none;
+        }
+
+        /* --- HERO SECTION & NAVIGASI --- */
+        .hero-section { background: transparent; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px 5%; position: relative; z-index: 2; }
+        .nav-bar { display: flex; justify-content: space-between; align-items: center; }
+        
+        .logo img { height: 80px; width: auto; object-fit: contain; display: block; }
+
+        .menu { display: flex; gap: 30px; align-items: center; font-size: 0.8rem; font-weight: 700; }
+        .menu a { color: white; text-decoration: none; text-transform: uppercase; transition: color 0.3s; cursor: pointer; }
+        .menu a:hover { color: #d92027; }
+        .btn-merah { background-color: #d92027; padding: 10px 25px; border-radius: 20px; color: white !important; font-weight: 800; text-decoration: none; transition: 0.3s; }
+        .btn-merah:hover { background-color: #a7181d; transform: scale(1.05); }
+
+        .hero-center { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; margin: 40px 0; }
+        
+        .teks-utama h2 { 
+            font-size: 1.2rem; letter-spacing: 5px; margin-bottom: -10px; color: #eee; 
+            opacity: 0; animation: munculKeAtas 1.5s forwards; animation-delay: 0.2s;
+        }
+        .teks-utama h1 { 
+            font-size: 6.5rem; font-weight: 800; margin: 0; letter-spacing: 5px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+            opacity: 0; animation: munculKeBawah 1.5s forwards; animation-delay: 0.2s;
+        }
+
+        @keyframes munculKeAtas { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes munculKeBawah { 0% { opacity: 0; transform: translateY(-40px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        /* --- REVIEW PHOTO / CAROUSEL --- */
+        .review-section { text-align: center; padding: 0 20px; background: transparent; position: relative; z-index: 2; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+        .review-section h2 { font-size: 1.8rem; margin-bottom: 40px; letter-spacing: 4px; color: #fff; }
+        .carousel-wrapper { display: flex; align-items: center; justify-content: center; position: relative; max-width: 1100px; margin: 0 auto; }
+        .carousel-container { display: flex; gap: 25px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding: 40px 20px; align-items: center; scrollbar-width: none; }
+        .carousel-container::-webkit-scrollbar { display: none; }
+        .carousel-item { flex: 0 0 auto; width: 250px; height: 350px; scroll-snap-align: center; border-radius: 12px; background-color: #333; background-size: cover; background-position: center; position: relative; text-decoration: none; transition: 0.4s ease; box-shadow: 0 15px 30px rgba(0,0,0,0.6); opacity: 0.6; }
+        .carousel-item:hover { transform: scale(1.05); opacity: 1; z-index: 10; }
+        .label-merah { background-color: #d92027; color: white; font-size: 0.75rem; font-weight: bold; padding: 6px 12px; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); border-radius: 4px; }
+        .arrow { font-size: 3rem; font-weight: bold; cursor: pointer; margin: 0 15px; color: white; transition: 0.3s; }
+        .arrow:hover { color: #d92027; }
+
+        /* --- CONTACT SECTION --- */
+        .contact-section { padding: 80px 5%; background-color: #0a0e10; text-align: center; position: relative; z-index: 5; }
+        .contact-section h3 { font-size: 1.2rem; letter-spacing: 3px; color: #666; margin-bottom: 50px; }
+        
+        /* CSS LOGO CLIENT DISAMARATAKAN */
+        .logo-perusahaan { display: flex; justify-content: center; align-items: center; gap: 20px; row-gap: 30px; flex-wrap: wrap; max-width: 1200px; margin: 0 auto 80px auto; }
+        .logo-perusahaan img { 
+            width: 140px; 
+            height: 60px; 
+            object-fit: contain; 
+            opacity: 0.65; 
+            filter: brightness(0) invert(1); 
+            margin: 10px;
+        }
+
+        .contact-box h2 { font-size: 2.5rem; margin-bottom: 30px; }
+        .btn-putih { border: 2px solid white; padding: 10px 25px; border-radius: 20px; color: white; font-weight: 800; text-decoration: none; transition: 0.3s; margin-left: 15px; display: inline-block; }
+        .btn-putih:hover { background-color: white; color: #12181b; }
+        .sosmed-link { display: flex; justify-content: center; gap: 25px; margin-top: 40px; }
+        .sosmed-link a { color: #888; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: 0.3s; }
+        .sosmed-link a:hover { color: #d92027; }
+
+        /* --- MEDIA QUERY MOBILE --- */
+        @media (max-width: 768px) {
+            .nav-bar { padding: 20px 5% 10px 5%; flex-direction: column; align-items: center; }
+            .logo img { height: 55px; } 
+            .menu { flex-wrap: wrap; justify-content: center; gap: 15px 20px; font-size: 0.8rem; width: 100%; }
+            .menu a.btn-merah { display: none !important; }
+
+            .hero-section { padding: 0; min-height: auto; justify-content: flex-start; }
+            .hero-center { margin-top: 100px; margin-bottom: 50px; }
+            .teks-utama h2 { font-size: 1rem; }
+            .teks-utama h1 { font-size: 2.2rem; }
+
+            .review-section { padding: 40px 0 60px 0; min-height: auto; display: block; }
+            .review-section h2 { font-size: 0.8rem; font-weight: 700; margin-bottom: 20px; }
+            .carousel-container { padding: 10px 5px; gap: 10px; }
+            .carousel-item { width: 115px; height: 180px; border-radius: 10px; opacity: 1 !important; }
+            .label-merah { font-size: 0.55rem; padding: 4px 8px; top: 10px; }
+            .arrow { font-size: 1.2rem; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.1); }
+
+            .contact-section { padding: 40px 5% 60px 5%; }
+            .logo-perusahaan { gap: 10px; margin-bottom: 40px !important; }
+            .logo-perusahaan img { width: 80px; height: 40px; margin: 5px; } 
+            .contact-box h2 { font-size: 1.6rem; margin-bottom: 20px; }
+            .contact-box .btn-merah, .contact-box .btn-putih { display: block; margin: 15px auto; width: 80%; padding: 14px 0; }
+            .sosmed-link { margin-top: 30px; gap: 15px; }
+            .sosmed-link a { font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-wrapper">
+        <div class="hero-section">
+            <div class="nav-bar">
+                <div class="logo">
+                    <img src="logotetra.jpg" alt="Logo Tetra">
+                </div>
+                <div class="menu">
+                    <a href="index.html" style="border-bottom: 2px solid #d92027; padding-bottom: 5px;">Home</a>
+                    <a href="about.html">About</a>
+                    <a href="halaman-kedua.html">Project</a>
+                    <a onclick="keContact()">Contact</a>
+                    <a href="#portofolio-area" class="btn-merah">EXPLORE</a> 
+                </div>
+            </div>
+            <div class="hero-center">
+                <div class="teks-utama">
+                    <h2>PORTOFOLIO</h2>
+                    <h1>TETRA</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-section" id="portofolio-area">
+            <h2>MY PORTOFOLIO</h2>
+            <div class="carousel-wrapper">
+                <div class="arrow" id="btn-kiri">&lt;</div>
+                <div class="carousel-container" id="galeri-geser">
+                    <a href="event.html" id="card-event" class="carousel-item" style="background-image: url('event/Foto-cover1.jpg');"><div class="label-merah">EVENT</div></a>
+                    <a href="corporate.html" id="card-corporate" class="carousel-item" style="background-image: url('corporate/Foto-corporate-cover1.jpg');"><div class="label-merah">CORPORATE</div></a>
+                    <a href="sport.html" id="card-sport" class="carousel-item" style="background-image: url('sport/Foto-sport-cover1.jpg');"><div class="label-merah">SPORT</div></a>
+                    <a href="competition.html" id="card-competition" class="carousel-item" style="background-image: url('competition/Foto-competition-cover1.jpg');"><div class="label-merah">COMPETITION</div></a>
+                    <a href="birthday.html" id="card-birthday" class="carousel-item" style="background-image: url('birthday/Foto-birthday-cover1.jpg');"><div class="label-merah">BIRTHDAY</div></a>
+                    <a href="wedding.html" id="card-wedding" class="carousel-item" style="background-image: url('wedding/Foto-wedding-cover1.jpg');"><div class="label-merah">WEDDING</div></a>
+                    <a href="graduation.html" id="card-graduation" class="carousel-item" style="background-image: url('graduation/Foto-graduation-cover1.jpg');"><div class="label-merah">GRADUATION</div></a>
+                    <a href="other.html" id="card-other" class="carousel-item" style="background-image: url('other/Foto-other-cover1.jpg');"><div class="label-merah">OTHER</div></a>
+                </div>
+                <div class="arrow" id="btn-kanan">&gt;</div>
+            </div>
+        </div>
+    </div> 
+    
+    <div class="contact-section" id="contact-area">
+        <h3>TRUSTED BY</h3>
+        <div class="logo-perusahaan">
+            <img src="logo/logo-client1.png"> <img src="logo/logo-client2.png"> <img src="logo/logo-client3.png">
+            <img src="logo/logo-client4.png"> <img src="logo/logo-client5.png"> <img src="logo/logo-client6.png">
+            <img src="logo/logo-client7.png"> <img src="logo/logo-client8.png"> <img src="logo/logo-client9.png">
+            <img src="logo/logo-client10.png"> <img src="logo/logo-client11.png"> <img src="logo/logo-client12.png">
+            <img src="logo/logo-client13.png"> <img src="logo/logo-client14.png"> <img src="logo/logo-client15.png">
+            <img src="logo/logo-client16.png"> <img src="logo/logo-client17.png"> <img src="logo/logo-client18.png">
+            <img src="logo/logo-client19.png"> <img src="logo/logo-client20.png"> <img src="logo/logo-client21.png">
+            <img src="logo/logo-client22.png"> <img src="logo/logo-client23.png"> <img src="logo/logo-client24.png">
+            <img src="logo/logo-client25.png"> <img src="logo/logo-client26.png"> <img src="logo/logo-client27.png">
+            <img src="logo/logo-client28.png"> <img src="logo/logo-client29.png">
+        </div>
+
+        <div id="target-kontak" style="padding-top: 10px;">
+            <div class="contact-box">
+                <h2>LET'S WORK TOGETHER</h2>
+                <a href="https://wa.me/6289611384767" class="btn-merah">WHATSAPP</a>
+                <a href="mailto:visualtetra@gmail.com" class="btn-putih">EMAIL US</a>
+            </div>
+            <div class="sosmed-link">
+                <a href="https://www.instagram.com/tetravisual.jpeg/" target="_blank">INSTAGRAM</a>
+                <a href="https://www.tiktok.com/@tetra.visual" target="_blank">TIKTOK</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const wadahGeser = document.getElementById('galeri-geser');
+        const tombolKiri = document.getElementById('btn-kiri');
+        const tombolKanan = document.getElementById('btn-kanan');
+        if(tombolKanan) tombolKanan.addEventListener('click', () => { wadahGeser.scrollBy({ left: 275, behavior: 'smooth' }); });
+        if(tombolKiri) tombolKiri.addEventListener('click', () => { wadahGeser.scrollBy({ left: -275, behavior: 'smooth' }); });
+
+        if (window.innerWidth > 768) {
+            const slideData = {
+                'card-event': ['event/Foto-cover1.jpg', 'event/Foto-cover2.jpg', 'event/Foto-cover3.jpg'],
+                'card-corporate': ['corporate/Foto-corporate-cover1.jpg', 'corporate/Foto-corporate-cover2.jpg', 'corporate/Foto-corporate-cover3.jpg'],
+                'card-sport': ['sport/Foto-sport-cover1.jpg', 'sport/Foto-sport-cover2.jpg', 'sport/Foto-sport-cover3.jpg'],
+                'card-competition': ['competition/Foto-competition-cover1.jpg', 'competition/Foto-competition-cover2.jpg', 'competition/Foto-competition-cover3.jpg'],
+                'card-birthday': ['birthday/Foto-birthday-cover1.jpg', 'birthday/Foto-birthday-cover2.jpg', 'birthday/Foto-birthday-cover3.jpg'],
+                'card-wedding': ['wedding/Foto-wedding-cover1.jpg', 'wedding/Foto-wedding-cover2.jpg', 'wedding/Foto-wedding-cover3.jpg'],
+                'card-graduation': ['graduation/Foto-graduation-cover1.jpg', 'graduation/Foto-graduation-cover2.jpg', 'graduation/Foto-graduation-cover3.jpg'],
+                'card-other': ['other/Foto-other-cover1.jpg', 'other/Foto-other-cover2.jpg', 'other/Foto-other-cover3.jpg']
+            };
+            const slideIndex = { 'card-event': 0, 'card-corporate': 0, 'card-sport': 0, 'card-competition': 0, 'card-birthday': 0, 'card-wedding': 0, 'card-graduation': 0, 'card-other': 0 };
+            setInterval(() => {
+                for (const cardId in slideData) {
+                    const card = document.getElementById(cardId);
+                    if (card) {
+                        slideIndex[cardId] = (slideIndex[cardId] + 1) % slideData[cardId].length;
+                        card.style.backgroundImage = `url('${slideData[cardId][slideIndex[cardId]]}')`;
+                    }
+                }
+            }, 3000); 
+        }
+
+        function keContact() {
+            const element = document.getElementById("target-kontak");
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    </script>
+</body>
+</html>
