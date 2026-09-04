@@ -1,0 +1,141 @@
+---
+// Satu lightbox untuk semua foto di halaman.
+// Mengambil semua [data-lightbox-item] dalam urutan DOM.
+---
+
+<dialog class="lb" data-lightbox aria-label="Foto diperbesar">
+  <button class="lb-btn lb-close" type="button" data-lb-close aria-label="Tutup">
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"
+      ><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg
+    >
+  </button>
+
+  <button class="lb-btn lb-prev" type="button" data-lb-prev aria-label="Foto sebelumnya">
+    <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"
+      ><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg
+    >
+  </button>
+
+  <img data-lb-img alt="" />
+
+  <button class="lb-btn lb-next" type="button" data-lb-next aria-label="Foto berikutnya">
+    <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"
+      ><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg
+    >
+  </button>
+
+  <p class="lb-count" data-lb-count aria-live="polite"></p>
+</dialog>
+
+<style>
+  .lb {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    display: none;
+    place-items: center;
+  }
+  .lb[open] { display: grid; }
+  .lb::backdrop { background: rgba(4, 5, 6, 0.96); }
+
+  .lb img {
+    max-width: min(92vw, 1600px);
+    max-height: 82dvh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius);
+    transition: opacity 0.2s var(--ease);
+  }
+
+  .lb-btn {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.08);
+    transition: background-color 0.2s var(--ease);
+  }
+  .lb-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+  .lb-close { top: var(--s-4); right: var(--s-4); }
+  .lb-prev { left: clamp(0.5rem, 3vw, 2rem); }
+  .lb-next { right: clamp(0.5rem, 3vw, 2rem); }
+
+  .lb-count {
+    position: absolute;
+    bottom: var(--s-5);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: var(--t-sm);
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 600px) {
+    /* Di HP navigasi utama pakai geser jari; tombol dikecilkan ke bawah */
+    .lb-prev, .lb-next { bottom: var(--s-8); top: auto; }
+    .lb-prev { left: var(--s-5); }
+    .lb-next { right: var(--s-5); }
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+  const img = dialog?.querySelector<HTMLImageElement>('[data-lb-img]');
+  const counter = dialog?.querySelector<HTMLElement>('[data-lb-count]');
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-lightbox-item]'));
+
+  if (dialog && img && counter && items.length) {
+    let index = 0;
+
+    const show = (i: number) => {
+      // Melingkar: dari foto terakhir lanjut ke foto pertama.
+      index = (i + items.length) % items.length;
+      const item = items[index]!;
+      img.src = item.dataset.full ?? '';
+      img.alt = item.querySelector('img')?.alt ?? '';
+      counter.textContent = `${index + 1} / ${items.length}`;
+    };
+
+    items.forEach((item, i) =>
+      item.addEventListener('click', () => {
+        show(i);
+        dialog.showModal();
+      }),
+    );
+
+    dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => show(index - 1));
+    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => show(index + 1));
+
+    // Navigasi papan ketik (Esc sudah ditangani <dialog>).
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(index + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(index - 1); }
+    });
+
+    // Klik latar menutup, klik foto tidak.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    // Geser jari di HP.
+    let startX = 0;
+    dialog.addEventListener('touchstart', (e) => { startX = e.changedTouches[0]!.screenX; }, { passive: true });
+    dialog.addEventListener('touchend', (e) => {
+      const dx = startX - e.changedTouches[0]!.screenX;
+      if (Math.abs(dx) > 50) show(index + (dx > 0 ? 1 : -1));
+    }, { passive: true });
+
+    // Kembalikan fokus ke foto yang tadi diklik saat lightbox ditutup.
+    dialog.addEventListener('close', () => items[index]?.focus());
+  }
+</script>

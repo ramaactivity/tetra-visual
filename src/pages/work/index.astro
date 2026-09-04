@@ -1,0 +1,147 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { categories } from '../../data/work';
+import { getCover, getPhotos } from '../../lib/images';
+import { site } from '../../data/site';
+
+const ORDER = ['corporate', 'event', 'sport', 'competition', 'wedding', 'birthday', 'graduation', 'other'];
+const tiles = ORDER.map((slug) => {
+  const cat = categories.find((c) => c.slug === slug)!;
+  return {
+    ...cat,
+    cover: getCover(cat.slug, cat.videos[0]?.cover ?? 1),
+    photoCount: getPhotos(cat.slug).length,
+  };
+}).filter((t) => t.cover);
+
+const totalVideos = categories.reduce((n, c) => n + c.videos.length, 0);
+const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0);
+---
+
+<Base
+  title="Semua Karya"
+  description={`Kumpulan karya ${site.name}: ${totalVideos} video dan ${totalPhotos} foto dokumentasi dari 8 kategori — corporate, event, sport, wedding, dan lainnya.`}
+>
+  <section class="head wrap">
+    <p class="eyebrow">Portofolio</p>
+    <h1 class="head-title">Semua Karya</h1>
+    <p class="head-lead">
+      {totalVideos} video dan {totalPhotos} foto, dikelompokkan dalam {tiles.length} kategori.
+      Pilih yang paling dekat dengan kebutuhan Anda.
+    </p>
+  </section>
+
+  <section class="wrap">
+    <ul class="tiles">
+      {
+        tiles.map((t, i) => (
+          <li class="tile">
+            <a href={`/work/${t.slug}`} class="tile-link">
+              <Image
+                src={t.cover!}
+                alt={`Dokumentasi ${t.name} oleh ${site.name}`}
+                widths={[400, 640, 900]}
+                sizes="(max-width: 620px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                loading={i < 3 ? 'eager' : 'lazy'}
+              />
+              <span class="tile-veil" />
+              <span class="tile-text">
+                <span class="tile-name">{t.name}</span>
+                <span class="tile-blurb">{t.blurb}</span>
+                <span class="tile-meta">{t.videos.length} video · {t.photoCount} foto</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .head {
+    padding-block: clamp(2.5rem, 7vw, 5rem) clamp(1.5rem, 4vw, 3rem);
+    max-width: 800px;
+  }
+  .head-title { font-size: var(--t-h1); margin-block: var(--s-3) var(--s-4); }
+  .head-lead { color: var(--text-dim); max-width: 54ch; }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    gap: var(--s-4);
+    list-style: none;
+    margin: 0 0 var(--s-9);
+    padding: 0;
+  }
+
+  .tile-link {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elev);
+  }
+
+  .tile-link :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease);
+  }
+
+  .tile-veil {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(6, 8, 10, 0.94) 8%, rgba(6, 8, 10, 0.35) 55%, rgba(6, 8, 10, 0.1) 100%);
+    transition: opacity 0.3s var(--ease);
+  }
+
+  .tile-text {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    padding: var(--s-5);
+  }
+
+  .tile-name {
+    font-size: var(--t-h2);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .tile-blurb {
+    font-size: var(--t-sm);
+    color: #cdd4da;
+    max-width: 42ch;
+    /* Deskripsi disembunyikan sampai kartu disentuh — layar tetap tenang */
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.35s var(--ease), opacity 0.3s var(--ease);
+  }
+
+  .tile-meta {
+    font-size: var(--t-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tile-link:hover :global(img),
+  .tile-link:focus-visible :global(img) { transform: scale(1.05); }
+
+  .tile-link:hover .tile-blurb,
+  .tile-link:focus-visible .tile-blurb { max-height: 6rem; opacity: 1; }
+
+  /* Di perangkat sentuh tidak ada hover — deskripsi langsung ditampilkan */
+  @media (hover: none) {
+    .tile-blurb { max-height: 6rem; opacity: 1; }
+  }
+</style>

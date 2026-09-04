@@ -1,0 +1,218 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Rail from '../../components/Rail.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import VideoModal from '../../components/VideoModal.astro';
+import PhotoGrid from '../../components/PhotoGrid.astro';
+import Lightbox from '../../components/Lightbox.astro';
+import { categories } from '../../data/work';
+import { getCover, getPhotos } from '../../lib/images';
+import { site, waLink } from '../../data/site';
+
+// Satu halaman dibuat otomatis untuk tiap kategori — tidak ada lagi 8 file HTML terpisah.
+export function getStaticPaths() {
+  return categories.map((cat) => ({ params: { slug: cat.slug }, props: { cat } }));
+}
+
+const { cat } = Astro.props;
+const photos = getPhotos(cat.slug);
+const lead = cat.videos[0];
+const leadImg = lead ? getCover(cat.slug, lead.cover) : undefined;
+
+const others = categories.filter((c) => c.slug !== cat.slug);
+---
+
+<Base
+  title={`${cat.name} — Fotografi & Videografi`}
+  description={`${cat.blurb} ${cat.videos.length} video dan ${photos.length} foto dokumentasi ${cat.name.toLowerCase()} oleh ${site.name}.`}
+  ogImage={leadImg}
+  transparentHeader={Boolean(leadImg)}
+>
+  {/* HERO KATEGORI */}
+  {
+    leadImg && lead && (
+      <section class="chero">
+        <Image class="chero-bg" src={leadImg} alt="" widths={[768, 1280, 1920]} sizes="100vw" loading="eager" fetchpriority="high" />
+        <div class="chero-veil" />
+
+        <div class="wrap chero-inner">
+          <nav class="crumb" aria-label="Remah roti">
+            <a href="/work">Work</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{cat.name}</span>
+          </nav>
+
+          <h1 class="chero-title">{cat.name}</h1>
+          <p class="chero-blurb">{cat.blurb}</p>
+
+          <div class="chero-actions">
+            <button class="btn btn-light" type="button" data-video-id={lead.youtubeId} data-video-title={lead.title}>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+              Putar Video
+            </button>
+            <a
+              class="btn btn-ghost"
+              href={waLink(`Halo Tetra Visual, saya tertarik dengan dokumentasi ${cat.name}. Boleh minta info paket dan jadwalnya?`)}
+              target="_blank"
+              rel="noopener"
+            >
+              Tanya Paket {cat.name}
+            </a>
+          </div>
+
+          <p class="chero-stats">
+            {cat.videos.length} video · {photos.length} foto
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  {/* VIDEO */}
+  {
+    cat.videos.length > 0 && (
+      <div class="stack">
+        <Rail title="Video Dokumentasi" count={cat.videos.length}>
+          {cat.videos.map((v, i) => {
+            const cover = getCover(cat.slug, v.cover);
+            return cover ? (
+              <VideoCard cover={cover} youtubeId={v.youtubeId} title={v.title} desc={v.desc} eager={i < 3} />
+            ) : null;
+          })}
+        </Rail>
+      </div>
+    )
+  }
+
+  {/* FOTO */}
+  {
+    photos.length > 0 && (
+      <section class="section wrap">
+        <div class="sec-head">
+          <h2 class="sec-title">Galeri Foto</h2>
+          <p class="sec-note">Klik foto untuk memperbesar</p>
+        </div>
+        <PhotoGrid photos={photos} label={cat.name.toLowerCase()} />
+      </section>
+    )
+  }
+
+  {/* KATEGORI LAIN */}
+  <section class="section wrap other">
+    <h2 class="sec-title">Kategori Lain</h2>
+    <ul class="other-list">
+      {others.map((c) => <li><a href={`/work/${c.slug}`}>{c.name}</a></li>)}
+    </ul>
+  </section>
+
+  <VideoModal />
+  <Lightbox />
+</Base>
+
+<style>
+  .chero {
+    position: relative;
+    min-height: min(72svh, 720px);
+    display: flex;
+    align-items: flex-end;
+    margin-top: calc(var(--header-h) * -1);
+    padding-block: var(--s-9) clamp(2rem, 5vw, 3.5rem);
+    overflow: hidden;
+  }
+
+  .chero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7) saturate(1.05);
+  }
+
+  .chero-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--bg) 2%, rgba(10, 12, 14, 0.35) 50%, rgba(10, 12, 14, 0.6) 100%),
+      linear-gradient(to right, rgba(10, 12, 14, 0.8) 0%, transparent 65%);
+  }
+
+  .chero-inner { position: relative; max-width: 720px; }
+
+  .crumb {
+    display: flex;
+    gap: var(--s-2);
+    font-size: var(--t-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: var(--s-4);
+  }
+  .crumb a { transition: color 0.2s var(--ease); }
+  .crumb a:hover { color: var(--brand-hi); }
+
+  .chero-title {
+    font-size: var(--t-display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+  }
+
+  .chero-blurb {
+    margin-top: var(--s-4);
+    max-width: 50ch;
+    color: #dfe4e8;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+  }
+
+  .chero-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-6); }
+
+  .chero-stats {
+    margin-top: var(--s-5);
+    font-size: var(--t-sm);
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stack { position: relative; z-index: 3; margin-top: clamp(-3rem, -4vw, -1.5rem); }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s-4);
+    margin-bottom: var(--s-5);
+  }
+  .sec-title { font-size: var(--t-h2); }
+  .sec-note { font-size: var(--t-sm); color: var(--text-faint); }
+
+  .other { border-top: 1px solid var(--line); }
+  .other-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    list-style: none;
+    margin: var(--s-5) 0 0;
+    padding: 0;
+  }
+  .other-list a {
+    display: inline-block;
+    padding: 0.6rem 1.1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-size: var(--t-sm);
+    font-weight: 500;
+    color: var(--text-dim);
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+  }
+  .other-list a:hover {
+    color: var(--text);
+    border-color: var(--text);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  @media (max-width: 700px) {
+    .chero-actions .btn { flex: 1 1 auto; }
+  }
+</style>

@@ -1,0 +1,145 @@
+---
+// Baris geser horizontal ala Netflix, dipakai ulang di beranda & halaman kategori.
+interface Props {
+  title?: string;
+  href?: string;
+  hrefLabel?: string;
+  count?: number;
+}
+const { title, href, hrefLabel = 'Lihat semua', count } = Astro.props;
+---
+
+<section class="row">
+  {
+    title && (
+      <div class="wrap row-head">
+        <h2 class="row-title">
+          {title}
+          {count !== undefined && <span class="row-count">{count}</span>}
+        </h2>
+        {href && (
+          <a class="row-more" href={href}>
+            {hrefLabel}
+            <span aria-hidden="true">→</span>
+          </a>
+        )}
+      </div>
+    )
+  }
+
+  <div class="rail-shell" data-rail-shell>
+    <button class="rail-btn prev" type="button" data-rail-prev aria-label="Geser ke kiri" hidden>
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"
+        ><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg
+      >
+    </button>
+
+    <div class="rail" data-rail><slot /></div>
+
+    <button class="rail-btn next" type="button" data-rail-next aria-label="Geser ke kanan" hidden>
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"
+        ><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg
+      >
+    </button>
+  </div>
+</section>
+
+<style>
+  .row { margin-block: clamp(2rem, 5vw, 3.5rem); }
+
+  .row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s-4);
+    margin-bottom: var(--s-4);
+  }
+
+  .row-title {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-3);
+    font-size: var(--t-h2);
+  }
+
+  .row-count {
+    font-size: var(--t-xs);
+    font-weight: 500;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+  }
+
+  .row-more {
+    flex: none;
+    font-size: var(--t-sm);
+    font-weight: 500;
+    color: var(--text-dim);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    transition: color 0.2s var(--ease);
+  }
+  .row-more:hover { color: var(--brand-hi); }
+  .row-more span { transition: transform 0.2s var(--ease); }
+  .row-more:hover span { transform: translateX(3px); }
+
+  .rail-shell { position: relative; }
+
+  .rail-btn {
+    position: absolute;
+    top: 0;
+    bottom: var(--s-5);
+    z-index: 5;
+    width: clamp(2.5rem, 4vw, 3.5rem);
+    display: grid;
+    place-items: center;
+    color: var(--text);
+    background: linear-gradient(to right, rgba(10, 12, 14, 0.92), rgba(10, 12, 14, 0));
+    opacity: 0;
+    transition: opacity 0.25s var(--ease);
+  }
+  .rail-btn.next {
+    right: 0;
+    background: linear-gradient(to left, rgba(10, 12, 14, 0.92), rgba(10, 12, 14, 0));
+  }
+  .rail-btn.prev { left: 0; }
+  .rail-btn svg { transition: transform 0.2s var(--ease); }
+  .rail-btn:hover svg { transform: scale(1.25); }
+
+  /* Panah hanya muncul saat kursor di area baris — bersih seperti Netflix */
+  .rail-shell:hover .rail-btn:not([hidden]),
+  .rail-btn:focus-visible { opacity: 1; }
+
+  /* Di perangkat sentuh panah tidak berguna: geser pakai jari */
+  @media (hover: none) {
+    .rail-btn { display: none; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-rail-shell]').forEach((shell) => {
+    const rail = shell.querySelector<HTMLElement>('[data-rail]');
+    const prev = shell.querySelector<HTMLButtonElement>('[data-rail-prev]');
+    const next = shell.querySelector<HTMLButtonElement>('[data-rail-next]');
+    if (!rail || !prev || !next) return;
+
+    const step = () => rail.clientWidth * 0.8;
+
+    // Sembunyikan panah yang tidak bisa dipakai, supaya tidak ada tombol "mati".
+    const sync = () => {
+      const max = rail.scrollWidth - rail.clientWidth;
+      const atStart = rail.scrollLeft <= 8;
+      const atEnd = rail.scrollLeft >= max - 8;
+      const scrollable = max > 8;
+      prev.hidden = !scrollable || atStart;
+      next.hidden = !scrollable || atEnd;
+    };
+
+    prev.addEventListener('click', () => rail.scrollBy({ left: -step(), behavior: 'smooth' }));
+    next.addEventListener('click', () => rail.scrollBy({ left: step(), behavior: 'smooth' }));
+
+    rail.addEventListener('scroll', sync, { passive: true });
+    new ResizeObserver(sync).observe(rail);
+    sync();
+  });
+</script>

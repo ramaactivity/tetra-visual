@@ -1,0 +1,228 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Rail from '../components/Rail.astro';
+import VideoCard from '../components/VideoCard.astro';
+import VideoModal from '../components/VideoModal.astro';
+import { categories, categoryBySlug } from '../data/work';
+import { getCover, getPhotos, clientLogos } from '../lib/images';
+import { site, waLink } from '../data/site';
+
+// Karya unggulan yang tampil paling atas.
+const FEATURED = { slug: 'event', cover: 1 };
+const featuredCat = categoryBySlug.get(FEATURED.slug)!;
+const featured = featuredCat.videos.find((v) => v.cover === FEATURED.cover)!;
+const featuredImg = getCover(FEATURED.slug, featured.cover)!;
+
+// Kategori terkuat lebih dulu — pengunjung baru melihat karya terbaik dalam 3 detik pertama.
+const ORDER = ['corporate', 'event', 'sport', 'competition', 'wedding', 'birthday', 'graduation', 'other'];
+const rows = ORDER.map((slug) => categoryBySlug.get(slug)!).filter(Boolean);
+
+const totalVideos = categories.reduce((n, c) => n + c.videos.length, 0);
+const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0);
+---
+
+<Base
+  title={site.name}
+  description={`${site.description} Lebih dari ${totalVideos} video dan ${totalPhotos} foto dokumentasi untuk brand seperti Eiger, Samsung, Nutrifood, dan Pertamina.`}
+  ogImage={featuredImg}
+  transparentHeader
+>
+  <!-- HERO: karya unggulan -->
+  <section class="hero">
+    <Image
+      class="hero-bg"
+      src={featuredImg}
+      alt=""
+      widths={[768, 1280, 1920]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="hero-veil"></div>
+
+    <div class="wrap hero-inner">
+      <p class="eyebrow hero-eyebrow">{site.tagline}</p>
+
+      <h1 class="hero-title">
+        Kami merekam yang<br />layak dikenang.
+      </h1>
+
+      <p class="hero-lead">
+        Tim fotografi dan videografi untuk corporate, event, dan olahraga.
+        Dipercaya {clientLogos.length}+ brand — dari Eiger sampai Samsung.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-light" type="button" data-video-id={featured.youtubeId} data-video-title={featured.title}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
+          Putar Karya Unggulan
+        </button>
+        <a class="btn btn-ghost" href="/work">Lihat Semua Karya</a>
+      </div>
+
+      <p class="hero-meta">
+        <span class="hero-tag">{featuredCat.name}</span>
+        {featured.title} — {featured.desc}
+      </p>
+    </div>
+  </section>
+
+  <!-- BARIS PER KATEGORI -->
+  <div class="rows">
+    {
+      rows.map((cat, rowIndex) => (
+        <Rail title={cat.name} href={`/work/${cat.slug}`} count={cat.videos.length}>
+          {cat.videos.map((v, i) => {
+            const cover = getCover(cat.slug, v.cover);
+            return cover ? (
+              <VideoCard
+                cover={cover}
+                youtubeId={v.youtubeId}
+                title={v.title}
+                desc={v.desc}
+                eager={rowIndex === 0 && i < 3}
+              />
+            ) : null;
+          })}
+        </Rail>
+      ))
+    }
+  </div>
+
+  <!-- KLIEN -->
+  <section class="section clients">
+    <div class="wrap">
+      <p class="eyebrow clients-label">Dipercaya oleh</p>
+      <ul class="clients-grid">
+        {
+          clientLogos.map((logo, i) => (
+            <li>
+              <Image src={logo} alt={`Logo klien ${i + 1}`} widths={[160, 280]} sizes="140px" loading="lazy" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <VideoModal />
+</Base>
+
+<style>
+  /* --- HERO --- */
+  .hero {
+    position: relative;
+    min-height: min(92svh, 900px);
+    display: flex;
+    align-items: flex-end;
+    /* tarik ke atas supaya berada di belakang header transparan */
+    margin-top: calc(var(--header-h) * -1);
+    padding-block: var(--s-9) clamp(2rem, 6vw, 4rem);
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* sedikit diredam supaya teks putih tetap terbaca di foto mana pun */
+    filter: brightness(0.72) saturate(1.05);
+  }
+
+  .hero-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--bg) 2%, rgba(10, 12, 14, 0.4) 45%, rgba(10, 12, 14, 0.65) 100%),
+      linear-gradient(to right, rgba(10, 12, 14, 0.85) 0%, transparent 60%);
+  }
+
+  .hero-inner { position: relative; max-width: 780px; }
+  .hero-eyebrow { color: var(--text-dim); margin-bottom: var(--s-4); }
+
+  .hero-title {
+    font-size: var(--t-display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+  }
+
+  .hero-lead {
+    margin-top: var(--s-5);
+    max-width: 52ch;
+    color: #dfe4e8;
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-6);
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3);
+    margin-top: var(--s-6);
+    font-size: var(--t-sm);
+    color: var(--text-dim);
+  }
+
+  .hero-tag {
+    padding: 0.25rem 0.7rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  /* Baris pertama sedikit menimpa hero — kesan berlapis khas Netflix */
+  .rows {
+    position: relative;
+    z-index: 3;
+    margin-top: clamp(-4rem, -5vw, -2rem);
+  }
+
+  /* --- KLIEN --- */
+  .clients { border-top: 1px solid var(--line); margin-top: var(--s-7); }
+  .clients-label { text-align: center; margin-bottom: var(--s-7); }
+
+  .clients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .clients-grid li { display: grid; place-items: center; }
+
+  .clients-grid :global(img) {
+    width: 100%;
+    max-width: 130px;
+    height: 44px;
+    object-fit: contain;
+    /* Logo dibuat putih rata supaya konsisten di latar gelap */
+    filter: brightness(0) invert(1);
+    opacity: 0.55;
+    transition: opacity 0.3s var(--ease);
+  }
+  .clients-grid li:hover :global(img) { opacity: 1; }
+
+  @media (max-width: 700px) {
+    .hero { min-height: 88svh; align-items: flex-end; }
+    .hero-actions .btn { flex: 1 1 auto; }
+  }
+</style>

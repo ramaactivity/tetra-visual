@@ -1,0 +1,148 @@
+---
+import Base from '../layouts/Base.astro';
+import { categories } from '../data/work';
+import { getPhotos, clientLogos } from '../lib/images';
+import { site, waLink } from '../data/site';
+
+const totalVideos = categories.reduce((n, c) => n + c.videos.length, 0);
+const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0);
+
+// Angka diambil langsung dari isi portofolio, jadi selalu akurat saat karya bertambah.
+const stats = [
+  { value: `${totalVideos}`, label: 'Video dokumentasi' },
+  { value: `${totalPhotos}`, label: 'Foto terpublikasi' },
+  { value: `${clientLogos.length}`, label: 'Brand & institusi' },
+  { value: `${categories.length}`, label: 'Bidang layanan' },
+];
+---
+
+<Base
+  title="Tentang Kami"
+  description={`${site.name} adalah tim kreatif fotografi dan sinematografi profesional. ${totalVideos} video dan ${totalPhotos} foto untuk ${clientLogos.length}+ brand.`}
+>
+  <section class="intro wrap">
+    <p class="eyebrow">Tentang</p>
+
+    <h1 class="intro-title">
+      Dokumentasi adalah seni<br />memuliakan ingatan.
+    </h1>
+
+    <div class="intro-body">
+      <p>
+        Tetra Visual is a dedicated creative collective specializing in professional
+        photography and cinematography. Whether it's the warmth of a personal story,
+        the dynamism of an event, or the strategic ambition of a business, we capture
+        it all with precision.
+      </p>
+      <p>We deliver more than just high-quality service; we craft visuals that endure.</p>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <dl class="stats">
+      {
+        stats.map((s) => (
+          <div class="stat">
+            <dt class="stat-label">{s.label}</dt>
+            <dd class="stat-value">{s.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  <section class="section wrap fields">
+    <h2 class="fields-title">Yang kami kerjakan</h2>
+    <ul class="fields-list">
+      {
+        categories.map((c) => (
+          <li class="field">
+            <a href={`/work/${c.slug}`}>
+              <span class="field-name">{c.name}</span>
+              <span class="field-blurb">{c.blurb}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .intro {
+    padding-block: clamp(3rem, 8vw, 6rem) clamp(2rem, 5vw, 3rem);
+    max-width: 900px;
+  }
+
+  .intro-title {
+    font-size: var(--t-h1);
+    margin-block: var(--s-4) var(--s-6);
+  }
+
+  .intro-body {
+    display: grid;
+    gap: var(--s-4);
+    max-width: 62ch;
+    color: var(--text-dim);
+    font-size: clamp(1rem, 1.3vw, 1.125rem);
+    line-height: 1.75;
+  }
+
+  /* --- ANGKA --- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--s-4);
+    margin: 0;
+    padding-block: var(--s-6);
+    border-block: 1px solid var(--line);
+  }
+
+  .stat { display: flex; flex-direction: column-reverse; gap: var(--s-2); }
+
+  .stat-value {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    font-size: var(--t-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  /* --- BIDANG LAYANAN --- */
+  .fields-title { font-size: var(--t-h2); margin-bottom: var(--s-5); }
+
+  .fields-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: 1px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .field a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    height: 100%;
+    padding: var(--s-5);
+    background: var(--bg);
+    transition: background-color 0.25s var(--ease);
+  }
+  .field a:hover { background: var(--bg-elev); }
+
+  .field-name { font-size: var(--t-h3); font-weight: 700; letter-spacing: -0.015em; }
+  .field-blurb { font-size: var(--t-sm); color: var(--text-dim); line-height: 1.55; }
+</style>

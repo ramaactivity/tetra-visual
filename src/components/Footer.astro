@@ -1,0 +1,95 @@
+---
+import { site, waLink } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer id="contact" class="foot">
+  <div class="wrap foot-cta">
+    <p class="eyebrow">Punya rencana?</p>
+    <h2 class="foot-title">Mari kerjakan bersama.</h2>
+    <p class="foot-lead">
+      Ceritakan acara atau kebutuhan brand Anda. Kami balas cepat lewat WhatsApp,
+      lengkap dengan ketersediaan jadwal dan perkiraan biaya.
+    </p>
+
+    <div class="foot-actions">
+      <a
+        class="btn btn-brand"
+        href={waLink('Halo Tetra Visual, saya ingin menanyakan ketersediaan jadwal dan penawaran.')}
+        target="_blank"
+        rel="noopener"
+      >
+        Chat WhatsApp
+      </a>
+      <a class="btn btn-ghost" href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+  </div>
+
+  <div class="wrap foot-bottom">
+    <span class="foot-brand">{site.shortName} <em>VISUAL</em></span>
+
+    <nav class="foot-social" aria-label="Media sosial">
+      {site.social.map((s) => <a href={s.href} target="_blank" rel="noopener">{s.label}</a>)}
+    </nav>
+
+    <span class="foot-copy">© {year} {site.name}</span>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    border-top: 1px solid var(--line);
+    background: linear-gradient(to bottom, var(--bg), #06080a);
+  }
+
+  .foot-cta {
+    padding-block: clamp(3.5rem, 9vw, 7rem);
+    text-align: center;
+    max-width: 720px;
+  }
+
+  .foot-title {
+    font-size: var(--t-h1);
+    margin-block: var(--s-3) var(--s-4);
+  }
+
+  .foot-lead {
+    color: var(--text-dim);
+    margin-inline: auto;
+    max-width: 46ch;
+  }
+
+  .foot-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-3);
+    margin-top: var(--s-6);
+  }
+
+  .foot-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    padding-block: var(--s-5);
+    border-top: 1px solid var(--line);
+    font-size: var(--t-sm);
+    color: var(--text-faint);
+  }
+
+  .foot-brand { font-weight: 800; letter-spacing: 0.14em; color: var(--text-dim); }
+  .foot-brand em { font-style: normal; color: var(--brand); }
+
+  .foot-social { display: flex; gap: var(--s-5); }
+  .foot-social a { transition: color 0.2s var(--ease); }
+  .foot-social a:hover { color: var(--text); }
+
+  @media (max-width: 620px) {
+    .foot-bottom { justify-content: center; text-align: center; }
+    /* Di HP tombol dibuat selebar layar supaya mudah ditekan */
+    .foot-actions .btn { width: 100%; max-width: 320px; }
+  }
+</style>
