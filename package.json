@@ -11,7 +11,8 @@
     "shot": "node scripts/screenshot.mjs",
     "check:layout": "node scripts/check-layout.mjs",
     "test": "node scripts/test-interaction.mjs",
-    "fill-id": "node scripts/fill-project-id.mjs"
+    "fill-id": "node scripts/fill-project-id.mjs",
+    "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

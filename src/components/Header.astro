@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import logoTetra from '../assets/brand/logo-tetra-visual.png';
 import { site, waLink } from '../data/site';
 
 interface Props {
@@ -20,8 +22,7 @@ const isActive = (href: string) => href !== '#contact' && (path === href || path
 
 <header class:list={['hdr', { 'hdr-transparent': transparent }]} data-header>
   <a href="/" class="brand" aria-label={`${site.name} — beranda`}>
-    <span class="brand-mark">{site.shortName}</span>
-    <span class="brand-sub">VISUAL</span>
+    <Image src={logoTetra} alt={site.name} widths={[180, 300]} sizes="84px" loading="eager" />
   </a>
 
   <nav class="nav" aria-label="Navigasi utama">
@@ -83,16 +84,15 @@ const isActive = (href: string) => href !== '#contact' && (path === href || path
     border-bottom-color: var(--line);
   }
 
-  .brand {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4em;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    line-height: 1;
+  /* Wordmark asli Tetra Visual. PNG putih berlatar transparan, jadi tidak
+     butuh filter apa pun di atas header gelap. */
+  .brand { display: flex; align-items: center; }
+  .brand :global(img) {
+    width: auto;
+    height: 40px;
+    transition: opacity 0.25s var(--ease);
   }
-  .brand-mark { font-size: 1.15rem; color: var(--text); }
-  .brand-sub { font-size: 0.6875rem; color: var(--brand); letter-spacing: 0.26em; }
+  .brand:hover :global(img) { opacity: 0.72; }
 
   .nav {
     display: flex;
@@ -131,7 +131,7 @@ const isActive = (href: string) => href !== '#contact' && (path === href || path
 
   @media (max-width: 700px) {
     .hdr { gap: var(--s-3); padding-inline: var(--s-4); }
-    .brand-sub { display: none; }
+    .brand :global(img) { height: 32px; }
     .hide-sm { display: none; }        /* "Contact" — tombol WhatsApp sudah menggantikannya */
     .nav { gap: var(--s-4); }
     .nav-cta { padding-inline: var(--s-4); }
@@ -140,7 +140,7 @@ const isActive = (href: string) => href !== '#contact' && (path === href || path
   }
 
   @media (max-width: 360px) {
-    .brand-mark { font-size: 1rem; }
+    .brand :global(img) { height: 28px; }
     .nav-link { font-size: var(--t-xs); }
   }
 </style>
