@@ -10,7 +10,7 @@ import ProjectModal from '../../../components/ProjectModal.astro';
 import VideoModal from '../../../components/VideoModal.astro';
 import Lightbox from '../../../components/Lightbox.astro';
 import { cityPages, cityPagesFor, CITY_NAMES, type CityPage } from '../../../data/cities';
-import { serviceBySlug, commonFaq, type Service } from '../../../data/services';
+import { serviceBySlug, commonFaq, costFaq, type Service } from '../../../data/services';
 import { allProjects, type Project } from '../../../data/work';
 import { waLink } from '../../../data/site';
 import { breadcrumb, business, faqPage } from '../../../lib/seo';
@@ -27,7 +27,7 @@ const projects = c.projects
   .map((slug) => allProjects.find((p) => p.slug === slug))
   .filter((p): p is Project => p !== undefined && p.city === c.city);
 const hero = projects.find((p) => p.photos.length)?.photos[0] ?? projects[0]?.cover ?? serviceCover(s);
-const faq = [...c.faq, ...s.faq, ...commonFaq];
+const faq = [...c.faq, ...s.faq, ...(s.packages ? [] : [costFaq]), ...commonFaq];
 const siblings = cityPagesFor(s.slug).filter((x) => x.city !== c.city);
 const wa = waLink(`Halo Tetra Visual, saya butuh ${s.name.toLowerCase()} di ${city}, tanggal [tanggal]. Boleh minta info paketnya?`);
 const path = `/layanan/${s.slug}/${c.city}`;

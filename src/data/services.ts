@@ -3,6 +3,15 @@
 // ("jasa dokumentasi event bogor"), dan tiap halaman menampilkan karya nyata
 // yang relevan sebagai bukti. Tulis hanya klaim yang benar.
 
+/** Paket berharga tetap (sejauh ini hanya rangkaian pernikahan — layanan lain harganya menyesuaikan acara). */
+export interface Package {
+  name: string;
+  /** mis. "Foto & Video · 5 jam" */
+  kind: string;
+  price: number;
+  items: string[];
+}
+
 export interface Service {
   slug: string;
   /** Nama pendek untuk menu & kartu. */
@@ -23,13 +32,17 @@ export interface Service {
   faq: [string, string][];
   /** Tautan keluar bila layanan ditangani situs lain (mis. photobooth). */
   external?: { label: string; href: string };
+  packages?: Package[];
+  /** Foto karya khusus layanan ini (path relatif ke src/assets/), foto pertama = latar hero. */
+  gallery?: string[];
 }
 
 const AREA = 'Bogor, Jakarta, Depok, Tangerang, dan Bekasi';
 
 // FAQ yang berlaku untuk semua layanan, ditambahkan di bawah FAQ khusus.
+export const costFaq: [string, string] = ['Berapa biayanya?', 'Biaya disesuaikan dengan durasi acara, jumlah kru, dan hasil yang dibutuhkan. Ceritakan kebutuhan Anda lewat WhatsApp, admin kami akan mengirimkan penawaran yang pas.'];
+
 export const commonFaq: [string, string][] = [
-  ['Berapa biayanya?', 'Biaya disesuaikan dengan durasi acara, jumlah kru, dan hasil yang dibutuhkan. Ceritakan kebutuhan Anda lewat WhatsApp, admin kami akan mengirimkan penawaran yang pas.'],
   ['Area mana saja yang dilayani?', `Kantor kami di Bogor Tengah, Kota Bogor. Kami rutin bekerja di ${AREA}, dan juga melayani acara di luar kota — kami pernah bertugas hingga Bali dan Gunung Rinjani.`],
   ['Bagaimana cara memesan?', 'Hubungi kami lewat WhatsApp dengan menyebutkan jenis acara, tanggal, dan lokasi. Setelah jadwal dan penawaran disepakati, tim kami siap bertugas di hari H.'],
 ];
@@ -41,6 +54,16 @@ export const process: [string, string][] = [
   ['Produksi', 'Tim kami datang tepat waktu dan merekam setiap momen penting.'],
   ['Hasil diserahkan', 'Foto dan video diedit rapi lalu dikirim dalam format digital.'],
 ];
+
+// FAQ bersama untuk paket rangkaian pernikahan (jawaban dari admin Tetra, 25 Sep 2026).
+const weddingFaq: [string, string][] = [
+  ['Berapa lama hasil foto dan video jadi?', 'Paling lambat 1 bulan setelah acara.'],
+  ['Apakah ada biaya transport?', 'Untuk acara di luar Bogor ada biaya transport yang menyesuaikan jarak lokasi. Admin kami akan menginformasikannya bersama penawaran.'],
+  ['Bagaimana sistem DP untuk mengunci tanggal?', 'DP minimal Rp500.000 dan dapat disesuaikan dengan acaranya — untuk acara tertentu DP bisa 50%. Tanggal Anda terkunci setelah DP diterima.'],
+  ['Apakah bisa sekaligus menyediakan photobooth untuk tamu?', 'Bisa, melalui Tetra Photobooth yang satu perusahaan dengan kami.'],
+];
+
+const FRAME = '1 photo frame 16R (40×60 cm)';
 
 export const services: Service[] = [
   {
@@ -124,22 +147,95 @@ export const services: Service[] = [
     ],
   },
   {
-    slug: 'wedding-prewedding',
-    name: 'Wedding & Prewedding',
-    short: 'Akad, resepsi, prewedding, sangjit, hingga bridal shower — diceritakan apa adanya.',
-    title: 'Jasa Foto & Video Wedding dan Prewedding Bogor',
-    description: 'Jasa foto dan video wedding, akad nikah, resepsi, prewedding, sangjit, dan bridal shower di Bogor dan Jabodetabek oleh Tetra Visual.',
-    h1: 'Foto & Video Wedding dan Prewedding di Bogor',
+    slug: 'paket-wedding',
+    name: 'Paket Wedding',
+    short: 'Foto & video akad dan resepsi, album magazine, frame, dan flashdisk — mulai Rp4 juta.',
+    title: 'Paket Foto & Video Wedding Bogor — Mulai Rp4 Juta',
+    description: 'Paket foto & video pernikahan di Bogor mulai Rp4 juta: 1 fotografer, 1 videografer, 8 jam, 100+ foto edit, video cinematic, album magazine, frame 16R, flashdisk custom.',
+    h1: 'Paket Foto & Video Wedding di Bogor',
     lead: 'Hari pernikahan berlalu cepat. Kami merekamnya dengan tenang, supaya Anda bisa hadir sepenuhnya di hari itu.',
     body: [
-      'Kami mendokumentasikan rangkaian pernikahan secara lengkap: prewedding, sangjit, bridal shower, akad atau pemberkatan, hingga resepsi. Gaya kami natural — momen haru dan tawa keluarga direkam apa adanya, tanpa dibuat-buat.',
+      'Kami mendokumentasikan akad nikah atau pemberkatan hingga resepsi dengan gaya natural — momen haru dan tawa keluarga direkam apa adanya, tanpa dibuat-buat. Setiap paket wedding sudah mencakup fotografer dan videografer selama 8 jam kerja, lebih dari 100 foto hasil edit, dan video cinematic.',
+      'Hasilnya bukan hanya file digital: album magazine 10 sheet, photo frame 16R, dan flashdisk custom sudah termasuk, sehingga kenangan Anda siap dipajang dan diwariskan.',
     ],
-    includes: ['Foto & video akad / pemberkatan', 'Foto & video resepsi', 'Sesi prewedding', 'Video highlight pernikahan', 'Liputan drone (opsional)', 'Photobooth tamu (opsional)'],
-    forWho: ['Akad nikah & pemberkatan', 'Resepsi pernikahan', 'Prewedding', 'Sangjit & lamaran', 'Bridal shower'],
-    projects: ['wedding-of-firly-bima', 'wedding-of-intan-rizki', 'wedding-of-rani-wahab', 'wedding-of-lisna-aji', 'prawedding-felicia-hendri', 'sangjit-lisda-chis', 'bridal-shower-puspa'],
+    includes: ['1 fotografer + 1 videografer', '8 jam kerja liputan', '100+ foto hasil edit', 'Video cinematic', 'Album magazine 10 sheet', 'Photo frame 16R (40×60 cm)', 'Flashdisk custom'],
+    forWho: ['Akad nikah & pemberkatan', 'Resepsi pernikahan', 'Pernikahan adat Sunda', 'Intimate wedding'],
+    packages: [
+      { name: 'Kanaka', kind: 'Foto & Video · 8 jam', price: 4_000_000, items: ['1 fotografer', '1 videografer', 'Foto hasil edit (100+)', 'Video cinematic', '1 album magazine 10 sheet', FRAME, 'Flashdisk custom'] },
+      { name: 'Kiran', kind: 'Foto & Video · 8 jam', price: 5_000_000, items: ['1 fotografer', '1 videografer', 'Foto hasil edit (100+)', 'Video cinematic', '1 album magazine 10 sheet', '2 photo frame 16R (40×60 cm)', 'Flashdisk custom'] },
+    ],
+    gallery: ['wedding/pengantin-sunda.jpg', 'wedding/galeri-1.jpg', 'wedding/tangan-pengantin.jpg', 'wedding/galeri-2.jpg'],
+    projects: ['wedding-of-firly-bima', 'wedding-of-intan-rizki', 'wedding-of-rani-wahab', 'wedding-of-lisna-aji', 'sangjit-lisda-chis', 'bridal-shower-puspa'],
     faq: [
-      ['Apakah bisa sekaligus menyediakan photobooth untuk tamu?', 'Bisa, melalui Tetra Photobooth yang satu perusahaan dengan kami.'],
+      ['Berapa lama durasi liputan paket wedding?', '8 jam kerja, cukup untuk akad dan resepsi di hari yang sama.'],
+      ['Berapa jumlah foto yang didapat?', 'Lebih dari 100 foto hasil edit, ditambah video cinematic.'],
+      ...weddingFaq,
     ],
+  },
+  {
+    slug: 'paket-prewedding',
+    name: 'Paket Prewedding',
+    short: 'Sesi foto atau foto & video prewedding 4–5 jam — mulai Rp1,8 juta.',
+    title: 'Paket Prewedding Bogor — Foto & Video Mulai Rp1,8 Juta',
+    description: 'Paket foto prewedding di Bogor mulai Rp1,8 juta (4 jam, fotografer + asisten, frame 16R). Paket foto & video prewedding 5 jam Rp3 juta dengan video cinematic.',
+    h1: 'Paket Foto & Video Prewedding di Bogor',
+    lead: 'Prewedding adalah kesempatan bercerita tentang kalian berdua — sebelum hari besar yang serba sibuk.',
+    body: [
+      'Sesi prewedding kami santai dan diarahkan, bukan kaku. Fotografer dan asisten membantu mengatur pose, cahaya, dan suasana, sehingga hasilnya terasa natural namun tetap rapi — di sawah, taman, dapur, sampai studio.',
+      'Bogor punya banyak latar alami yang cantik untuk prewedding, dari hamparan sawah hingga kawasan hijau di kaki gunung. Hasil foto bisa dipakai untuk undangan, dekorasi resepsi, maupun media sosial.',
+    ],
+    includes: ['Fotografer + asisten', 'Durasi 4–5 jam', 'Foto hasil edit', 'Video cinematic (paket Raspati)', 'Photo frame 16R (40×60 cm)'],
+    forWho: ['Foto undangan pernikahan', 'Video untuk resepsi', 'Konten media sosial pasangan'],
+    packages: [
+      { name: 'Ramya', kind: 'Foto saja · 4 jam', price: 1_800_000, items: ['1 fotografer', '1 asisten', 'Foto hasil edit', FRAME] },
+      { name: 'Raspati', kind: 'Foto & Video · 5 jam', price: 3_000_000, items: ['1 fotografer', '1 videografer', '1 asisten', 'Foto hasil edit', 'Video cinematic', FRAME] },
+    ],
+    gallery: ['wedding/prewedding-siluet.jpg', 'wedding/galeri-6.jpg', 'wedding/galeri-4.jpg', 'wedding/galeri-5.jpg'],
+    projects: ['prawedding-felicia-hendri'],
+    faq: weddingFaq,
+  },
+  {
+    slug: 'foto-lamaran-engagement',
+    name: 'Foto Lamaran & Engagement',
+    short: 'Dokumentasi lamaran dan tukar cincin, foto saja atau foto & video — mulai Rp1,8 juta.',
+    title: 'Foto & Video Lamaran Bogor — Paket Engagement Mulai Rp1,8 Juta',
+    description: 'Paket dokumentasi lamaran & engagement di Bogor: foto saja Rp1,8 juta atau foto & video cinematic Rp2,5 juta, lengkap dengan photo frame 16R.',
+    h1: 'Dokumentasi Lamaran & Engagement di Bogor',
+    lead: 'Momen tukar cincin hanya berlangsung beberapa detik. Pastikan ada yang siap merekamnya.',
+    body: [
+      'Lamaran adalah pertemuan dua keluarga — penuh sambutan, seserahan, dan senyum gugup. Kami merekam rangkaiannya dari kedatangan keluarga, prosesi, hingga momen tukar cincin dan foto bersama.',
+    ],
+    includes: ['Fotografer (+ videografer pada paket Sakala)', 'Foto hasil edit', 'Video cinematic (paket Sakala)', 'Photo frame 16R (40×60 cm)'],
+    forWho: ['Lamaran / khitbah', 'Tukar cincin & engagement', 'Sangjit', 'Seserahan'],
+    packages: [
+      { name: 'Sayuga', kind: 'Foto saja', price: 1_800_000, items: ['1 fotografer', 'Foto hasil edit', FRAME] },
+      { name: 'Sakala', kind: 'Foto & Video', price: 2_500_000, items: ['1 fotografer', '1 videografer', 'Foto hasil edit', 'Video cinematic', FRAME] },
+    ],
+    gallery: ['wedding/lamaran-cincin.jpg', 'wedding/galeri-3.jpg'],
+    projects: ['sangjit-lisda-chis'],
+    faq: weddingFaq,
+  },
+  {
+    slug: 'dokumentasi-pengajian-siraman',
+    name: 'Pengajian, Siraman & Ngunduh Mantu',
+    short: 'Dokumentasi rangkaian adat sebelum dan sesudah pernikahan — mulai Rp1,8 juta.',
+    title: 'Dokumentasi Pengajian, Siraman & Ngunduh Mantu Bogor',
+    description: 'Paket foto & video pengajian, siraman, dan ngunduh mantu di Bogor: foto saja Rp1,8 juta, foto & video cinematic Rp2,5 juta. Termasuk photo frame 16R.',
+    h1: 'Dokumentasi Pengajian, Siraman & Ngunduh Mantu',
+    lead: 'Rangkaian sebelum dan sesudah akad sering paling haru — dan paling sering terlewat didokumentasikan.',
+    body: [
+      'Pengajian dan siraman menjelang pernikahan, hingga ngunduh mantu setelahnya, adalah momen keluarga yang intim: doa bersama, air siraman dari orang tua, dan sambutan keluarga besar. Kami merekamnya dengan tenang dan sopan, tanpa mengganggu jalannya acara.',
+      'Paket ini bisa dipesan terpisah atau digabung dengan paket wedding, sehingga seluruh rangkaian pernikahan Anda didokumentasikan oleh tim yang sama dengan gaya yang seragam.',
+    ],
+    includes: ['Fotografer (+ videografer pada paket Rembe)', 'Foto hasil edit', 'Video cinematic (paket Rembe)', 'Photo frame 16R (40×60 cm)'],
+    forWho: ['Pengajian calon pengantin', 'Siraman', 'Ngunduh mantu', 'Syukuran keluarga'],
+    packages: [
+      { name: 'Raum', kind: 'Foto saja', price: 1_800_000, items: ['1 fotografer', 'Foto hasil edit', FRAME] },
+      { name: 'Rembe', kind: 'Foto & Video', price: 2_500_000, items: ['1 fotografer', '1 videografer', 'Foto hasil edit', 'Video cinematic', FRAME] },
+    ],
+    gallery: ['wedding/pengajian-keluarga.jpg', 'wedding/galeri-3.jpg'],
+    projects: [],
+    faq: weddingFaq,
   },
   {
     slug: 'ulang-tahun-sweet-17',

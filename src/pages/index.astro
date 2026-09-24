@@ -9,6 +9,9 @@ import Lightbox from '../components/Lightbox.astro';
 import ServiceGrid from '../components/ServiceGrid.astro';
 import Testimonials from '../components/Testimonials.astro';
 import { services } from '../data/services';
+
+// Campuran layanan utama di beranda (semua layanan ada di /layanan).
+const HOME_SERVICES = ['dokumentasi-event', 'video-company-profile', 'gathering-outing-kantor', 'dokumentasi-olahraga', 'paket-wedding', 'paket-prewedding', 'foto-wisuda', 'drone-aerial'];
 import { categories, categoryBySlug, featuredProject, asset, totals } from '../data/work';
 import { clientLogos } from '../lib/images';
 import { site } from '../data/site';
@@ -123,7 +126,7 @@ const { videos: totalVideos } = totals;
       </div>
       <a class="home-more" href="/layanan">Semua layanan <span aria-hidden="true">→</span></a>
     </div>
-    <ServiceGrid items={services.slice(0, 8)} />
+    <ServiceGrid items={HOME_SERVICES.map((slug) => services.find((x) => x.slug === slug)!).filter(Boolean)} />
   </section>
 
   <!-- PROFIL SINGKAT: teks yang dibaca Google untuk memahami bisnis ini -->

@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 
 const base = 'http://localhost:4321';
-const pages = ['/', '/work', '/work/corporate', '/work/wedding', '/about', '/layanan', '/layanan/dokumentasi-event', '/karya/samsung', '/kontak', '/layanan/dokumentasi-event/jakarta', '/artikel', '/artikel/biaya-jasa-dokumentasi-event'];
+const pages = ['/', '/work', '/work/corporate', '/work/wedding', '/about', '/layanan', '/layanan/dokumentasi-event', '/karya/samsung', '/kontak', '/layanan/paket-wedding', '/layanan/dokumentasi-event/jakarta', '/artikel', '/artikel/biaya-jasa-dokumentasi-event'];
 const widths = [320, 360, 390, 768, 1024, 1440, 1920];
 
 const browser = await chromium.launch();

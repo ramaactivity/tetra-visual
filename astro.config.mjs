@@ -47,6 +47,8 @@ export default defineConfig({
     '/wedding.html': '/work/wedding',
     '/graduation.html': '/work/graduation',
     '/other.html': '/work/other',
+    // Halaman wedding dipecah per paket (25 Sep 2026).
+    '/layanan/wedding-prewedding': '/layanan/paket-wedding',
   },
 
   build: { inlineStylesheets: 'auto' },

@@ -12,10 +12,10 @@ import Testimonials from '../../components/Testimonials.astro';
 import ProjectModal from '../../components/ProjectModal.astro';
 import VideoModal from '../../components/VideoModal.astro';
 import Lightbox from '../../components/Lightbox.astro';
-import { services, commonFaq, type Service } from '../../data/services';
+import { services, commonFaq, costFaq, type Service } from '../../data/services';
 import { site, waLink } from '../../data/site';
 import { breadcrumb, business, faqPage } from '../../lib/seo';
-import { serviceHero, serviceProjects } from '../../lib/service-media';
+import { serviceHero, serviceProjects, serviceGallery } from '../../lib/service-media';
 import { clientLogos } from '../../lib/images';
 import { cityPagesFor, CITY_NAMES } from '../../data/cities';
 import { articlesFor } from '../../lib/articles';
@@ -26,7 +26,11 @@ export function getStaticPaths() {
 
 const { s } = Astro.props as { s: Service };
 const projects = serviceProjects(s);
-const faq = [...s.faq, ...commonFaq];
+// Layanan berpaket sudah menjawab soal harga di tabel paket.
+const faq = [...s.faq, ...(s.packages ? [] : [costFaq]), ...commonFaq];
+const rp = (n: number) => `Rp${n.toLocaleString('id-ID')}`;
+const gallery = serviceGallery(s);
+const prices = (s.packages ?? []).map((p) => p.price);
 const cities = cityPagesFor(s.slug);
 const reads = articlesFor(s.slug);
 const others = services.filter((x) => x.slug !== s.slug).slice(0, 4);
@@ -42,6 +46,28 @@ const schema = [
     url: new URL(`/layanan/${s.slug}`, Astro.site).href,
     provider: business,
     areaServed: site.areaServed.map((name) => ({ '@type': 'City', name })),
+    ...(s.packages
+      ? {
+          offers: {
+            '@type': 'AggregateOffer',
+            priceCurrency: 'IDR',
+            lowPrice: Math.min(...prices),
+            highPrice: Math.max(...prices),
+            offerCount: prices.length,
+          },
+          hasOfferCatalog: {
+            '@type': 'OfferCatalog',
+            name: `Paket ${s.name}`,
+            itemListElement: s.packages.map((p) => ({
+              '@type': 'Offer',
+              name: `Paket ${p.name} — ${p.kind}`,
+              price: p.price,
+              priceCurrency: 'IDR',
+              description: p.items.join(', '),
+            })),
+          },
+        }
+      : {}),
   },
   faqPage(faq),
 ];
@@ -59,7 +85,8 @@ const schema = [
       <p class="shero-lead">{s.lead}</p>
       <div class="shero-actions">
         <a class="btn btn-brand" href={wa} target="_blank" rel="noopener">Tanya Jadwal &amp; Paket</a>
-        {projects.length > 0 && <a class="btn btn-info" href="#karya">Lihat Karya</a>}
+        {s.packages && <a class="btn btn-info" href="#paket">Lihat Paket &amp; Harga</a>}
+        {!s.packages && projects.length > 0 && <a class="btn btn-info" href="#karya">Lihat Karya</a>}
         {s.external && <a class="btn btn-info" href={s.external.href} target="_blank" rel="noopener">{s.external.label} ↗</a>}
       </div>
     </div>
@@ -92,6 +119,46 @@ const schema = [
       }
     </div>
   </section>
+
+  {
+    s.packages && (
+      <section id="paket" class="wrap pk">
+        <p class="eyebrow">Paket &amp; harga</p>
+        <h2 class="pk-title">Pilih paket yang sesuai</h2>
+        <div class="pk-grid">
+          {s.packages.map((p, i) => (
+            <article class:list={['pk-card', { 'is-best': i === s.packages!.length - 1 }]}>
+              <h3 class="pk-name">Paket {p.name}</h3>
+              <p class="pk-kind">{p.kind}</p>
+              <p class="pk-price">{rp(p.price)}</p>
+              <ul class="checks">{p.items.map((it) => <li>{it}</li>)}</ul>
+              <a
+                class:list={['btn', i === s.packages!.length - 1 ? 'btn-brand' : 'btn-ghost']}
+                href={waLink(`Halo Tetra Visual, saya tertarik Paket ${p.name} (${s.name}, ${rp(p.price)}) untuk tanggal [tanggal] di [lokasi]. Apakah tanggalnya masih tersedia?`)}
+                target="_blank"
+                rel="noopener"
+              >
+                Pesan Paket {p.name}
+              </a>
+            </article>
+          ))}
+        </div>
+        <p class="pk-note">
+          DP mulai Rp500.000 untuk mengunci tanggal · hasil jadi maksimal 1 bulan setelah acara · acara di luar Bogor dikenakan biaya transport sesuai jarak.
+        </p>
+      </section>
+    )
+  }
+
+  {
+    gallery.length > 0 && (
+      <section class="wrap gal">
+        {gallery.map((g, i) => (
+          <Image src={g} alt={`Karya ${s.name.toLowerCase()} Tetra Visual — foto ${i + 1}`} widths={[480, 800, 1200]} sizes="(max-width: 700px) 50vw, 25vw" loading="lazy" />
+        ))}
+      </section>
+    )
+  }
 
   {
     projects.length > 0 && (
@@ -169,7 +236,7 @@ const schema = [
     padding-block: var(--s-9) clamp(2rem, 5vw, 3.5rem);
     overflow: hidden;
   }
-  .shero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.72); }
+  .shero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; filter: brightness(0.72); }
   .shero-veil {
     position: absolute;
     inset: 0;
@@ -198,6 +265,20 @@ const schema = [
   .pill-link a { display: block; padding: 0.4rem 0.85rem; transition: background-color 0.2s; border-radius: 999px; }
   .pill-link a:hover { background: rgba(229, 9, 20, 0.15); }
 
+  .pk { padding-block: var(--s-7) var(--s-4); }
+  .pk-title { font-size: var(--t-h2); margin: var(--s-2) 0 var(--s-6); }
+  .pk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: var(--s-4); max-width: 900px; }
+  .pk-card { display: grid; gap: var(--s-3); align-content: start; padding: var(--s-6); border-radius: var(--radius-lg); background: var(--bg-elev); border: 1px solid var(--line); }
+  .pk-card.is-best { border-color: rgba(229, 9, 20, 0.6); background: linear-gradient(160deg, rgba(229, 9, 20, 0.14), var(--bg-elev) 55%); }
+  .pk-name { font-size: 1.25rem; }
+  .pk-kind { font-size: var(--t-sm); color: var(--text-faint); margin-top: calc(var(--s-2) * -1); }
+  .pk-price { font-size: clamp(1.75rem, 3vw, 2.25rem); font-weight: 800; letter-spacing: -0.02em; }
+  .pk-card .checks { margin-bottom: var(--s-3); }
+  .pk-card .btn { justify-self: start; }
+  .pk-note { margin-top: var(--s-5); font-size: var(--t-sm); color: var(--text-dim); max-width: 70ch; }
+  .gal { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding-block: var(--s-4); }
+  .gal :global(img) { width: 100%; height: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius); }
+  @media (max-width: 700px) { .gal { grid-template-columns: repeat(2, 1fr); } }
   .trust { padding-block: var(--s-6); text-align: center; }
   .logos { list-style: none; margin: var(--s-5) 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-5) var(--s-7); }
   .logos :global(img) { width: auto; height: auto; max-width: 110px; max-height: 38px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.7; }
