@@ -34,36 +34,39 @@ Setiap file yang disimpan langsung terlihat di browser tanpa perlu refresh.
 
 Satu file saja: **`src/data/site.ts`**. Diubah di sana, berubah di seluruh halaman.
 
-### Menambah video baru
+### Menambah, mengedit, atau menghapus karya — lewat dashboard
 
-1. Simpan gambar cover-nya di `src/assets/work/<kategori>/covers/` dengan nama urut
-   berikutnya, misal `cover-23.jpg`.
-2. Tambahkan satu baris di **`src/data/work.ts`** pada kategori yang sesuai:
+Buka **<https://visual.tetraphoto.com/admin>**. Di sana bisa:
 
-```ts
-{ cover: 23, youtubeId: 'KODE_YOUTUBE', title: 'Judul Video', desc: 'Keterangan singkat' },
-```
+- menambah proyek baru: judul, kategori, link YouTube, deskripsi, sinopsis, cover
+  (unggah sendiri atau **ambil dari thumbnail YouTube**), urutan, dan centang *karya unggulan*
+- mengunggah **banyak foto sekaligus** (seret ke kotak) — otomatis dikecilkan sebelum diunggah
+- mengatur urutan foto (seret), menghapus foto, atau menghapus proyek
 
-`youtubeId` adalah bagian setelah `v=` di URL YouTube.
-Contoh: `youtube.com/watch?v=FbiLaV9gLls` → `FbiLaV9gLls`
+Klik **Simpan** → perubahan masuk ke GitHub sebagai satu commit → GitHub Actions
+menayangkan ulang situs (±3 menit). Status "Sedang menayangkan… / Sudah tayang"
+tampil di pojok kanan atas dashboard.
 
-### Menambah foto
+Login pertama kali butuh **token GitHub** — langkah membuatnya tertulis di halaman masuk.
 
-Cukup simpan file di `src/assets/work/<kategori>/photos/` dengan nama urut berikutnya
-(`photo-42.jpg`). **Tidak perlu edit kode apa pun** — foto otomatis muncul di galeri
-kategori dan ikut terhitung di statistik halaman About.
+Di balik layar, tiap proyek = satu file `src/content/projects/<slug>.json` + folder
+`src/assets/projects/<slug>/` (`cover.jpg`, `01.jpg`, `02.jpg`, …). Boleh juga diedit
+manual kalau perlu; skema isinya ada di `ProjectFile` pada `src/data/work.ts`.
 
-> Penomoran memakai 2 digit (`photo-07.jpg`, bukan `photo-7.jpg`) supaya urutannya benar.
+### Foto lama yang belum diketahui proyeknya
+
+Tersimpan di `src/assets/work/<kategori>/photos/`. Tetap tampil di galeri kategori
+dan jadi cadangan galeri untuk proyek yang belum punya foto sendiri.
 
 ### Mengganti foto latar hero sebuah kategori
 
-Ubah angka `heroPhoto` pada kategori itu di `src/data/work.ts`. Angkanya merujuk ke
-`photos/photo-NN.jpg`. Pilih foto yang **sisi kirinya lapang**, karena judul dan tombol
-diletakkan di sana.
+Ubah `hero` pada kategori itu di `src/data/work.ts` (path relatif ke `src/assets/`).
+Pilih foto yang **sisi kirinya lapang**, karena judul dan tombol diletakkan di sana.
 
 ### Mengganti foto hero beranda
 
-Ubah baris `import heroBg from ...` di bagian atas `src/pages/index.astro`.
+Ubah daftar `HERO_PHOTOS` di bagian atas `src/pages/index.astro`. Karya unggulan
+(tombol "Putar Karya Unggulan") dipilih dari dashboard.
 
 ### Mengubah warna, ukuran huruf, atau jarak
 
@@ -79,17 +82,20 @@ src/
 ├── assets/            gambar asli (Astro yang mengompresnya saat build)
 │   ├── brand/         logo, potret
 │   ├── clients/       logo klien
-│   └── work/<kategori>/{covers,photos}/
+│   ├── projects/<slug>/  cover + foto tiap proyek (dikelola dashboard)
+│   └── work/<kategori>/photos/  foto lama yang belum berproyek
+├── content/projects/  satu file .json per proyek (dikelola dashboard)
 ├── components/        bagian yang dipakai berulang (header, kartu, baris, lightbox)
 ├── data/
 │   ├── site.ts        kontak & identitas
-│   └── work.ts        daftar kategori + 76 video
+│   └── work.ts        kategori + pemuat data proyek
 ├── layouts/Base.astro kerangka halaman + semua tag SEO
-├── lib/images.ts      pemuat gambar otomatis dari folder
+├── lib/images.ts      logo klien
 ├── pages/             tiap file = satu alamat di website
 │   ├── index.astro          /
 │   ├── about.astro          /about
 │   ├── 404.astro            halaman tidak ditemukan
+│   ├── admin/               /admin — dashboard karya (+ data.json untuk dashboard)
 │   └── work/
 │       ├── index.astro      /work
 │       └── [slug].astro     /work/event, /work/corporate, dst — 8 halaman dari 1 file
