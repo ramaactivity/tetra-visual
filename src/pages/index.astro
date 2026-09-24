@@ -21,6 +21,9 @@ const featuredImg = getCover(FEATURED.slug, featured.cover)!;
 const ORDER = ['corporate', 'event', 'sport', 'competition', 'wedding', 'birthday', 'graduation', 'other'];
 const rows = ORDER.map((slug) => categoryBySlug.get(slug)!).filter(Boolean);
 
+// Slideshow hero: foto panggung di atas dulu, lalu foto latar hero tiap kategori (sudah dipilih aman untuk teks).
+const heroSlides = [heroBg, ...rows.map((c) => getPhotos(c.slug)[c.heroPhoto - 1]).filter(Boolean)];
+
 const totalVideos = categories.reduce((n, c) => n + c.videos.length, 0);
 const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0);
 ---
@@ -33,15 +36,19 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
 >
   <!-- HERO: karya unggulan -->
   <section class="hero">
-    <Image
-      class="hero-bg"
-      src={heroBg}
-      alt=""
-      widths={[768, 1280, 1920, 2560]}
-      sizes="100vw"
-      loading="eager"
-      fetchpriority="high"
-    />
+    {
+      heroSlides.map((img, i) => (
+        <Image
+          class:list={['hero-bg', { 'is-active': i === 0 }]}
+          src={img!}
+          alt=""
+          widths={[768, 1280, 1920, 2560]}
+          sizes="100vw"
+          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchpriority={i === 0 ? 'high' : 'low'}
+        />
+      ))
+    }
     <div class="hero-veil"></div>
 
     <div class="wrap hero-inner">
@@ -115,6 +122,19 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
   <VideoModal />
 </Base>
 
+<script>
+  // Ganti foto latar hero tiap 6 detik, berulang terus.
+  const slides = document.querySelectorAll<HTMLElement>('.hero-bg');
+  if (slides.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let i = 0;
+    setInterval(() => {
+      slides[i]!.classList.remove('is-active');
+      i = (i + 1) % slides.length;
+      slides[i]!.classList.add('is-active');
+    }, 6000);
+  }
+</script>
+
 <style>
   /* --- HERO --- */
   .hero {
@@ -137,7 +157,11 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
     object-fit: cover;
     object-position: 60% center;  /* subjek digeser ke kanan, teks dapat ruang di kiri */
     filter: brightness(0.82) saturate(1.05);
+    opacity: 0;
+    transition: opacity 1.5s var(--ease);
   }
+
+  .hero-bg.is-active { opacity: 1; }
 
   .hero-veil {
     position: absolute;
