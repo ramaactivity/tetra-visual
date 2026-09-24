@@ -7,9 +7,6 @@ import VideoModal from '../components/VideoModal.astro';
 import { categories, categoryBySlug } from '../data/work';
 import { getCover, getPhotos, clientLogos } from '../lib/images';
 import { site } from '../data/site';
-// Latar hero: foto panggung, bukan cover video — cover selalu ada teks judulnya
-// yang bertabrakan dengan tulisan di atasnya. Sisi kiri foto ini gelap dan lapang.
-import heroBg from '../assets/work/event/photos/photo-40.jpg';
 
 // Karya unggulan yang tombolnya ada di hero.
 const FEATURED = { slug: 'event', cover: 1 };
@@ -21,8 +18,14 @@ const featuredImg = getCover(FEATURED.slug, featured.cover)!;
 const ORDER = ['corporate', 'event', 'sport', 'competition', 'wedding', 'birthday', 'graduation', 'other'];
 const rows = ORDER.map((slug) => categoryBySlug.get(slug)!).filter(Boolean);
 
-// Slideshow hero: foto panggung di atas dulu, lalu foto latar hero tiap kategori (sudah dipilih aman untuk teks).
-const heroSlides = [heroBg, ...rows.map((c) => getPhotos(c.slug)[c.heroPhoto - 1]).filter(Boolean)];
+// Slideshow hero: hanya foto kamera asli (3000–6000px), bukan frame video 1920px yang pecah
+// saat di-zoom. Bukan cover video juga — cover ada teks judulnya yang bertabrakan dengan tulisan hero.
+// Yang pertama gelap supaya teks langsung terbaca saat halaman dibuka.
+const HERO_PHOTOS: [string, number][] = [
+  ['event', 28], ['graduation', 1], ['corporate', 13], ['event', 37],
+  ['birthday', 22], ['graduation', 2], ['event', 36], ['corporate', 16],
+];
+const heroSlides = HERO_PHOTOS.map(([slug, n]) => getPhotos(slug)[n - 1]).filter(Boolean);
 
 const totalVideos = categories.reduce((n, c) => n + c.videos.length, 0);
 const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0);
@@ -159,16 +162,30 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
     filter: brightness(0.82) saturate(1.05);
     opacity: 0;
     transition: opacity 1.5s var(--ease);
+    /* Ken Burns: tiap foto zoom pelan sambil bergeser. Jalan terus (bukan hanya saat aktif)
+       supaya tidak ada lompatan waktu foto memudar keluar. */
+    animation: hero-kenburns 14s ease-in-out infinite alternate;
   }
 
   .hero-bg.is-active { opacity: 1; }
+
+  /* Arah geser berbeda-beda per foto. Geser maks 3% × skala 1.18 < sisa tepi 9%, jadi tepi foto tak pernah terlihat. */
+  .hero-bg:nth-of-type(4n + 1) { --kb-x: -3%; --kb-y: -2%; }
+  .hero-bg:nth-of-type(4n + 2) { --kb-x: 3%;  --kb-y: 1%; }
+  .hero-bg:nth-of-type(4n + 3) { --kb-x: -2%; --kb-y: 2%; }
+  .hero-bg:nth-of-type(4n + 4) { --kb-x: 2%;  --kb-y: -2%; }
+
+  @keyframes hero-kenburns {
+    from { transform: scale(1.05); }
+    to   { transform: scale(1.18) translate(var(--kb-x), var(--kb-y)); }
+  }
 
   .hero-veil {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to top, var(--bg) 1%, rgba(10, 12, 14, 0.15) 40%, rgba(10, 12, 14, 0.45) 100%),
-      linear-gradient(to right, rgba(10, 12, 14, 0.88) 0%, rgba(10, 12, 14, 0.5) 38%, transparent 68%);
+      linear-gradient(to top, var(--bg) 1%, rgba(35, 35, 35, 0.15) 40%, rgba(35, 35, 35, 0.45) 100%),
+      linear-gradient(to right, rgba(35, 35, 35, 0.88) 0%, rgba(35, 35, 35, 0.5) 38%, transparent 68%);
   }
 
   /* .wrap memusatkan diri sendiri, jadi pembatas lebar teks harus di elemen di dalamnya —
@@ -213,7 +230,7 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
   .hero-tag {
     padding: 0.25rem 0.7rem;
     border: 1px solid var(--line-strong);
-    border-radius: 999px;
+    border-radius: var(--radius);
     font-size: var(--t-xs);
     font-weight: 600;
     letter-spacing: 0.1em;

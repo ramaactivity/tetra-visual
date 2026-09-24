@@ -6,15 +6,15 @@
 
 :root {
   /* --- WARNA --- */
-  --bg: #0a0c0e;            /* latar paling belakang */
-  --bg-elev: #14181c;       /* kartu, panel */
-  --bg-elev-2: #1e242a;     /* hover kartu */
+  --bg: #232323;            /* latar paling belakang (Netflix background) */
+  --bg-elev: #2d2d2d;       /* kartu, panel (Netflix surface) */
+  --bg-elev-2: #383838;     /* hover kartu */
   --line: rgba(255, 255, 255, 0.09);
-  --line-strong: rgba(255, 255, 255, 0.18);
+  --line-strong: #808080;   /* Netflix border, dipakai hemat */
 
-  --text: #f3f5f6;
-  --text-dim: #a2abb3;      /* kontras 7.1:1 di atas --bg */
-  --text-faint: #737d85;    /* hanya untuk label kecil non-esensial */
+  --text: #ffffff;
+  --text-dim: #b3b3b3;      /* kontras 7.5:1 di atas --bg */
+  --text-faint: #8c8c8c;    /* 4.7:1, batas minimum AA untuk label kecil */
 
   --brand: #e50914;         /* merah Netflix */
   --brand-hi: #f6121d;      /* untuk hover — versi lebih terang, bukan lebih gelap */
@@ -41,11 +41,11 @@
   --gutter: clamp(1rem, 5vw, 4rem);
   --maxw: 1600px;
 
-  --radius: 6px;
-  --radius-lg: 12px;
+  --radius: 4px;
+  --radius-lg: 8px;
 
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow: 0 0 5px rgb(128, 128, 128);  /* Netflix card */
   --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.7);
 
   --header-h: 72px;
@@ -154,7 +154,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   gap: var(--s-2);
   padding: 0.8125rem 1.5rem;
   min-height: 44px;               /* target sentuh minimum di HP */
-  border-radius: 999px;
+  border-radius: var(--radius);
   font-size: var(--t-sm);
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -167,7 +167,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .btn-brand { background: var(--brand); color: var(--on-brand); }
 .btn-brand:hover { background: var(--brand-hi); }
 
-.btn-light { background: var(--text); color: #0a0c0e; }
+.btn-light { background: var(--text); color: var(--bg); }
 .btn-light:hover { background: #ffffff; }
 
 .btn-ghost { border: 1px solid var(--line-strong); color: var(--text); }
