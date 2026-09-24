@@ -84,7 +84,7 @@ dig +short CNAME visual.tetraphoto.com
 | **Sesi login Vercel CLI** | `~/Library/Application Support/com.vercel.cli/auth.json` | Otomatis dari `vercel login` |
 | **`VERCEL_OIDC_TOKEN`** | `.env.local` repo ini (gitignored) | Dibuat otomatis oleh `vercel link` |
 | **Kredensial GitHub** | `~/.git-credentials` | Dari `credential.helper = store` |
-| **Token dashboard** (GitHub fine-grained, nama "Dashboard Tetra Visual") | Browser yang dipakai membuka `/admin` (localStorage) | Login dashboard karya. Hilang/ganti perangkat → buat token baru lewat tautan di halaman masuk. Bocor → hapus di <https://github.com/settings/personal-access-tokens>. |
+| **Token dashboard** (GitHub fine-grained, nama "Dashboard Tetra Visual") | Browser yang dipakai membuka `/admin` (localStorage) + salinan di `.env.local` repo ini (`TETRA_DASHBOARD_GITHUB_TOKEN`, gitignored) | Login dashboard karya. Hilang/ganti perangkat → buat token baru lewat tautan di halaman masuk. Bocor → hapus di <https://github.com/settings/personal-access-tokens>. |
 
 ### Kalau token Vercel bocor atau hilang
 
