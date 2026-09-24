@@ -12,7 +12,8 @@
     "check:layout": "node scripts/check-layout.mjs",
     "test": "node scripts/test-interaction.mjs",
     "fill-id": "node scripts/fill-project-id.mjs",
-    "deploy": "node scripts/deploy.mjs"
+    "deploy": "node scripts/deploy.mjs",
+    "test:admin": "node scripts/test-admin.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

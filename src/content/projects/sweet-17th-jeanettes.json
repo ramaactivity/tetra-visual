@@ -1,0 +1,14 @@
+{
+  "title": "Sweet 17th Jeanettes",
+  "category": "birthday",
+  "youtube": "https://youtu.be/X2_fVzszb2s",
+  "desc": "",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg",
+    "02.jpg"
+  ],
+  "order": 8,
+  "featured": false
+}

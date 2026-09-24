@@ -1,0 +1,14 @@
+{
+  "title": "Photoshoot Farika",
+  "category": "graduation",
+  "youtube": "",
+  "desc": "",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg",
+    "02.jpg"
+  ],
+  "order": 3,
+  "featured": false
+}

@@ -1,0 +1,14 @@
+{
+  "title": "Reformasi Run",
+  "category": "sport",
+  "youtube": "https://youtu.be/VrjV0UVmZ_M",
+  "desc": "Event Fun Run yang diadakan oleh kampus Trisakti",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg",
+    "02.jpg"
+  ],
+  "order": 13,
+  "featured": false
+}

@@ -1,0 +1,14 @@
+{
+  "title": "Sweet 17th Binda",
+  "category": "birthday",
+  "youtube": "https://youtu.be/TscvFZzFk4o",
+  "desc": "",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg",
+    "02.jpg"
+  ],
+  "order": 4,
+  "featured": false
+}

@@ -1,0 +1,14 @@
+{
+  "title": "Walikota Bogor Cup",
+  "category": "sport",
+  "youtube": "https://youtu.be/z_4Adn7ZsLM",
+  "desc": "",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg",
+    "02.jpg"
+  ],
+  "order": 12,
+  "featured": false
+}

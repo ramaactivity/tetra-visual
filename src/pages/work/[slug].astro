@@ -8,7 +8,6 @@ import PhotoGrid from '../../components/PhotoGrid.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import ProjectModal from '../../components/ProjectModal.astro';
 import { categories } from '../../data/work';
-import { getCover, getPhotos } from '../../lib/images';
 import { site, waLink } from '../../data/site';
 
 // Satu halaman dibuat otomatis untuk tiap kategori — tidak ada lagi 8 file HTML terpisah.
@@ -17,19 +16,20 @@ export function getStaticPaths() {
 }
 
 const { cat } = Astro.props;
-const photos = getPhotos(cat.slug);
-const lead = cat.videos[0];
+const photos = cat.photos;
+// Tombol Putar di hero memakai proyek pertama yang sudah punya video.
+const lead = cat.projects.find((p) => p.youtubeId) ?? cat.projects[0];
 // Latar hero pakai foto (bebas teks), bukan cover video.
-const heroImg = photos[cat.heroPhoto - 1] ?? photos[0];
+const heroImg = cat.hero;
 // Cover video tetap dipakai untuk gambar pratinjau saat link dishare.
-const shareImg = lead ? getCover(cat.slug, lead.cover) : heroImg;
+const shareImg = lead?.cover ?? heroImg;
 
 const others = categories.filter((c) => c.slug !== cat.slug);
 ---
 
 <Base
   title={`${cat.name} — Fotografi & Videografi`}
-  description={`${cat.blurb} ${cat.videos.length} video dan ${photos.length} foto dokumentasi ${cat.name.toLowerCase()} oleh ${site.name}.`}
+  description={`${cat.blurb} ${cat.projects.length} video dan ${photos.length} foto dokumentasi ${cat.name.toLowerCase()} oleh ${site.name}.`}
   ogImage={shareImg}
   transparentHeader={Boolean(heroImg)}
 >
@@ -52,10 +52,12 @@ const others = categories.filter((c) => c.slug !== cat.slug);
             <p class="chero-blurb">{cat.blurb}</p>
 
             <div class="chero-actions">
-              <button class="btn btn-light" type="button" data-video-id={lead.youtubeId} data-video-title={lead.title}>
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
-                Putar Video
-              </button>
+              {lead.youtubeId && (
+                <button class="btn btn-light" type="button" data-video-id={lead.youtubeId} data-video-title={lead.title}>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+                  Putar Video
+                </button>
+              )}
               <a
                 class="btn btn-ghost"
                 href={waLink(`Halo Tetra Visual, saya tertarik dengan dokumentasi ${cat.name}. Boleh minta info paket dan jadwalnya?`)}
@@ -67,7 +69,7 @@ const others = categories.filter((c) => c.slug !== cat.slug);
             </div>
 
             <p class="chero-stats">
-              {cat.videos.length} video · {photos.length} foto
+              {cat.projects.length} video · {photos.length} foto
             </p>
           </div>
         </div>
@@ -77,15 +79,12 @@ const others = categories.filter((c) => c.slug !== cat.slug);
 
   {/* VIDEO */}
   {
-    cat.videos.length > 0 && (
+    cat.projects.length > 0 && (
       <div class="stack">
-        <Rail title="Video Dokumentasi" count={cat.videos.length}>
-          {cat.videos.map((v, i) => {
-            const cover = getCover(cat.slug, v.cover);
-            return cover ? (
-              <VideoCard cover={cover} project={`${cat.slug}-${v.cover}`} title={v.title} desc={v.desc} eager={i < 3} />
-            ) : null;
-          })}
+        <Rail title="Video Dokumentasi" count={cat.projects.length}>
+          {cat.projects.map((p, i) => (
+            <VideoCard cover={p.cover} project={p.slug} title={p.title} desc={p.desc} eager={i < 3} />
+          ))}
         </Rail>
       </div>
     )

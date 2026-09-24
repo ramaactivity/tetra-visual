@@ -7,7 +7,11 @@ import Intro from '../components/Intro.astro';
 import { site } from '../data/site';
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import defaultOg from '../assets/work/event/covers/cover-01.jpg';
+import { featuredProject } from '../data/work';
+import brandPreview from '../assets/brand/gambar-preview.jpg';
+
+// Pratinjau share bawaan: cover karya unggulan (bisa diganti dari dashboard).
+const defaultOg = featuredProject?.cover ?? brandPreview;
 
 interface Props {
   title: string;

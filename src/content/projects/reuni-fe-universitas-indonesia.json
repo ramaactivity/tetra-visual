@@ -1,0 +1,14 @@
+{
+  "title": "Reuni FE Universitas Indonesia",
+  "category": "event",
+  "youtube": "https://youtu.be/0yH5OJX_FKc",
+  "desc": "Reuni Fakultas Ekonomi Universitas Indonesia",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg",
+    "02.jpg"
+  ],
+  "order": 8,
+  "featured": false
+}

@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  integrations: [sitemap()],
+  integrations: [sitemap({ filter: (page) => !page.includes('/admin') })],
   // Alamat produksi. Dipakai untuk sitemap, canonical, dan tag Open Graph
   // (gambar pratinjau saat link dishare ke WhatsApp/Instagram).
   // Kalau nanti beli domain sendiri, ganti baris ini + public/robots.txt.

@@ -1,23 +1,15 @@
 ---
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
-import { categories } from '../../data/work';
-import { getCover, getPhotos } from '../../lib/images';
+import { categories, totals } from '../../data/work';
 import { site } from '../../data/site';
 
-const ORDER = ['corporate', 'event', 'sport', 'competition', 'wedding', 'birthday', 'graduation', 'other'];
-const tiles = ORDER.map((slug) => {
-  const cat = categories.find((c) => c.slug === slug)!;
-  return {
-    ...cat,
-    // Foto, bukan cover video: cover punya teks judul yang bikin grid terlihat ramai.
-    cover: getPhotos(cat.slug)[cat.heroPhoto - 1] ?? getCover(cat.slug, cat.videos[0]?.cover ?? 1),
-    photoCount: getPhotos(cat.slug).length,
-  };
-}).filter((t) => t.cover);
+// Foto, bukan cover video: cover punya teks judul yang bikin grid terlihat ramai.
+const tiles = categories
+  .map((cat) => ({ ...cat, cover: cat.hero, photoCount: cat.photos.length }))
+  .filter((t) => t.cover);
 
-const totalVideos = categories.reduce((n, c) => n + c.videos.length, 0);
-const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0);
+const { videos: totalVideos, photos: totalPhotos } = totals;
 ---
 
 <Base
@@ -52,7 +44,7 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
               <span class="tile-text">
                 <span class="tile-name">{t.name}</span>
                 <span class="tile-blurb">{t.blurb}</span>
-                <span class="tile-meta">{t.videos.length} video · {t.photoCount} foto</span>
+                <span class="tile-meta">{t.projects.length} video · {t.photoCount} foto</span>
               </span>
             </a>
           </li>

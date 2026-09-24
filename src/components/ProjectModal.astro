@@ -1,11 +1,10 @@
 ---
 // Popup detail proyek ala Netflix + kartu pratinjau saat kursor diam di atas kartu.
-// Kartu mana pun dengan data-project="<slug>-<cover>" akan membukanya.
+// Kartu mana pun dengan data-project="<slug proyek>" akan membukanya.
 // Tombol Putar memakai data-video-id, jadi pemutarnya tetap VideoModal.
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { categories } from '../data/work';
-import { getCover, getPhotos } from '../lib/images';
 import { waLink } from '../data/site';
 
 interface Props {
@@ -15,8 +14,6 @@ interface Props {
 const { only } = Astro.props;
 
 const url = async (src: ImageMetadata, width: number) => (await getImage({ src, width })).src;
-// Placeholder 'ISI_ID_VIDEO_YOUTUBE_DISINI' dan sejenisnya tidak boleh diputar.
-const isYoutubeId = (id: string) => /^[\w-]{11}$/.test(id);
 
 const cats: Record<string, { name: string; photos: [string, string][] }> = {};
 const projects: Record<string, {
@@ -27,20 +24,19 @@ const projects: Record<string, {
 for (const cat of categories.filter((c) => !only || c.slug === only)) {
   cats[cat.slug] = {
     name: cat.name,
-    photos: await Promise.all(getPhotos(cat.slug).map(async (p) => [await url(p, 480), await url(p, 1920)] as [string, string])),
+    photos: await Promise.all(cat.photos.map(async (p) => [await url(p, 480), await url(p, 1920)] as [string, string])),
   };
-  for (const v of cat.videos) {
-    const cover = getCover(cat.slug, v.cover);
-    if (!cover) continue;
-    projects[`${cat.slug}-${v.cover}`] = {
+  for (const p of cat.projects) {
+    projects[p.slug] = {
       slug: cat.slug,
-      title: v.title,
-      desc: v.desc,
-      synopsis: v.synopsis || v.desc || cat.blurb,
-      yt: isYoutubeId(v.youtubeId) ? v.youtubeId : '',
-      hero: await url(cover, 1280),
-      thumb: await url(cover, 480),
-      photos: v.photos?.length ? v.photos : null,
+      title: p.title,
+      desc: p.desc,
+      synopsis: p.synopsis || p.desc || cat.blurb,
+      yt: p.youtubeId,
+      hero: await url(p.cover, 1280),
+      thumb: await url(p.cover, 480),
+      // Nomor (1-based) foto proyek di daftar foto kategori — data foto tidak dikirim dua kali.
+      photos: p.photos.length ? p.photos.map((ph) => cat.photos.indexOf(ph) + 1) : null,
     };
   }
 }

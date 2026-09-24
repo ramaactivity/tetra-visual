@@ -1,0 +1,14 @@
+{
+  "title": "Q-Dental Clinic",
+  "category": "corporate",
+  "youtube": "https://youtu.be/Iqoev27qKg8",
+  "desc": "Grand Opening Q-Dental Clinic di Kota Bogor",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg",
+    "02.jpg"
+  ],
+  "order": 8,
+  "featured": false
+}

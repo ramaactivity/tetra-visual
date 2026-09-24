@@ -1,0 +1,14 @@
+{
+  "title": "Run Vesting",
+  "category": "sport",
+  "youtube": "https://youtu.be/56vTbRDL01U",
+  "desc": "Event Fun Run yang diadakan oleh Mirae x Bogor Runners",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg",
+    "02.jpg"
+  ],
+  "order": 17,
+  "featured": false
+}

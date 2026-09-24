@@ -1,0 +1,14 @@
+{
+  "title": "Kahf x Bogor Runners",
+  "category": "sport",
+  "youtube": "https://youtu.be/hjYeM5sg-1k",
+  "desc": "Event Fun Run yang diadakan oleh Kahf bersama Bogor Runners",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg",
+    "02.jpg"
+  ],
+  "order": 5,
+  "featured": false
+}

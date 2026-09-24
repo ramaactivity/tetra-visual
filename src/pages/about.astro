@@ -2,12 +2,11 @@
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import potret from '../assets/brand/foto-arief.jpg';
-import { categories } from '../data/work';
-import { getPhotos, clientLogos } from '../lib/images';
+import { categories, totals } from '../data/work';
+import { clientLogos } from '../lib/images';
 import { site } from '../data/site';
 
-const totalVideos = categories.reduce((n, c) => n + c.videos.length, 0);
-const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0);
+const { videos: totalVideos, photos: totalPhotos } = totals;
 
 // Angka diambil langsung dari isi portofolio, jadi selalu akurat saat karya bertambah.
 const stats = [

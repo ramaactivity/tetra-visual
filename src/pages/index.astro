@@ -6,37 +6,40 @@ import VideoCard from '../components/VideoCard.astro';
 import VideoModal from '../components/VideoModal.astro';
 import ProjectModal from '../components/ProjectModal.astro';
 import Lightbox from '../components/Lightbox.astro';
-import { categories, categoryBySlug } from '../data/work';
-import { getCover, getPhotos, clientLogos } from '../lib/images';
+import { categories, categoryBySlug, featuredProject, asset, totals } from '../data/work';
+import { clientLogos } from '../lib/images';
 import { site } from '../data/site';
 
-// Karya unggulan yang tombolnya ada di hero.
-const FEATURED = { slug: 'event', cover: 1 };
-const featuredCat = categoryBySlug.get(FEATURED.slug)!;
-const featured = featuredCat.videos.find((v) => v.cover === FEATURED.cover)!;
-const featuredImg = getCover(FEATURED.slug, featured.cover)!;
+// Karya unggulan yang tombolnya ada di hero — dipilih lewat centang "unggulan" di dashboard.
+const featured = featuredProject;
+const featuredCat = featured && categoryBySlug.get(featured.category);
 
-// Kategori terkuat lebih dulu — pengunjung baru melihat karya terbaik dalam 3 detik pertama.
-const ORDER = ['corporate', 'event', 'sport', 'competition', 'wedding', 'birthday', 'graduation', 'other'];
-const rows = ORDER.map((slug) => categoryBySlug.get(slug)!).filter(Boolean);
+// Urutan kategori diatur di data/work.ts (terkuat lebih dulu). Kategori kosong tidak tampil.
+const rows = categories.filter((c) => c.projects.length > 0);
 
 // Slideshow hero: hanya foto kamera asli (3000–6000px), bukan frame video 1920px yang pecah
 // saat di-zoom. Bukan cover video juga — cover ada teks judulnya yang bertabrakan dengan tulisan hero.
 // Yang pertama gelap supaya teks langsung terbaca saat halaman dibuka.
-const HERO_PHOTOS: [string, number][] = [
-  ['event', 28], ['graduation', 1], ['corporate', 13], ['event', 37],
-  ['birthday', 22], ['graduation', 2], ['event', 36], ['corporate', 16],
+// Foto yang hilang (mis. proyeknya dihapus dari dashboard) otomatis dilewati.
+const HERO_PHOTOS = [
+  'work/event/photos/photo-28.jpg',
+  'projects/wisuda-man-2-koto-bogor-tahun-2024/01.jpg',
+  'projects/vitacimin/02.jpg',
+  'work/event/photos/photo-37.jpg',
+  'projects/sweet-17th-vanessa/04.jpg',
+  'projects/wisuda-man-2-koto-bogor-tahun-2024/02.jpg',
+  'work/event/photos/photo-36.jpg',
+  'projects/vitacimin/03.jpg',
 ];
-const heroSlides = HERO_PHOTOS.map(([slug, n]) => getPhotos(slug)[n - 1]).filter(Boolean);
+const heroSlides = HERO_PHOTOS.map(asset).filter(Boolean);
 
-const totalVideos = categories.reduce((n, c) => n + c.videos.length, 0);
-const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0);
+const { videos: totalVideos, photos: totalPhotos } = totals;
 ---
 
 <Base
   title={site.name}
   description={`${site.description} Lebih dari ${totalVideos} video dan ${totalPhotos} foto dokumentasi untuk brand seperti Eiger, Samsung, Nutrifood, dan Pertamina.`}
-  ogImage={featuredImg}
+  ogImage={featured?.cover}
   transparentHeader
 >
   <!-- HERO: karya unggulan -->
@@ -67,21 +70,27 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
           Dipercaya {clientLogos.length}+ brand — dari Eiger sampai Samsung.
         </p>
 
-        <div class="hero-actions">
-          <button class="btn btn-light" type="button" data-video-id={featured.youtubeId} data-video-title={featured.title}>
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
-            Putar Karya Unggulan
-          </button>
-          <button class="btn btn-info" type="button" data-project={`${FEATURED.slug}-${featured.cover}`} aria-haspopup="dialog">
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
-            Info Selengkapnya
-          </button>
-        </div>
+        {featured && (
+          <div class="hero-actions">
+            {featured.youtubeId && (
+              <button class="btn btn-light" type="button" data-video-id={featured.youtubeId} data-video-title={featured.title}>
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
+                Putar Karya Unggulan
+              </button>
+            )}
+            <button class="btn btn-info" type="button" data-project={featured.slug} aria-haspopup="dialog">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+              Info Selengkapnya
+            </button>
+          </div>
+        )}
 
-        <p class="hero-meta">
-          <span class="hero-tag">{featuredCat.name}</span>
-          <span class="hero-meta-text">{featured.title}</span>
-        </p>
+        {featured && featuredCat && (
+          <p class="hero-meta">
+            <span class="hero-tag">{featuredCat.name}</span>
+            <span class="hero-meta-text">{featured.title}</span>
+          </p>
+        )}
       </div>
     </div>
   </section>
@@ -90,19 +99,10 @@ const totalPhotos = categories.reduce((n, c) => n + getPhotos(c.slug).length, 0)
   <div class="rows">
     {
       rows.map((cat, rowIndex) => (
-        <Rail title={cat.name} href={`/work/${cat.slug}`} count={cat.videos.length}>
-          {cat.videos.map((v, i) => {
-            const cover = getCover(cat.slug, v.cover);
-            return cover ? (
-              <VideoCard
-                cover={cover}
-                project={`${cat.slug}-${v.cover}`}
-                title={v.title}
-                desc={v.desc}
-                eager={rowIndex === 0 && i < 3}
-              />
-            ) : null;
-          })}
+        <Rail title={cat.name} href={`/work/${cat.slug}`} count={cat.projects.length}>
+          {cat.projects.map((p, i) => (
+            <VideoCard cover={p.cover} project={p.slug} title={p.title} desc={p.desc} eager={rowIndex === 0 && i < 3} />
+          ))}
         </Rail>
       ))
     }

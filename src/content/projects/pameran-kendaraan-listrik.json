@@ -1,0 +1,13 @@
+{
+  "title": "Pameran Kendaraan Listrik",
+  "category": "corporate",
+  "youtube": "https://youtu.be/Y4U8YTRUSn0",
+  "desc": "Event Kementerian Perindustrian tentang Promosi kendaraan Listrik",
+  "synopsis": "",
+  "cover": "cover.jpg",
+  "photos": [
+    "01.jpg"
+  ],
+  "order": 3,
+  "featured": false
+}
