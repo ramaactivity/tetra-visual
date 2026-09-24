@@ -1,24 +1,12 @@
 ---
-// Dashboard pengelolaan karya. Halaman statis biasa: semua perubahan disimpan
-// langsung ke repo GitHub (lewat token milik pemilik), lalu GitHub Actions
-// otomatis membangun & menayangkan ulang situs. Tidak ada server/database.
+// Dashboard pengelolaan karya. Masuk dengan username + password; semua perubahan
+// disimpan ke repo GitHub lewat endpoint server /api/admin/* (token GitHub hanya ada
+// di server), lalu GitHub Actions otomatis membangun & menayangkan ulang situs.
 import '@fontsource-variable/inter';
 import '../../styles/global.css';
 import { Image } from 'astro:assets';
 import logo from '../../assets/brand/logo-tetra-visual.png';
 
-const REPO = 'ramaactivity/tetra-visual';
-// Tautan pembuatan token dengan isian sudah terisi (nama, tanpa kedaluwarsa, izin minimum).
-const tokenUrl =
-  'https://github.com/settings/personal-access-tokens/new?' +
-  new URLSearchParams({
-    name: 'Dashboard Tetra Visual',
-    description: 'Mengelola karya di visual.tetraphoto.com/admin',
-    target_name: REPO.split('/')[0]!,
-    expires_in: 'none',
-    contents: 'write',
-    actions: 'read',
-  });
 ---
 
 <!doctype html>
@@ -31,26 +19,24 @@ const tokenUrl =
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
 
-  <body data-repo={REPO}>
+  <body>
     <!-- LOGIN -->
     <main class="login" data-view="login" hidden>
       <div class="login-card">
         <Image src={logo} alt="Tetra Visual" widths={[240]} sizes="120px" class="login-logo" />
         <h1>Dashboard Karya</h1>
-        <p class="muted">Masuk dengan token GitHub. Cukup dibuat sekali — browser ini akan mengingatnya.</p>
-
-        <ol class="steps">
-          <li>
-            <a class="link" href={tokenUrl} target="_blank" rel="noopener">Buka halaman pembuatan token di GitHub ↗</a>
-            <span class="muted">(login sebagai <b>ramaactivity</b>; isian sudah terisi otomatis)</span>
-          </li>
-          <li>Di bagian <b>Repository access</b>, pilih <b>Only select repositories</b> → <b>tetra-visual</b>.</li>
-          <li>Klik <b>Generate token</b>, salin, lalu tempel di bawah.</li>
-        </ol>
+        <p class="muted">Masuk untuk mengelola karya di situs.</p>
 
         <form class="login-form" data-login-form>
-          <input class="input" type="password" name="token" placeholder="github_pat_…" autocomplete="off" required />
-          <button class="btn btn-brand" type="submit">Masuk</button>
+          <label class="field">
+            <span class="label">Username</span>
+            <input class="input" name="username" autocomplete="username" autocapitalize="none" required />
+          </label>
+          <label class="field">
+            <span class="label">Password</span>
+            <input class="input" type="password" name="password" autocomplete="current-password" required />
+          </label>
+          <button class="btn btn-brand" type="submit" data-login-btn>Masuk</button>
         </form>
         <p class="form-error" data-login-error hidden></p>
       </div>
@@ -230,7 +216,9 @@ const tokenUrl =
   .login-card h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
   .steps { margin: 1.5rem 0; padding-left: 1.2rem; display: grid; gap: 0.75rem; font-size: 0.9rem; color: #ddd; }
   .steps li { padding-left: 0.3rem; }
-  .login-form { display: flex; gap: 0.6rem; margin-bottom: 0.75rem; }
+  .login-card > .muted { margin-bottom: 1.5rem; }
+  .login-form { display: grid; gap: 1rem; margin-bottom: 0.75rem; }
+  .login-form .btn { margin-top: 0.25rem; }
 
   /* TOP */
   .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem var(--gutter); background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
@@ -352,17 +340,15 @@ const tokenUrl =
   /** Foto di editor: `name` = file yang sudah ada di repo, `blob` = foto baru yang belum diunggah. */
   type Pic = { name?: string; blob?: Blob; url: string };
 
-  const REPO = document.body.dataset.repo!;
   // ?branch=nama-cabang hanya untuk uji coba: commit ke cabang lain tidak memicu deploy.
   const BRANCH = new URLSearchParams(location.search).get('branch') || 'main';
-  const API = `https://api.github.com/repos/${REPO}`;
-  const TOKEN_KEY = 'tv-admin-token';
+  // Semua panggilan GitHub lewat server situs sendiri; token GitHub tidak pernah ada di browser.
+  const API = '/api/admin/github';
 
   const $ = <T extends HTMLElement = HTMLElement,>(sel: string) => document.querySelector<T>(sel)!;
   const views = { login: $('[data-view="login"]'), app: $('[data-view="app"]'), list: $('[data-view="list"]'), editor: $('[data-view="editor"]') };
 
-  let token = '';
-  try { token = localStorage.getItem(TOKEN_KEY) ?? ''; } catch { /* mode privat */ }
+  try { localStorage.removeItem('tv-admin-token'); } catch { /* sisa cara masuk lama */ }
   let entries: Entry[] = [];
   let cats: { slug: string; name: string }[] = [];
   const catName = (slug: string) => cats.find((c) => c.slug === slug)?.name ?? slug;
@@ -370,17 +356,18 @@ const tokenUrl =
   // ---------- GitHub ----------
   class GhError extends Error { constructor(public status: number, msg: string) { super(msg); } }
   async function gh(path: string, init: RequestInit = {}) {
-    const res = await fetch(path.startsWith('http') ? path : API + path, {
+    const res = await fetch(API + path, {
       ...init,
       cache: 'no-store',
+      credentials: 'same-origin',
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
         ...(init.body ? { 'Content-Type': 'application/json' } : {}),
         ...(init.headers ?? {}),
       },
     });
+    // Sesi habis (30 hari) di tengah pemakaian: kembali ke halaman masuk.
+    if (res.status === 401) { showLogin('Sesi berakhir — silakan masuk lagi.'); throw new GhError(401, 'Belum masuk'); }
     if (!res.ok) throw new GhError(res.status, `GitHub ${res.status}: ${(await res.text()).slice(0, 200)}`);
     return res;
   }
@@ -513,7 +500,12 @@ const tokenUrl =
     c.height = Math.round(bmp.height * s);
     c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height);
     bmp.close();
-    return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('Gagal memproses foto'))), 'image/jpeg', 0.86));
+    const encode = (q: number) => new Promise<Blob>((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('Gagal memproses foto'))), 'image/jpeg', q));
+    // Kiriman ke server dibatasi 4,5 MB (setelah base64 ±1,37×) — jaga tiap foto di bawah 2,4 MB.
+    let q = 0.86;
+    let blob = await encode(q);
+    while (blob.size > 2.4e6 && q > 0.6) blob = await encode((q -= 0.08));
+    return blob;
   }
 
   // ---------- Data ----------
@@ -894,7 +886,7 @@ const tokenUrl =
     } catch (err) {
       setBusy(null);
       showError(err instanceof GhError && err.status === 403
-        ? 'Token tidak punya izin menulis. Buat token baru dengan izin Contents: Read and write.'
+        ? 'Server tidak punya izin menulis ke repo. Token GitHub di server perlu izin Contents: Read and write.'
         : `Gagal menyimpan: ${(err as Error).message}`);
     }
   });
@@ -937,9 +929,12 @@ const tokenUrl =
   addEventListener('beforeunload', (e) => { if (dirty) e.preventDefault(); });
 
   // ---------- Login ----------
+  let started = false;
   async function start() {
     views.login.hidden = true;
     views.app.hidden = false;
+    if (started) return;
+    started = true;
     show('list');
     try {
       await loadData();
@@ -948,29 +943,47 @@ const tokenUrl =
     }
   }
 
+  function showLogin(message = '') {
+    views.app.hidden = true;
+    views.login.hidden = false;
+    const err = $('[data-login-error]');
+    err.hidden = !message;
+    err.textContent = message;
+    $<HTMLInputElement>('[data-login-form] [name="username"]').focus();
+  }
+
   $('[data-login-form]').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const input = (e.target as HTMLFormElement).elements.namedItem('token') as HTMLInputElement;
-    const err = $('[data-login-error]');
-    token = input.value.trim();
-    err.hidden = true;
+    const form = e.target as HTMLFormElement;
+    const val = (n: string) => (form.elements.namedItem(n) as HTMLInputElement).value;
+    const btn = $<HTMLButtonElement>('[data-login-btn]');
+    btn.disabled = true;
+    btn.textContent = 'Memeriksa…';
     try {
-      await gh('');
-      try { localStorage.setItem(TOKEN_KEY, token); } catch { /* tidak apa-apa */ }
-      start();
-    } catch (ex) {
-      err.hidden = false;
-      err.textContent = ex instanceof GhError && (ex.status === 401 || ex.status === 404)
-        ? 'Token tidak valid atau belum diberi akses ke repo tetra-visual.'
-        : 'Tidak bisa menghubungi GitHub — cek koneksi internet.';
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: val('username'), password: val('password') }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok) { (form.elements.namedItem('password') as HTMLInputElement).value = ''; start(); }
+      else showLogin(body.error ?? 'Gagal masuk.');
+    } catch {
+      showLogin('Tidak bisa menghubungi server — cek koneksi internet.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Masuk';
     }
   });
 
-  $('[data-logout]').addEventListener('click', () => {
-    try { localStorage.removeItem(TOKEN_KEY); } catch { /* */ }
+  $('[data-logout]').addEventListener('click', async () => {
+    await fetch('/api/admin/login', { method: 'DELETE' }).catch(() => {});
     location.reload();
   });
 
-  if (token) start();
-  else views.login.hidden = false;
+  fetch('/api/admin/login', { cache: 'no-store' })
+    .then((r) => r.json())
+    .then((s: { configured: boolean; loggedIn: boolean }) =>
+      s.loggedIn ? start() : showLogin(s.configured ? '' : 'Dashboard belum dikonfigurasi di server.'))
+    .catch(() => showLogin('Tidak bisa menghubungi server — cek koneksi internet.'));
 </script>

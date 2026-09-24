@@ -47,7 +47,13 @@ Klik **Simpan** → perubahan masuk ke GitHub sebagai satu commit → GitHub Act
 menayangkan ulang situs (±3 menit). Status "Sedang menayangkan… / Sudah tayang"
 tampil di pojok kanan atas dashboard.
 
-Login pertama kali butuh **token GitHub** — langkah membuatnya tertulis di halaman masuk.
+Masuk dengan **username + password** (lihat `.env.local`, kunci `ADMIN_USERNAME` /
+`ADMIN_PASSWORD`). Sesi bertahan 30 hari per browser. Token GitHub hanya disimpan
+di server (Environment Variables Vercel), tidak pernah dikirim ke browser —
+browser berbicara ke `/api/admin/*`, satu-satunya bagian situs yang berjalan di server.
+
+**Mengganti password:** ubah `ADMIN_PASSWORD` di `.env.local` dan di Vercel
+(Project → Settings → Environment Variables), lalu deploy ulang.
 
 Di balik layar, tiap proyek = satu file `src/content/projects/<slug>.json` + folder
 `src/assets/projects/<slug>/` (`cover.jpg`, `01.jpg`, `02.jpg`, …). Boleh juga diedit

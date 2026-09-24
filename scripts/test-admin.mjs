@@ -1,5 +1,5 @@
-// Uji dashboard /admin tanpa menyentuh GitHub sungguhan: semua panggilan ke
-// api.github.com ditiru, lalu isi commit yang akan dikirim diperiksa.
+// Uji dashboard /admin tanpa menyentuh GitHub sungguhan: login & perantara GitHub
+// di /api/admin/* ditiru di sisi browser, lalu isi commit yang akan dikirim diperiksa.
 // Jalankan `npm run dev` di terminal lain, lalu `npm run test:admin`.
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
@@ -12,12 +12,23 @@ const commits = []; // tree yang dikirim tiap commit
 let blobs = 0;
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
-await ctx.route('https://api.github.com/**', async (route) => {
+let loggedIn = false;
+await ctx.route('**/api/admin/login', async (route) => {
+  const m = route.request().method();
+  if (m === 'POST') {
+    const { username, password } = JSON.parse(route.request().postData());
+    loggedIn = username === 'tetravisual' && password === 'benar';
+    return route.fulfill({ status: loggedIn ? 200 : 401, contentType: 'application/json', body: JSON.stringify(loggedIn ? { ok: true } : { error: 'Username atau password salah.' }) });
+  }
+  return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ configured: true, loggedIn }) });
+});
+await ctx.route('**/api/admin/github**', async (route) => {
   const req = route.request();
   const url = new URL(req.url());
-  const path = url.pathname.replace('/repos/ramaactivity/tetra-visual', '');
+  const path = url.pathname.replace('/api/admin/github', '');
   const json = (body, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
   const m = req.method();
+  if (!loggedIn) return json({}, 401);
 
   if (path === '' && m === 'GET') return json({ full_name: 'ramaactivity/tetra-visual' });
   if (path.startsWith('/contents/')) {
@@ -36,9 +47,15 @@ await ctx.route('https://api.github.com/**', async (route) => {
 
 const p = await ctx.newPage();
 await p.goto(`${BASE}/admin`, { waitUntil: 'networkidle' });
-ok('tanpa token tampil halaman masuk', await p.isVisible('[data-view="login"]'));
-await p.fill('input[name="token"]', 'github_pat_uji');
-await p.click('[data-login-form] button');
+await p.waitForSelector('[data-view="login"]:not([hidden])');
+ok('belum masuk: tampil halaman masuk', true);
+await p.fill('input[name="username"]', 'tetravisual');
+await p.fill('input[name="password"]', 'salah');
+await p.click('[data-login-btn]');
+await p.waitForSelector('[data-login-error]:not([hidden])');
+ok('password salah ditolak', (await p.textContent('[data-login-error]')).includes('salah'));
+await p.fill('input[name="password"]', 'benar');
+await p.click('[data-login-btn]');
 await p.waitForSelector('.pcard');
 const n = await p.locator('.pcard').count();
 ok(`daftar proyek tampil (${n})`, n > 50);

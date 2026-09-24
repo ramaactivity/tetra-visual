@@ -84,7 +84,9 @@ dig +short CNAME visual.tetraphoto.com
 | **Sesi login Vercel CLI** | `~/Library/Application Support/com.vercel.cli/auth.json` | Otomatis dari `vercel login` |
 | **`VERCEL_OIDC_TOKEN`** | `.env.local` repo ini (gitignored) | Dibuat otomatis oleh `vercel link` |
 | **Kredensial GitHub** | `~/.git-credentials` | Dari `credential.helper = store` |
-| **Token dashboard** (GitHub fine-grained, nama "Dashboard Tetra Visual") | Browser yang dipakai membuka `/admin` (localStorage) + salinan di `.env.local` repo ini (`TETRA_DASHBOARD_GITHUB_TOKEN`, gitignored) | Login dashboard karya. Hilang/ganti perangkat → buat token baru lewat tautan di halaman masuk. Bocor → hapus di <https://github.com/settings/personal-access-tokens>. |
+| **Login dashboard** (`ADMIN_USERNAME`, `ADMIN_PASSWORD`) | `.env.local` repo ini + Vercel → project `tetra-visual` → Settings → Environment Variables (Production, *sensitive*) | Masuk ke `/admin`. Ganti password = ubah di kedua tempat lalu deploy ulang. |
+| **`ADMIN_SESSION_SECRET`** | Sama seperti di atas | Tanda tangan cookie sesi. Diganti = semua perangkat yang sedang login otomatis keluar. |
+| **Token GitHub dashboard** (`TETRA_DASHBOARD_GITHUB_TOKEN`, fine-grained "Dashboard Tetra Visual", hanya repo tetra-visual: Contents RW + Actions R) | Sama seperti di atas — **hanya di server**, tidak pernah ke browser | Dipakai server untuk menyimpan perubahan dari dashboard. Ganti: buat token baru di <https://github.com/settings/personal-access-tokens>, perbarui di `.env.local` + Vercel, deploy ulang, lalu hapus token lama. |
 
 ### Kalau token Vercel bocor atau hilang
 
