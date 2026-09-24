@@ -16,8 +16,8 @@
   --text-dim: #a2abb3;      /* kontras 7.1:1 di atas --bg */
   --text-faint: #737d85;    /* hanya untuk label kecil non-esensial */
 
-  --brand: #d92027;         /* merah Tetra, dipertahankan dari versi lama */
-  --brand-hi: #f23a41;      /* untuk hover — versi lebih terang, bukan lebih gelap */
+  --brand: #e50914;         /* merah Netflix */
+  --brand-hi: #f6121d;      /* untuk hover — versi lebih terang, bukan lebih gelap */
   --on-brand: #ffffff;
 
   /* --- TIPOGRAFI --- */
