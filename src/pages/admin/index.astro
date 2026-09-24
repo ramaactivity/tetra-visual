@@ -133,7 +133,9 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
                   <input type="file" accept="image/*" data-cover-input hidden />
                 </label>
                 <button class="btn btn-ghost btn-sm" type="button" data-cover-yt disabled>Ambil dari YouTube</button>
+                <button class="btn btn-ghost btn-sm" type="button" data-cover-edit disabled>✎ Crop / edit</button>
               </div>
+              <span class="hint" data-cover-size></span>
               <div class="yt-preview" data-yt-preview hidden>
                 <span class="label">Video terdeteksi</span>
                 <a data-yt-link target="_blank" rel="noopener"><img data-yt-img alt="Thumbnail video YouTube" /></a>
@@ -146,10 +148,25 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
               <span class="label">Foto dokumentasi <span class="muted" data-photo-count></span></span>
               <span class="hint">Seret untuk mengubah urutan · foto pertama tampil paling besar</span>
             </div>
+            <div class="up-set">
+              <span class="label">Kompresi foto baru</span>
+              <select class="input input-sm" data-up-max aria-label="Ukuran maksimal foto baru">
+                <option value="3840">Maks 3840 px (4K)</option>
+                <option value="2560" selected>Maks 2560 px (disarankan)</option>
+                <option value="1920">Maks 1920 px (Full HD)</option>
+                <option value="1280">Maks 1280 px</option>
+              </select>
+              <select class="input input-sm" data-up-q aria-label="Kualitas foto baru">
+                <option value="0.92">Kualitas tinggi</option>
+                <option value="0.86" selected>Seimbang (disarankan)</option>
+                <option value="0.75">Hemat</option>
+                <option value="0.6">Sangat hemat</option>
+              </select>
+            </div>
             <label class="drop" data-drop>
               <input type="file" accept="image/*" multiple data-photo-input hidden />
               <span><strong>Tarik foto ke sini</strong> atau <span class="link">pilih dari komputer</span></span>
-              <small class="muted">Bisa banyak sekaligus · otomatis dikecilkan sebelum diunggah</small>
+              <small class="muted">Bisa banyak sekaligus · otomatis dikompres · klik ✎ di foto untuk crop, putar, atau ubah ukuran</small>
             </label>
             <p class="hint" data-photo-status></p>
             <div class="photo-grid" data-photo-grid></div>
@@ -165,6 +182,67 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
         </form>
       </main>
     </div>
+
+    <!-- EDITOR FOTO -->
+    <dialog class="ie" data-ie aria-labelledby="ie-title">
+      <div class="ie-head">
+        <h2 id="ie-title" data-ie-title>Edit foto</h2>
+        <button class="ie-x" type="button" data-ie-cancel aria-label="Tutup">✕</button>
+      </div>
+      <div class="ie-body">
+        <div class="ie-stage" data-ie-stage>
+          <div class="ie-wrap" data-ie-wrap>
+            <canvas data-ie-canvas></canvas>
+            <div class="ie-crop" data-ie-crop>
+              <span class="ie-grid"></span>
+              <i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i>
+            </div>
+          </div>
+          <p class="ie-loading" data-ie-loading>Memuat foto asli…</p>
+        </div>
+        <div class="ie-side">
+          <section>
+            <span class="label">Potong (crop)</span>
+            <div class="chips" data-ie-ratios></div>
+            <span class="hint">Geser kotak untuk memindahkan, tarik sudutnya untuk mengubah ukuran.</span>
+          </section>
+          <section>
+            <span class="label">Putar</span>
+            <div class="ie-row">
+              <button class="btn btn-ghost btn-sm" type="button" data-ie-rot="-90">⟲ Kiri</button>
+              <button class="btn btn-ghost btn-sm" type="button" data-ie-rot="90">⟳ Kanan</button>
+            </div>
+          </section>
+          <section>
+            <span class="label">Ukuran (scale)</span>
+            <select class="input input-sm" data-ie-max>
+              <option value="0">Asli</option>
+              <option value="3840">Maks 3840 px (4K)</option>
+              <option value="2560">Maks 2560 px (disarankan)</option>
+              <option value="1920">Maks 1920 px (Full HD)</option>
+              <option value="1280">Maks 1280 px</option>
+              <option value="1080">Maks 1080 px</option>
+            </select>
+          </section>
+          <section>
+            <span class="label">Kompresi · kualitas <b data-ie-qv></b></span>
+            <input class="ie-range" type="range" min="40" max="95" step="1" data-ie-q />
+            <div class="ie-scale"><span>File kecil</span><span>Kualitas tinggi</span></div>
+          </section>
+          <div class="ie-result">
+            <span class="label">Hasil</span>
+            <strong data-ie-dims>—</strong>
+            <span data-ie-size class="muted">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="ie-foot">
+        <button class="btn btn-ghost btn-sm" type="button" data-ie-reset>Reset</button>
+        <span class="bar-space"></span>
+        <button class="btn btn-ghost" type="button" data-ie-cancel>Batal</button>
+        <button class="btn btn-brand" type="button" data-ie-apply>Terapkan</button>
+      </div>
+    </dialog>
 
     <!-- PROSES MENYIMPAN -->
     <div class="busy" data-busy hidden>
@@ -292,6 +370,11 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
   .drop { display: grid; justify-items: center; gap: 0.35rem; padding: 2rem 1rem; border-radius: 10px; border: 2px dashed rgba(255, 255, 255, 0.18); background: #1a1a1a; text-align: center; cursor: pointer; transition: border-color 0.2s, background-color 0.2s; }
   .drop:hover, .drop.is-over { border-color: #fff; background: #222; }
   .drop small { font-size: 0.78rem; }
+  .up-set { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+  .up-set .label { margin-right: 0.25rem; }
+  .input-sm { width: auto; padding: 0.45rem 2.2rem 0.45rem 0.7rem; font-size: 0.8125rem; }
+  .ph-size { position: absolute; right: 0.4rem; top: 0.4rem; padding: 0.1rem 0.4rem; border-radius: 4px; background: rgba(0, 0, 0, 0.7); font-size: 0.7rem; font-weight: 600; }
+  .ph-size.warn { color: #f5c542; }
   .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.6rem; margin-top: 1rem; }
   .ph { position: relative; aspect-ratio: 4 / 3; border-radius: 6px; overflow: hidden; background: #262626; cursor: grab; transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s; }
   .ph img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
@@ -318,7 +401,45 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
   .busy-bar span { display: block; height: 100%; width: 0; background: var(--brand); transition: width 0.3s; }
   .toast { position: fixed; left: 50%; bottom: 1.5rem; z-index: 110; transform: translateX(-50%); padding: 0.8rem 1.2rem; border-radius: 8px; background: #fff; color: #000; font-weight: 600; font-size: 0.9rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); animation: fade 0.3s ease both; max-width: calc(100vw - 2rem); }
 
+  /* EDITOR FOTO */
+  .ie { width: min(1100px, 96vw); max-width: none; max-height: 94dvh; padding: 0; border: 0; border-radius: 12px; background: #1b1b1b; color: #fff; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8); overflow: hidden; }
+  .ie[open] { display: flex; flex-direction: column; animation: fade 0.25s ease both; }
+  .ie::backdrop { background: rgba(0, 0, 0, 0.8); }
+  .ie-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+  .ie-head h2 { font-size: 1.05rem; }
+  .ie-x { width: 34px; height: 34px; border-radius: 50%; background: #2a2a2a; }
+  .ie-x:hover { background: #fff; color: #000; }
+  .ie-body { display: grid; grid-template-columns: minmax(0, 1fr) 280px; min-height: 0; flex: 1; overflow: auto; }
+  .ie-stage { position: relative; height: min(62dvh, 580px); display: grid; place-items: center; background: #0e0e0e; background-image: repeating-conic-gradient(#141414 0 25%, #0e0e0e 0 50%); background-size: 20px 20px; }
+  .ie-wrap { position: relative; line-height: 0; }
+  .ie-wrap canvas { display: block; }
+  .ie-crop { position: absolute; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6); outline: 1px solid rgba(255, 255, 255, 0.9); cursor: move; touch-action: none; }
+  .ie-wrap { overflow: hidden; }
+  .ie-grid { position: absolute; inset: 0; pointer-events: none; background:
+      linear-gradient(to right, transparent calc(33.33% - 0.5px), rgba(255,255,255,0.35) calc(33.33% - 0.5px) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px) calc(66.66% - 0.5px), rgba(255,255,255,0.35) calc(66.66% - 0.5px) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px)),
+      linear-gradient(to bottom, transparent calc(33.33% - 0.5px), rgba(255,255,255,0.35) calc(33.33% - 0.5px) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px) calc(66.66% - 0.5px), rgba(255,255,255,0.35) calc(66.66% - 0.5px) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px)); }
+  .ie-crop i { position: absolute; width: 18px; height: 18px; border: 3px solid #fff; touch-action: none; }
+  .ie-crop i[data-h='nw'] { left: -3px; top: -3px; border-right: 0; border-bottom: 0; cursor: nwse-resize; }
+  .ie-crop i[data-h='ne'] { right: -3px; top: -3px; border-left: 0; border-bottom: 0; cursor: nesw-resize; }
+  .ie-crop i[data-h='sw'] { left: -3px; bottom: -3px; border-right: 0; border-top: 0; cursor: nesw-resize; }
+  .ie-crop i[data-h='se'] { right: -3px; bottom: -3px; border-left: 0; border-top: 0; cursor: nwse-resize; }
+  .ie-crop i::after { content: ''; position: absolute; inset: -12px; }
+  .ie-loading { position: absolute; color: var(--text-dim); font-size: 0.875rem; line-height: 1.5; }
+  .ie-side { display: grid; gap: 1.4rem; align-content: start; padding: 1.25rem; border-left: 1px solid rgba(255, 255, 255, 0.08); }
+  .ie-side section { display: grid; gap: 0.55rem; }
+  .ie-side .chips .chip { padding: 0.3rem 0.7rem; }
+  .ie-row { display: flex; gap: 0.5rem; }
+  .ie-range { width: 100%; accent-color: var(--brand); }
+  .ie-scale { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-faint); }
+  .ie-result { display: grid; gap: 0.2rem; padding: 0.9rem 1rem; border-radius: 8px; background: #232323; font-size: 0.875rem; }
+  .ie-result strong { font-size: 1rem; }
+  .ie-foot { display: flex; align-items: center; gap: 0.6rem; padding: 0.9rem 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+
   @media (max-width: 800px) {
+    .ie-body { grid-template-columns: 1fr; }
+    /* Foto tetap terlihat di atas saat pengaturan di bawahnya digulir */
+    .ie-stage { position: sticky; top: 0; z-index: 2; height: 42dvh; }
+    .ie-side { border-left: 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
     .ed-cols { grid-template-columns: 1fr; }
     .ed-side { order: -1; }
     .top-brand span, .top-right .btn-ghost[href] { display: none; }
@@ -337,8 +458,13 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     cover: string; photos: string[]; order: number; featured: boolean;
   };
   type Entry = { slug: string; data: PF; thumbs: Record<string, string | null>; sha?: string; pending?: boolean };
-  /** Foto di editor: `name` = file yang sudah ada di repo, `blob` = foto baru yang belum diunggah. */
-  type Pic = { name?: string; blob?: Blob; url: string };
+  /** Hasil editor foto: area crop (0–1, setelah diputar), putaran, sisi terpanjang maks. (0 = asli), kualitas JPEG. */
+  type Edit = { x: number; y: number; w: number; h: number; ratio: number | null; rotate: number; max: number; quality: number };
+  /**
+   * Foto di editor: `name` = file yang sudah ada di repo, `blob` = hasil yang akan diunggah,
+   * `orig` + `edit` = file asli & pengaturannya, supaya diedit ulang tanpa menurunkan kualitas.
+   */
+  type Pic = { name?: string; blob?: Blob; url: string; orig?: Blob; edit?: Edit; edited?: boolean };
 
   // ?branch=nama-cabang hanya untuk uji coba: commit ke cabang lain tidak memicu deploy.
   const BRANCH = new URLSearchParams(location.search).get('branch') || 'main';
@@ -490,22 +616,66 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     return m?.[1] ?? '';
   };
 
-  // Foto dikecilkan di browser: sisi terpanjang maks. `max` px, JPEG 86%.
-  // File kamera 8–20 MB jadi ±0,5–1 MB — unggah cepat, repo tidak membengkak.
-  async function shrink(file: Blob, max: number): Promise<Blob> {
-    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
-    const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
-    const c = document.createElement('canvas');
-    c.width = Math.round(bmp.width * s);
-    c.height = Math.round(bmp.height * s);
-    c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height);
-    bmp.close();
-    const encode = (q: number) => new Promise<Blob>((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('Gagal memproses foto'))), 'image/jpeg', q));
-    // Kiriman ke server dibatasi 4,5 MB (setelah base64 ±1,37×) — jaga tiap foto di bawah 2,4 MB.
-    let q = 0.86;
-    let blob = await encode(q);
-    while (blob.size > 2.4e6 && q > 0.6) blob = await encode((q -= 0.08));
-    return blob;
+  // ---------- Pemrosesan foto (semua di browser) ----------
+  // File kamera 8–20 MB jadi ±0,5–1 MB sebelum diunggah — cepat, dan repo tidak membengkak.
+  // Kiriman ke server dibatasi 4,5 MB (setelah base64 ±1,37×), jadi tiap foto dijaga < 2,4 MB.
+  const LIMIT = 2.4e6;
+  const upMax = () => Number($<HTMLSelectElement>('[data-up-max]').value);
+  const upQ = () => Number($<HTMLSelectElement>('[data-up-q]').value);
+  const decode = (b: Blob) => createImageBitmap(b, { imageOrientation: 'from-image' });
+  const rotDims = (bmp: ImageBitmap, rot: number): [number, number] => (rot % 180 ? [bmp.height, bmp.width] : [bmp.width, bmp.height]);
+  const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+  const fmtSize = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1).replace('.', ',')} MB` : `${Math.round(n / 1e3)} KB`);
+  /** Kotak terbesar di tengah dengan rasio r (lebar/tinggi dalam piksel), koordinat 0–1. */
+  const fitRatio = (W: number, H: number, r: number | null) => {
+    if (!r) return { x: 0, y: 0, w: 1, h: 1 };
+    const w = Math.min(1, (r * H) / W);
+    const h = Math.min(1, W / (r * H));
+    return { x: (1 - w) / 2, y: (1 - h) / 2, w, h };
+  };
+  const photoDefault = (): Edit => ({ x: 0, y: 0, w: 1, h: 1, ratio: null, rotate: 0, max: upMax(), quality: upQ() });
+  const coverDefault = (bmp: ImageBitmap): Edit => ({ ...fitRatio(bmp.width, bmp.height, 16 / 9), ratio: 16 / 9, rotate: 0, max: 1920, quality: 0.88 });
+
+  async function render(bmp: ImageBitmap, e: Edit) {
+    const [W, H] = rotDims(bmp, e.rotate);
+    const cw = e.w * W;
+    const ch = e.h * H;
+    let s = Math.min(1, e.max ? e.max / Math.max(cw, ch) : 1);
+    const draw = () => {
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(cw * s));
+      c.height = Math.max(1, Math.round(ch * s));
+      const g = c.getContext('2d')!;
+      g.imageSmoothingQuality = 'high';
+      g.scale(s, s);
+      g.translate(-e.x * W + W / 2, -e.y * H + H / 2);
+      g.rotate((e.rotate * Math.PI) / 180);
+      g.drawImage(bmp, -bmp.width / 2, -bmp.height / 2);
+      return c;
+    };
+    const encode = (c: HTMLCanvasElement, q: number) =>
+      new Promise<Blob>((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('Gagal memproses foto'))), 'image/jpeg', q));
+    let c = draw();
+    let q = e.quality;
+    let blob = await encode(c, q);
+    // Masih terlalu besar untuk diunggah: turunkan kualitas dulu, lalu ukurannya.
+    while (blob.size > LIMIT) {
+      if (q > 0.6) q -= 0.06;
+      else { s *= 0.85; c = draw(); }
+      blob = await encode(c, q);
+    }
+    return { blob, width: c.width, height: c.height, adjusted: q !== e.quality || c.width < Math.round(cw * Math.min(1, e.max ? e.max / Math.max(cw, ch) : 1)) };
+  }
+
+  async function makePic(file: Blob, edit: (bmp: ImageBitmap) => Edit): Promise<Pic> {
+    const bmp = await decode(file);
+    try {
+      const e = edit(bmp);
+      const r = await render(bmp, e);
+      return { orig: file, edit: e, blob: r.blob, url: URL.createObjectURL(r.blob) };
+    } finally {
+      bmp.close();
+    }
   }
 
   // ---------- Data ----------
@@ -695,6 +865,8 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     img.hidden = !cover?.url;
     if (cover?.url) img.src = cover.url;
     $('[data-cover-empty]').hidden = Boolean(cover?.url);
+    $<HTMLButtonElement>('[data-cover-edit]').disabled = !cover;
+    $('[data-cover-size]').textContent = cover?.blob ? `Siap diunggah · ${fmtSize(cover.blob.size)}` : '';
     $('[data-photo-count]').textContent = photos.length ? `(${photos.length})` : '';
 
     $('[data-photo-grid]').replaceChildren(...photos.map((p, i) => {
@@ -702,10 +874,12 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
       d.className = 'ph';
       d.draggable = true;
       d.dataset.i = String(i);
-      d.innerHTML = `<span class="ph-num${p.blob ? ' new' : ''}">${p.blob ? 'Baru' : i + 1}</span>
+      d.innerHTML = `<span class="ph-num${p.blob ? ' new' : ''}">${p.blob ? (p.edited ? 'Diedit' : 'Baru') : i + 1}</span>
+        ${p.blob ? `<span class="ph-size${p.blob.size > 1.5e6 ? ' warn' : ''}">${fmtSize(p.blob.size)}</span>` : ''}
         <div class="ph-tools">
           <span><button type="button" data-mv="-1" aria-label="Geser ke kiri">◀</button>
-          <button type="button" data-mv="1" aria-label="Geser ke kanan">▶</button></span>
+          <button type="button" data-mv="1" aria-label="Geser ke kanan">▶</button>
+          <button type="button" data-edit aria-label="Crop, putar, ukuran & kompresi" title="Crop, putar, ukuran & kompresi">✎</button></span>
           <button type="button" class="del" data-del aria-label="Hapus foto">✕</button>
         </div>`;
       if (p.url) { const im = new Image(); im.src = p.url; im.alt = ''; d.prepend(im); }
@@ -740,6 +914,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     const i = +(t.closest<HTMLElement>('.ph')?.dataset.i ?? -1);
     if (i < 0) return;
     if (t.closest('[data-del]')) { photos.splice(i, 1); dirty = true; renderPics(); }
+    if (t.closest('[data-edit]')) openImageEditor(photos[i]!, 'foto');
     const mv = t.closest<HTMLElement>('[data-mv]');
     if (mv) move(i, i + +mv.dataset.mv!);
   });
@@ -752,8 +927,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     for (const [n, file] of list.entries()) {
       status.textContent = `Memproses foto ${n + 1} dari ${list.length}…`;
       try {
-        const blob = await shrink(file, 2560);
-        photos.push({ blob, url: URL.createObjectURL(blob) });
+        photos.push(await makePic(file, photoDefault));
         dirty = true;
         renderPics();
       } catch { failed++; }
@@ -769,10 +943,10 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
   drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
   drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('is-over'); if (e.dataTransfer?.files.length) addPhotos(e.dataTransfer.files); });
 
+  // Cover otomatis dipotong 16:9 di tengah; posisinya bisa digeser lewat ✎ Crop / edit.
   async function setCover(file: Blob) {
     try {
-      const blob = await shrink(file, 1920);
-      cover = { blob, url: URL.createObjectURL(blob) };
+      cover = await makePic(file, coverDefault);
       dirty = true;
       $('[data-cover]').classList.remove('is-invalid');
       renderPics();
@@ -787,18 +961,212 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     for (const q of ['maxresdefault', 'sddefault', 'hqdefault']) {
       const res = await fetch(`https://i.ytimg.com/vi/${id}/${q}.jpg`).catch(() => null);
       if (!res?.ok) continue;
-      const bmp = await createImageBitmap(await res.blob());
-      const h = Math.round((bmp.width * 9) / 16);
-      const c = document.createElement('canvas');
-      c.width = bmp.width;
-      c.height = Math.min(h, bmp.height);
-      c.getContext('2d')!.drawImage(bmp, 0, (bmp.height - c.height) / 2, c.width, c.height, 0, 0, c.width, c.height);
-      c.toBlob((b) => b && setCover(b), 'image/jpeg', 0.9);
+      await setCover(await res.blob()); // potongan 16:9 otomatis membuang bingkai hitam thumbnail 4:3
       toast(q === 'maxresdefault' ? 'Cover diambil dari YouTube (HD).' : 'Cover diambil dari YouTube (resolusi terbatas).');
       return;
     }
     toast('Thumbnail YouTube tidak ditemukan.');
   });
+
+  // Pengaturan kompresi diubah: foto baru yang belum disimpan ikut diproses ulang dari file aslinya.
+  for (const sel of ['[data-up-max]', '[data-up-q]']) {
+    $(sel).addEventListener('change', async () => {
+      const targets = photos.filter((p) => p.orig && p.edit && !p.name);
+      const status = $('[data-photo-status]');
+      for (const [n, p] of targets.entries()) {
+        status.textContent = `Mengompres ulang ${n + 1} dari ${targets.length}…`;
+        p.edit = { ...p.edit!, max: upMax(), quality: upQ() };
+        const bmp = await decode(p.orig!);
+        const r = await render(bmp, p.edit);
+        bmp.close();
+        URL.revokeObjectURL(p.url);
+        p.blob = r.blob;
+        p.url = URL.createObjectURL(r.blob);
+        renderPics();
+      }
+      if (targets.length) {
+        const total = targets.reduce((n, p) => n + p.blob!.size, 0);
+        status.className = 'hint ok';
+        status.textContent = `${targets.length} foto baru dikompres ulang · total ${fmtSize(total)}.`;
+      }
+    });
+  }
+
+  // ---------- Editor foto: crop, putar, ukuran, kompresi ----------
+  const ie = $<HTMLDialogElement>('[data-ie]');
+  const ieStage = $('[data-ie-stage]');
+  const ieWrap = $('[data-ie-wrap]');
+  const ieCanvas = $<HTMLCanvasElement>('[data-ie-canvas]');
+  const ieCrop = $('[data-ie-crop]');
+  const ieMax = $<HTMLSelectElement>('[data-ie-max]');
+  const ieQ = $<HTMLInputElement>('[data-ie-q]');
+  const RATIOS: [string, number | null][] = [['Bebas', null], ['16:9', 16 / 9], ['4:3', 4 / 3], ['3:2', 3 / 2], ['1:1', 1], ['4:5', 4 / 5], ['9:16', 9 / 16]];
+  const MIN = 0.05;
+  let iePic: Pic | null = null;
+  let ieKind: 'cover' | 'foto' = 'foto';
+  let ieBmp: ImageBitmap | null = null;
+  let ieEdit: Edit = { x: 0, y: 0, w: 1, h: 1, ratio: null, rotate: 0, max: 2560, quality: 0.86 };
+
+  const ieDefault = () => (ieKind === 'cover' ? coverDefault(ieBmp!) : { ...fitRatio(1, 1, null), ratio: null, rotate: 0, max: upMax(), quality: upQ() });
+
+  async function openImageEditor(pic: Pic, kind: 'cover' | 'foto') {
+    iePic = pic;
+    ieKind = kind;
+    $('[data-ie-title]').textContent = kind === 'cover' ? 'Edit cover' : 'Edit foto';
+    ieWrap.hidden = true;
+    $('[data-ie-loading]').hidden = false;
+    ie.showModal();
+    try {
+      // Foto yang sudah di repo: edit dari file aslinya, bukan dari thumbnail.
+      if (!pic.orig) pic.orig = await (await readRaw(`src/assets/projects/${edSlug}/${pic.name}`)).blob();
+      ieBmp?.close();
+      ieBmp = await decode(pic.orig);
+    } catch {
+      ie.close();
+      return toast('Foto asli tidak bisa dimuat — cek koneksi.');
+    }
+    ieEdit = { ...(pic.edit ?? ieDefault()) };
+    $('[data-ie-loading]').hidden = true;
+    ieWrap.hidden = false;
+    ieMax.options[0]!.textContent = `Asli (${ieBmp.width} × ${ieBmp.height} px)`;
+    syncIeControls();
+    drawStage();
+    estimate();
+  }
+
+  function syncIeControls() {
+    $('[data-ie-ratios]').replaceChildren(...RATIOS.map(([label, r]) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `chip${ieEdit.ratio === r ? ' is-on' : ''}`;
+      b.textContent = label;
+      b.onclick = () => {
+        ieEdit.ratio = r;
+        if (r) Object.assign(ieEdit, fitRatio(...rotDims(ieBmp!, ieEdit.rotate), r));
+        syncIeControls();
+        placeCrop();
+        estimate();
+      };
+      return b;
+    }));
+    ieMax.value = String(ieEdit.max);
+    if (ieMax.selectedIndex < 0) ieMax.value = '0';
+    ieQ.value = String(Math.round(ieEdit.quality * 100));
+    $('[data-ie-qv]').textContent = `${ieQ.value}%`;
+  }
+
+  function drawStage() {
+    const bmp = ieBmp!;
+    const [W, H] = rotDims(bmp, ieEdit.rotate);
+    const k = Math.min((ieStage.clientWidth - 40) / W, (ieStage.clientHeight - 40) / H, 1);
+    const dpr = devicePixelRatio || 1;
+    ieCanvas.style.width = `${Math.round(W * k)}px`;
+    ieCanvas.style.height = `${Math.round(H * k)}px`;
+    ieCanvas.width = Math.round(W * k * dpr);
+    ieCanvas.height = Math.round(H * k * dpr);
+    const g = ieCanvas.getContext('2d')!;
+    g.setTransform(k * dpr, 0, 0, k * dpr, 0, 0);
+    g.translate(W / 2, H / 2);
+    g.rotate((ieEdit.rotate * Math.PI) / 180);
+    g.drawImage(bmp, -bmp.width / 2, -bmp.height / 2);
+    placeCrop();
+  }
+
+  function placeCrop() {
+    Object.assign(ieCrop.style, { left: `${ieEdit.x * 100}%`, top: `${ieEdit.y * 100}%`, width: `${ieEdit.w * 100}%`, height: `${ieEdit.h * 100}%` });
+    const [W, H] = rotDims(ieBmp!, ieEdit.rotate);
+    const cw = ieEdit.w * W;
+    const ch = ieEdit.h * H;
+    const s = Math.min(1, ieEdit.max ? ieEdit.max / Math.max(cw, ch) : 1);
+    $('[data-ie-dims]').textContent = `${Math.round(cw * s)} × ${Math.round(ch * s)} px`;
+  }
+
+  // Perkiraan ukuran file: hasil sungguhan di-encode, ditunda sebentar selama pengguna menggeser.
+  let estTimer = 0;
+  let estRun = 0;
+  function estimate() {
+    const el = $('[data-ie-size]');
+    el.textContent = 'Menghitung ukuran…';
+    clearTimeout(estTimer);
+    estTimer = window.setTimeout(async () => {
+      const run = ++estRun;
+      if (!ieBmp || !ie.open) return;
+      const r = await render(ieBmp, ieEdit);
+      if (run !== estRun) return;
+      el.textContent = `${fmtSize(r.blob.size)} · dari ${fmtSize(iePic!.orig!.size)} asli` + (r.adjusted ? ' · diperkecil otomatis agar muat diunggah' : '');
+    }, 350);
+  }
+
+  // Geser kotak crop (pointer events: mouse & sentuh).
+  let drag: { mode: string; px: number; py: number; start: Edit } | null = null;
+  ieCrop.addEventListener('pointerdown', (e) => {
+    drag = { mode: (e.target as HTMLElement).dataset.h ?? 'move', px: e.clientX, py: e.clientY, start: { ...ieEdit } };
+    ieCrop.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  ieCrop.addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    const r = ieWrap.getBoundingClientRect();
+    const s = drag.start;
+    if (drag.mode === 'move') {
+      ieEdit.x = clamp(s.x + (e.clientX - drag.px) / r.width, 0, 1 - s.w);
+      ieEdit.y = clamp(s.y + (e.clientY - drag.py) / r.height, 0, 1 - s.h);
+    } else {
+      const west = drag.mode.includes('w');
+      const north = drag.mode.includes('n');
+      const ax = west ? s.x + s.w : s.x; // sudut seberang tetap di tempat
+      const ay = north ? s.y + s.h : s.y;
+      const maxW = west ? ax : 1 - ax;
+      const maxH = north ? ay : 1 - ay;
+      let w = clamp(Math.abs(clamp((e.clientX - r.left) / r.width, 0, 1) - ax), MIN, maxW);
+      let h = clamp(Math.abs(clamp((e.clientY - r.top) / r.height, 0, 1) - ay), MIN, maxH);
+      if (ieEdit.ratio) {
+        const [W, H] = rotDims(ieBmp!, ieEdit.rotate);
+        const k = W / (ieEdit.ratio * H);
+        h = w * k;
+        if (h > maxH) { h = maxH; w = h / k; }
+      }
+      Object.assign(ieEdit, { x: west ? ax - w : ax, y: north ? ay - h : ay, w, h });
+    }
+    placeCrop();
+  });
+  const endDrag = () => { if (drag) { drag = null; estimate(); } };
+  ieCrop.addEventListener('pointerup', endDrag);
+  ieCrop.addEventListener('pointercancel', endDrag);
+
+  ie.querySelectorAll<HTMLElement>('[data-ie-rot]').forEach((b) => b.addEventListener('click', () => {
+    ieEdit.rotate = (ieEdit.rotate + Number(b.dataset.ieRot) + 360) % 360;
+    Object.assign(ieEdit, fitRatio(...rotDims(ieBmp!, ieEdit.rotate), ieEdit.ratio));
+    drawStage();
+    estimate();
+  }));
+  ieMax.addEventListener('change', () => { ieEdit.max = Number(ieMax.value); placeCrop(); estimate(); });
+  ieQ.addEventListener('input', () => { ieEdit.quality = Number(ieQ.value) / 100; $('[data-ie-qv]').textContent = `${ieQ.value}%`; estimate(); });
+  $('[data-ie-reset]').addEventListener('click', () => { ieEdit = ieDefault(); syncIeControls(); drawStage(); estimate(); });
+  ie.querySelectorAll('[data-ie-cancel]').forEach((b) => b.addEventListener('click', () => ie.close()));
+  ie.addEventListener('close', () => { ieBmp?.close(); ieBmp = null; estRun++; });
+  addEventListener('resize', () => { if (ie.open && ieBmp) drawStage(); });
+
+  $('[data-ie-apply]').addEventListener('click', async () => {
+    if (!ieBmp || !iePic) return;
+    const btn = $<HTMLButtonElement>('[data-ie-apply]');
+    btn.disabled = true;
+    btn.textContent = 'Memproses…';
+    try {
+      const r = await render(ieBmp, ieEdit);
+      if (iePic.blob) URL.revokeObjectURL(iePic.url);
+      Object.assign(iePic, { blob: r.blob, url: URL.createObjectURL(r.blob), edit: { ...ieEdit } });
+      // Foto lama yang diedit disimpan sebagai file baru; file lamanya ikut dihapus saat Simpan.
+      if (ieKind === 'foto' && iePic.name) { iePic.name = undefined; iePic.edited = true; }
+      dirty = true;
+      renderPics();
+      ie.close();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Terapkan';
+    }
+  });
+  $('[data-cover-edit]').addEventListener('click', () => { if (cover) openImageEditor(cover, 'cover'); });
 
   // ---------- Simpan / hapus ----------
   const showError = (msg: string) => { const e = $('[data-ed-error]'); e.textContent = msg; e.hidden = false; };

@@ -79,6 +79,31 @@ const photos = ['01', '02'].map((x) => `src/assets/projects/pt-syslab/${x}.jpg`)
 await p.setInputFiles('[data-photo-input]', photos);
 await p.waitForFunction(() => document.querySelectorAll('.ph').length === 3, null, { timeout: 30000 });
 ok('3 foto ditambahkan sekaligus', true);
+const ratio = (sel) => p.$eval(sel, (i) => i.naturalWidth / i.naturalHeight);
+ok('cover otomatis dipotong 16:9', Math.abs((await ratio('[data-cover-img]')) - 16 / 9) < 0.02);
+ok('ukuran file tampil di tiap foto baru', (await p.locator('.ph-size').count()) === 3);
+
+// Editor foto: crop 1:1, putar, ubah ukuran & kompresi
+await p.hover('.ph >> nth=0');
+await p.click('.ph >> nth=0 >> [data-edit]');
+await p.waitForSelector('[data-ie-wrap]:not([hidden])');
+await p.click('[data-ie-ratios] .chip:has-text("1:1")');
+await p.selectOption('[data-ie-max]', '1080');
+await p.fill('[data-ie-q]', '60');
+await p.dispatchEvent('[data-ie-q]', 'input');
+ok('dimensi hasil tampil', (await p.textContent('[data-ie-dims]')).includes('1080 × 1080'));
+await p.waitForFunction(() => /KB|MB/.test(document.querySelector('[data-ie-size]').textContent), null, { timeout: 10000 });
+ok('perkiraan ukuran file tampil', true);
+// geser kotak crop
+const box = await p.locator('[data-ie-crop]').boundingBox();
+await p.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+await p.mouse.down();
+await p.mouse.move(box.x + box.width / 2 + 60, box.y + box.height / 2, { steps: 5 });
+await p.mouse.up();
+await p.click('[data-ie-apply]');
+await p.waitForSelector('[data-ie]:not([open])', { state: 'attached' });
+await p.waitForFunction(() => { const i = document.querySelector('.ph img'); return i && i.naturalWidth === 1080 && i.naturalHeight === 1080; }, null, { timeout: 10000 });
+ok('crop 1:1 + ubah ukuran diterapkan (1080×1080)', true);
 await p.click('[data-save]');
 await p.waitForSelector('[data-view="list"]:not([hidden])', { timeout: 30000 });
 const t1 = commits[0] ?? [];
@@ -97,13 +122,22 @@ await p.hover('.ph >> nth=0');
 await p.click('.ph >> nth=0 >> [data-del]');
 await p.setInputFiles('[data-photo-input]', ['src/assets/projects/vitacimin/02.jpg']);
 await p.waitForFunction(() => document.querySelectorAll('.ph').length === 2, null, { timeout: 30000 });
+// edit foto lama (02.jpg): dimuat dari file asli di repo, disimpan sebagai file baru
+await p.hover('.ph >> nth=0');
+await p.click('.ph >> nth=0 >> [data-edit]');
+await p.waitForSelector('[data-ie-wrap]:not([hidden])');
+await p.click('[data-ie-rot="90"]');
+await p.click('[data-ie-apply]');
+await p.waitForFunction(() => document.querySelector('.ph-num')?.textContent === 'Diedit', null, { timeout: 10000 });
+ok('foto lama bisa diedit', true);
 await p.check('input[name="featured"]');
 await p.click('[data-save]');
 await p.waitForSelector('[data-view="list"]:not([hidden])', { timeout: 30000 });
 const t2 = commits[1] ?? [];
 const j2 = JSON.parse(t2.find((x) => x.path === 'src/content/projects/pt-syslab.json')?.content ?? '{}');
 ok('foto yang dihapus ikut dihapus dari repo', t2.some((x) => x.path === 'src/assets/projects/pt-syslab/01.jpg' && x.sha === null));
-ok('foto baru tidak menimpa nama lama', JSON.stringify(j2.photos) === '["02.jpg","03.jpg"]');
+ok('foto lama yang diedit jadi file baru, file lamanya dihapus', JSON.stringify(j2.photos) === '["03.jpg","04.jpg"]'
+  && t2.some((x) => x.path === 'src/assets/projects/pt-syslab/02.jpg' && x.sha === null));
 const prevFeatured = t2.find((x) => x.path === 'src/content/projects/mountain-jungle-course-2022.json');
 ok('unggulan lama dilepas di commit yang sama', j2.featured === true && JSON.parse(prevFeatured?.content ?? '{}').featured === false);
 
