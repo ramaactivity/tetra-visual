@@ -1,7 +1,7 @@
-// Halaman layanan × kota, mis. /layanan/dokumentasi-event/jakarta.
-// Menangkap pencarian "jasa ___ jakarta". Aturan: hanya dibuat bila ada proyek nyata di
-// kota itu, dan teksnya ditulis khusus — halaman salinan yang cuma ganti nama kota
-// dianggap spam oleh Google.
+// Halaman layanan × kota/area, mis. /layanan/dokumentasi-event/jakarta.
+// Menangkap pencarian "jasa ___ jakarta". Aturan: teksnya ditulis khusus untuk area itu —
+// halaman salinan yang cuma ganti nama kota dianggap spam oleh Google. Bila belum ada proyek
+// di area tsb, tampilkan `related` (karya sejenis di lokasi lain, diberi label jujur).
 
 export const CITY_NAMES: Record<string, string> = {
   bogor: 'Bogor',
@@ -9,12 +9,17 @@ export const CITY_NAMES: Record<string, string> = {
   depok: 'Depok',
   tangerang: 'Tangerang',
   bekasi: 'Bekasi',
+  cibubur: 'Cibubur',
+  cibinong: 'Cibinong',
+  puncak: 'Puncak',
+  cisarua: 'Cisarua',
+  ciapus: 'Ciapus',
   'luar-kota': 'Luar kota',
 };
 
 export interface CityPage {
   service: string;
-  city: 'bogor' | 'jakarta';
+  city: string;
   title: string;
   description: string;
   h1: string;
@@ -22,6 +27,8 @@ export interface CityPage {
   body: string[];
   /** Proyek di kota ini (harus ber-kota sama di data proyek). */
   projects: string[];
+  /** Karya sejenis di lokasi lain — tampil bila belum ada proyek di area ini. */
+  related?: string[];
   faq: [string, string][];
 }
 
@@ -130,6 +137,113 @@ export const cityPages: CityPage[] = [
       'Tim kami menyesuaikan diri dengan format acara Anda — di gedung kantor, taman kota, hingga lokasi wisata di Jakarta.',
     ],
     projects: ['astra-izuzu', 'nutrifood'],
+    faq: [],
+  },
+  {
+    service: 'gathering-outing-kantor',
+    city: 'puncak',
+    title: 'Jasa Dokumentasi Family Gathering & Outbound Puncak Bogor',
+    description: 'Jasa foto & video family gathering, outbound, dan acara corporate di villa dan hotel kawasan Puncak (Ciawi, Megamendung, Cisarua). Tim dari Bogor, siap sejak pagi.',
+    h1: 'Dokumentasi Family Gathering & Outbound di Puncak',
+    lead: 'Puncak adalah tujuan gathering favorit perusahaan Jabodetabek — dan hanya sepelemparan batu dari kantor kami di Bogor.',
+    body: [
+      'Dari Ciawi, Megamendung, sampai Cisarua, kawasan Puncak dipenuhi villa dan hotel berkapasitas besar yang ideal untuk family gathering, outbound, rapat kerja, hingga malam keakraban perusahaan. Kami mendokumentasikan seluruh rangkaiannya: sesi pembukaan di aula hotel, permainan outbound di lapangan, api unggun, sampai foto bersama seluruh keluarga karyawan.',
+      'Liputan di Puncak punya tantangan sendiri. Jalur Puncak memberlakukan sistem satu arah di akhir pekan, kabut bisa turun cepat, dan hujan sore cukup sering. Karena berangkat dari Bogor Tengah, tim kami bisa menyesuaikan jam berangkat dengan jadwal buka-tutup jalur dan tiba sebelum acara dimulai — tidak perlu berangkat dini hari dari Jakarta.',
+      'Untuk acara di luar ruangan kami menyiapkan rencana cadangan bila hujan: titik foto dipindah ke area beratap, dan momen di dalam aula tetap terdokumentasi lengkap. Gambar udara dengan drone memperlihatkan hamparan kebun teh dan pegunungan di sekitar venue — latar yang membuat video highlight gathering Anda terasa istimewa.',
+    ],
+    projects: [],
+    related: ['nutrifood', 'vivere-hotel', 'vitacimin', 'astra-izuzu', 'energi-prima-nusantara', 'pt-pharma-metric-labs', 'outing-dpmpd-tanggerang'],
+    faq: [
+      ['Apakah bisa meliput acara gathering 2 hari 1 malam di Puncak?', 'Bisa. Untuk acara lebih dari satu hari, durasi liputan dan akomodasi tim kami bahas bersama di penawaran.'],
+      ['Bagaimana jika hujan saat outbound?', 'Kami menyiapkan perlindungan peralatan dan memindahkan titik foto ke area beratap. Rangkaian di dalam ruangan tetap terdokumentasi lengkap.'],
+    ],
+  },
+  {
+    service: 'gathering-outing-kantor',
+    city: 'cisarua',
+    title: 'Jasa Dokumentasi Outbound & Camping Cisarua Bogor',
+    description: 'Jasa foto & video outbound, camping, family gathering, dan acara corporate di villa, hotel, dan bumi perkemahan kawasan Cisarua, Bogor.',
+    h1: 'Dokumentasi Outbound, Camping & Gathering di Cisarua',
+    lead: 'Di Cisarua, gathering tidak berhenti di aula hotel — ada outbound, api unggun, dan tenda di bawah langit pegunungan.',
+    body: [
+      'Cisarua adalah jantung kawasan Puncak: dikelilingi kebun teh, dekat Taman Safari Indonesia dan Agrowisata Gunung Mas, dengan deretan villa besar, hotel, serta area perkemahan yang sering dipakai untuk outbound dan camping perusahaan maupun sekolah.',
+      'Acara di area perkemahan butuh pendekatan berbeda dari acara hotel. Tim kami bergerak mengikuti peserta dari pos ke pos permainan, merekam lomba antarkelompok, pendirian tenda, hingga momen api unggun di malam hari yang menuntut peralatan untuk kondisi minim cahaya.',
+      'Hasilnya berupa foto seluruh rangkaian dan video highlight yang menangkap semangat kelompok — cocok dibagikan ke karyawan, dipakai untuk laporan kegiatan, atau menjadi materi promosi acara tahun berikutnya.',
+    ],
+    projects: [],
+    related: ['nutrifood', 'vivere-hotel', 'vitacimin', 'astra-izuzu', 'energi-prima-nusantara', 'pt-pharma-metric-labs', 'outing-dpmpd-tanggerang'],
+    faq: [
+      ['Apakah bisa mendokumentasikan acara api unggun di malam hari?', 'Bisa. Kami menyiapkan peralatan untuk kondisi minim cahaya sehingga momen api unggun dan malam keakraban tetap terekam dengan baik.'],
+    ],
+  },
+  {
+    service: 'gathering-outing-kantor',
+    city: 'ciapus',
+    title: 'Jasa Dokumentasi Gathering & Outbound Ciapus Bogor',
+    description: 'Jasa foto & video gathering, outbound, camping, dan acara corporate di villa dan area perkemahan kawasan Ciapus, kaki Gunung Salak, Bogor.',
+    h1: 'Dokumentasi Gathering & Outbound di Ciapus',
+    lead: 'Kaki Gunung Salak, udara sejuk, curug, dan hutan pinus — latar yang membuat foto gathering tidak terasa seperti di kantor.',
+    body: [
+      'Kawasan Ciapus di Kecamatan Tamansari berada di kaki Gunung Salak, tidak jauh dari Kota Bogor. Villa, area glamping, dan lokasi perkemahan di sekitarnya menjadi pilihan untuk gathering dan outbound yang ingin suasana alam tanpa perjalanan sejauh Puncak.',
+      'Karena dekat dari kantor kami, tim bisa survei lokasi lebih dulu untuk menentukan titik foto terbaik — dari area permainan outbound, jalur trekking menuju curug, sampai tempat foto bersama dengan latar pegunungan.',
+      'Kami mendokumentasikan seluruh rangkaian: pembukaan, permainan kelompok, momen santai, dan foto bersama, lalu merangkumnya dalam video highlight yang siap dibagikan ke peserta.',
+    ],
+    projects: [],
+    related: ['nutrifood', 'vivere-hotel', 'vitacimin', 'astra-izuzu', 'energi-prima-nusantara', 'pt-pharma-metric-labs', 'outing-dpmpd-tanggerang'],
+    faq: [
+      ['Apakah bisa survei lokasi sebelum acara?', 'Bisa, terutama untuk lokasi yang dekat dengan kantor kami di Bogor seperti kawasan Ciapus. Survei dibahas bersama dalam penawaran.'],
+    ],
+  },
+  {
+    service: 'gathering-outing-kantor',
+    city: 'cibinong',
+    title: 'Jasa Dokumentasi Gathering & Acara Corporate Cibinong',
+    description: 'Jasa foto & video gathering, acara instansi, dan event corporate di Cibinong dan sekitarnya — hotel, aula, hingga venue outdoor di Kabupaten Bogor.',
+    h1: 'Dokumentasi Gathering & Acara Corporate di Cibinong',
+    lead: 'Sebagai pusat pemerintahan Kabupaten Bogor dan dikelilingi kawasan industri, Cibinong tak pernah sepi acara perusahaan dan instansi.',
+    body: [
+      'Cibinong adalah ibu kota Kabupaten Bogor, dekat dengan kawasan industri Citeureup dan Gunung Putri serta kawasan Sentul. Di sini banyak digelar acara instansi pemerintahan, gathering karyawan pabrik, hari ulang tahun perusahaan, hingga family day di hotel dan venue outdoor.',
+      'Acara instansi dan perusahaan biasanya punya dua kebutuhan dokumentasi sekaligus: foto resmi untuk laporan kegiatan dan rilis, serta video yang hidup untuk dibagikan ke karyawan. Tim kami menyiapkan keduanya — sesi sambutan dan seremoni direkam rapi, sementara permainan dan momen santai ditangkap apa adanya.',
+      'Berbasis di Bogor, tim kami menjangkau Cibinong dengan mudah lewat jalur Jagorawi, sehingga dapat hadir sejak persiapan acara.',
+    ],
+    projects: [],
+    related: ['nutrifood', 'astra-izuzu', 'energi-prima-nusantara', 'patria', 'bank-artha-graha-internasional', 'vitacimin'],
+    faq: [
+      ['Apakah bisa menyediakan dokumentasi untuk laporan kegiatan instansi?', 'Bisa. Kami menyerahkan foto resmi seremoni dan sambutan yang siap dipakai untuk laporan kegiatan maupun publikasi.'],
+    ],
+  },
+  {
+    service: 'gathering-outing-kantor',
+    city: 'cibubur',
+    title: 'Jasa Dokumentasi Outbound & Family Gathering Cibubur',
+    description: 'Jasa foto & video outbound, camping, family gathering, dan acara perusahaan di Cibubur — dari Bumi Perkemahan Cibubur sampai hotel dan venue outbound.',
+    h1: 'Dokumentasi Outbound & Family Gathering di Cibubur',
+    lead: 'Cibubur jadi pilihan gathering yang terasa jauh dari kantor, padahal tetap dekat dari Jakarta, Depok, dan Bogor.',
+    body: [
+      'Cibubur dikenal dengan Bumi Perkemahan dan Graha Wisata Pramuka Cibubur, serta banyak venue outbound, hotel, dan resort yang melayani acara perusahaan dan sekolah. Lokasinya di perbatasan Jakarta, Depok, dan Kabupaten Bogor membuatnya praktis dijangkau peserta dari berbagai arah.',
+      'Kami mendokumentasikan outbound, camping, family gathering, hingga lomba antarkelompok — dari briefing pagi sampai penutupan. Untuk acara di lapangan terbuka yang luas, gambar udara dengan drone membantu memperlihatkan skala acara dan seluruh peserta sekaligus.',
+      'Selain foto seluruh rangkaian, Anda mendapat video highlight yang siap dibagikan ke karyawan dan keluarganya — dokumentasi yang sering paling ditunggu setelah acara selesai.',
+    ],
+    projects: [],
+    related: ['nutrifood', 'vivere-hotel', 'vitacimin', 'astra-izuzu', 'energi-prima-nusantara', 'pt-pharma-metric-labs', 'outing-dpmpd-tanggerang'],
+    faq: [
+      ['Apakah bisa menggunakan drone di lokasi outbound?', 'Bisa, selama diizinkan oleh pengelola lokasi dan kondisi cuaca memungkinkan. Kami akan mengonfirmasinya sebelum hari acara.'],
+    ],
+  },
+  {
+    service: 'gathering-outing-kantor',
+    city: 'depok',
+    title: 'Jasa Dokumentasi Gathering & Acara Corporate Depok',
+    description: 'Jasa foto & video gathering karyawan, outbound, seminar, dan acara corporate di hotel dan venue Depok. Tim dari Bogor, melayani seluruh Depok.',
+    h1: 'Dokumentasi Gathering & Acara Corporate di Depok',
+    lead: 'Hotel di pusat kota, kampus, sampai venue outbound di pinggiran kota — Depok punya semua tempat untuk acara perusahaan.',
+    body: [
+      'Depok berada tepat di antara Jakarta dan Bogor, menjadikannya lokasi praktis untuk gathering karyawan, seminar, rapat kerja, dan acara kampus. Hotel dan ruang pertemuan di pusat kota cocok untuk acara formal, sementara area di pinggiran kota banyak dipakai untuk outbound dan family gathering.',
+      'Kami menyesuaikan pendekatan dengan jenis acaranya: untuk seminar dan rapat kerja di hotel, fokus pada sesi utama, pembicara, dan foto bersama; untuk outbound dan family gathering, tim bergerak mengikuti permainan dan menangkap momen spontan peserta.',
+      'Kami telah mendokumentasikan acara di lingkungan kampus seperti rapat kerja dan reuni Universitas Indonesia, serta berbagai gathering perusahaan di Jabodetabek.',
+    ],
+    projects: [],
+    related: ['universita-indonesia', 'reuni-fe-universitas-indonesia', 'nutrifood', 'astra-izuzu', 'vivere-hotel', 'energi-prima-nusantara'],
     faq: [],
   },
 ];

@@ -26,7 +26,12 @@ const city = CITY_NAMES[c.city]!;
 const projects = c.projects
   .map((slug) => allProjects.find((p) => p.slug === slug))
   .filter((p): p is Project => p !== undefined && p.city === c.city);
-const hero = projects.find((p) => p.photos.length)?.photos[0] ?? projects[0]?.cover ?? serviceCover(s);
+// Belum ada proyek di area ini → tampilkan karya sejenis dari lokasi lain (diberi label jujur).
+const related = (c.related ?? [])
+  .map((slug) => allProjects.find((p) => p.slug === slug))
+  .filter((p): p is Project => p !== undefined);
+const shown = projects.length ? projects : related;
+const hero = shown.find((p) => p.photos.length)?.photos[0] ?? shown[0]?.cover ?? serviceCover(s);
 const faq = [...c.faq, ...s.faq, ...(s.packages ? [] : [costFaq]), ...commonFaq];
 const siblings = cityPagesFor(s.slug).filter((x) => x.city !== c.city);
 const wa = waLink(`Halo Tetra Visual, saya butuh ${s.name.toLowerCase()} di ${city}, tanggal [tanggal]. Boleh minta info paketnya?`);
@@ -47,7 +52,7 @@ const schema = [
 ];
 ---
 
-<Base title={c.title} description={c.description} ogImage={projects[0]?.cover} transparentHeader {schema}>
+<Base title={c.title} description={c.description} ogImage={shown[0]?.cover} transparentHeader {schema}>
   <section class="shero">
     <Image class="shero-bg" src={hero} alt="" widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" />
     <div class="shero-veil"></div>
@@ -61,7 +66,7 @@ const schema = [
       <p class="shero-lead">{c.lead}</p>
       <div class="shero-actions">
         <a class="btn btn-brand" href={wa} target="_blank" rel="noopener">Tanya Jadwal di {city}</a>
-        <a class="btn btn-info" href="#karya">Karya di {city}</a>
+        <a class="btn btn-info" href="#karya">{projects.length ? `Karya di ${city}` : 'Lihat Karya Kami'}</a>
       </div>
     </div>
   </section>
@@ -72,17 +77,22 @@ const schema = [
       <h2 class="mini">Yang Anda dapatkan</h2>
       <ul class="checks">{s.includes.map((i) => <li>{i}</li>)}</ul>
       <p class="more-link">
-        Selengkapnya tentang <a href={`/layanan/${s.slug}`}>{s.name.toLowerCase()}</a>
-        {siblings.map((x) => <> · juga di <a href={`/layanan/${s.slug}/${x.city}`}>{CITY_NAMES[x.city]}</a></>)}
+        Selengkapnya tentang <a href={`/layanan/${s.slug}`}>{s.name.toLowerCase()}</a>.
+        {siblings.length > 0 && <>Juga melayani: {siblings.map((x, i) => <>{i > 0 && ', '}<a href={`/layanan/${s.slug}/${x.city}`}>{CITY_NAMES[x.city]}</a></>)}.</>}
       </p>
     </div>
   </section>
 
-  <div id="karya">
-    <Rail title={`Karya kami di ${city}`} count={projects.length}>
-      {projects.map((p) => <VideoCard cover={p.cover} project={p.slug} title={p.title} desc={p.desc} />)}
-    </Rail>
-  </div>
+  {
+    shown.length > 0 && (
+      <div id="karya">
+        <Rail title={projects.length ? `Karya kami di ${city}` : `Karya ${s.name.toLowerCase()} kami`} count={shown.length}>
+          {shown.map((p) => <VideoCard cover={p.cover} project={p.slug} title={p.title} desc={p.desc} />)}
+        </Rail>
+        {!projects.length && <p class="wrap rail-note">Contoh karya sejenis dari lokasi lain — tim yang sama siap bertugas di {city}.</p>}
+      </div>
+    )
+  }
 
   <ProcessSteps />
   <Testimonials service={s.slug} />
@@ -129,6 +139,7 @@ const schema = [
   .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
   .checks li { position: relative; padding-left: 1.75rem; }
   .checks li::before { content: ''; position: absolute; left: 0; top: 0.35em; width: 1.05rem; height: 1.05rem; border-radius: 50%; background: var(--brand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E") center / 62% no-repeat; }
+  .rail-note { margin-top: calc(var(--s-3) * -1); font-size: var(--t-sm); color: var(--text-faint); }
   .more-link { margin-top: var(--s-3); font-size: var(--t-sm); color: var(--text-dim); }
   .more-link a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
   .faq-title { font-size: var(--t-h2); margin: var(--s-2) 0 var(--s-6); }

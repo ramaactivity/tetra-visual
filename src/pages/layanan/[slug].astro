@@ -108,7 +108,7 @@ const schema = [
       {
         cities.length > 0 && (
           <div>
-            <h2 class="mini">Karya per kota</h2>
+            <h2 class="mini">Area layanan</h2>
             <ul class="pills">
               {cities.map((c) => (
                 <li class="pill-link"><a href={`/layanan/${s.slug}/${c.city}`}>{s.name} {CITY_NAMES[c.city]} →</a></li>

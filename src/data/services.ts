@@ -110,7 +110,7 @@ export const services: Service[] = [
     slug: 'gathering-outing-kantor',
     name: 'Gathering & Outing Kantor',
     short: 'Dokumentasi employee gathering, outing, dan team building yang seru untuk dikenang tim.',
-    title: 'Jasa Dokumentasi Gathering & Outing Kantor Bogor',
+    title: 'Jasa Dokumentasi Gathering, Outbound & Outing Kantor Bogor',
     description: 'Jasa foto & video dokumentasi employee gathering, outing, dan team building di Bogor dan Jabodetabek. Dipercaya Nutrifood, Astra Isuzu, Vivere Hotel.',
     h1: 'Dokumentasi Gathering & Outing Kantor',
     lead: 'Outing yang seru layak punya video yang membuat seluruh tim ingin ikut lagi tahun depan.',
@@ -119,7 +119,7 @@ export const services: Service[] = [
       'Kami pernah bertugas di lokasi outing favorit seperti Kebun Raya Bogor, Cijeruk, dan Taman Mini Indonesia Indah. Klien gathering kami antara lain Nutrifood, Astra Isuzu, Vivere Hotel, Energi Prima Nusantara, dan Vitacimin.',
     ],
     includes: ['Foto seluruh rangkaian acara', 'Video highlight untuk dibagikan ke karyawan', 'Foto kelompok & per divisi', 'Liputan drone (opsional)', 'Photobooth untuk peserta (opsional)'],
-    forWho: ['Employee gathering', 'Outing & family day', 'Team building', 'Rapat kerja di luar kantor', 'Perayaan ulang tahun perusahaan'],
+    forWho: ['Employee & family gathering', 'Outbound & team building', 'Camping di bumi perkemahan', 'Acara corporate di hotel & villa', 'Rapat kerja di luar kantor', 'Perayaan ulang tahun perusahaan'],
     projects: ['nutrifood', 'astra-izuzu', 'vivere-hotel', 'vitacimin', 'energi-prima-nusantara', 'pt-pharma-metric-labs', 'outing-dpmpd-tanggerang', 'patria', 'bank-artha-graha-internasional'],
     faq: [
       ['Apakah bisa mengikuti acara sehari penuh?', 'Bisa. Durasi peliputan disesuaikan dengan rundown acara Anda.'],

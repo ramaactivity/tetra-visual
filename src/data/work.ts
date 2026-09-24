@@ -76,7 +76,7 @@ export interface ProjectFile {
   featured: boolean;
   /** Data video YouTube untuk Google (tanggal unggah wajib, durasi ISO 8601). Diisi dashboard saat Simpan. */
   video?: { uploaded: string; duration?: string };
-  /** Kota lokasi proyek (bogor, jakarta, depok, tangerang, bekasi, luar-kota). Kosong = tidak disebut. */
+  /** Kota/area lokasi proyek (lihat CITY_NAMES di data/cities.ts). Kosong = tidak disebut. */
   city?: string;
 }
 

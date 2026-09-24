@@ -21,7 +21,7 @@ export const site = {
     region: 'Jawa Barat',
     postalCode: '16127',
   },
-  areaServed: ['Bogor', 'Jakarta', 'Depok', 'Tangerang', 'Bekasi'],
+  areaServed: ['Bogor', 'Jakarta', 'Depok', 'Tangerang', 'Bekasi', 'Cibubur', 'Cibinong', 'Puncak', 'Cisarua', 'Ciapus'],
   /** Satu perusahaan dengan Tetra Photobooth. */
   sister: { name: 'Tetra Photobooth', url: 'https://tetraphoto.com' },
 
