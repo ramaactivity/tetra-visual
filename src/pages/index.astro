@@ -6,6 +6,9 @@ import VideoCard from '../components/VideoCard.astro';
 import VideoModal from '../components/VideoModal.astro';
 import ProjectModal from '../components/ProjectModal.astro';
 import Lightbox from '../components/Lightbox.astro';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import Testimonials from '../components/Testimonials.astro';
+import { services } from '../data/services';
 import { categories, categoryBySlug, featuredProject, asset, totals } from '../data/work';
 import { clientLogos } from '../lib/images';
 import { site } from '../data/site';
@@ -33,12 +36,13 @@ const HERO_PHOTOS = [
 ];
 const heroSlides = HERO_PHOTOS.map(asset).filter(Boolean);
 
-const { videos: totalVideos, photos: totalPhotos } = totals;
+const { videos: totalVideos } = totals;
 ---
 
 <Base
-  title={site.name}
-  description={`${site.description} Lebih dari ${totalVideos} video dan ${totalPhotos} foto dokumentasi untuk brand seperti Eiger, Samsung, Nutrifood, dan Pertamina.`}
+  title={`Jasa Foto & Video Dokumentasi Bogor & Jakarta — ${site.name}`}
+  rawTitle
+  description={`Jasa foto & video dokumentasi event, company profile, gathering, fun run, dan wedding di Bogor & Jakarta. ${totalVideos} proyek untuk Eiger, Samsung, Pertamina, dan Bank Indonesia.`}
   ogImage={featured?.cover}
   transparentHeader
 >
@@ -61,12 +65,14 @@ const { videos: totalVideos, photos: totalPhotos } = totals;
 
     <div class="wrap hero-inner">
       <div class="hero-copy">
-        <p class="eyebrow hero-eyebrow">{site.tagline}</p>
-
-        <h1 class="hero-title">Kami merekam yang layak dikenang.</h1>
+        <!-- H1 memuat kata kunci (dibaca Google) lewat label kecil; tampilan judul besar tetap. -->
+        <h1 class="hero-h1">
+          <span class="eyebrow hero-eyebrow">Jasa Foto &amp; Video Dokumentasi · Bogor &amp; Jakarta</span>
+          <span class="hero-title">Kami merekam yang layak dikenang.</span>
+        </h1>
 
         <p class="hero-lead">
-          Tim fotografi dan videografi untuk corporate, event, dan olahraga.
+          Tim fotografi dan videografi dari Bogor untuk event, corporate, olahraga, dan momen pribadi.
           Dipercaya {clientLogos.length}+ brand — dari Eiger sampai Samsung.
         </p>
 
@@ -107,6 +113,38 @@ const { videos: totalVideos, photos: totalPhotos } = totals;
       ))
     }
   </div>
+
+  <!-- LAYANAN -->
+  <section class="section wrap home-svc">
+    <div class="home-head">
+      <div>
+        <p class="eyebrow">Layanan</p>
+        <h2 class="home-title">Apa yang bisa kami kerjakan</h2>
+      </div>
+      <a class="home-more" href="/layanan">Semua layanan <span aria-hidden="true">→</span></a>
+    </div>
+    <ServiceGrid items={services.slice(0, 8)} />
+  </section>
+
+  <!-- PROFIL SINGKAT: teks yang dibaca Google untuk memahami bisnis ini -->
+  <section class="wrap home-about">
+    <h2 class="home-title">Jasa foto &amp; video dokumentasi di Bogor sejak 2021</h2>
+    <div class="home-about-body">
+      <p>
+        {site.name} adalah tim fotografi dan videografi yang berbasis di Kota Bogor. Sejak 2021 kami telah
+        menggarap {totalVideos} proyek — dari grand opening Samsung, event Eiger Adventure di Gunung Rinjani,
+        Bulan K3 Pertamina Patra Niaga, hingga fun run Bank Indonesia — untuk {clientLogos.length}+ brand dan institusi.
+      </p>
+      <p>
+        Karya video promosi kami meraih juara 1 lomba video promosi wisata dan kuliner Kota Bogor. Kami melayani
+        {' '}{site.areaServed.join(', ')}, serta acara di luar kota, dan satu keluarga dengan
+        {' '}<a href={site.sister.url} target="_blank" rel="noopener">{site.sister.name}</a> untuk kebutuhan photobooth.
+      </p>
+      <a class="btn btn-ghost" href="/about">Kenali kami lebih jauh</a>
+    </div>
+  </section>
+
+  <Testimonials />
 
   <!-- KLIEN -->
   <section class="section clients">
@@ -199,9 +237,11 @@ const { videos: totalVideos, photos: totalPhotos } = totals;
      kalau tidak, blok teks ikut ke tengah, bukan rata kiri. */
   .hero-inner { position: relative; }
   .hero-copy { max-width: 34rem; }
-  .hero-eyebrow { color: var(--text-dim); margin-bottom: var(--s-3); }
+  .hero-h1 { margin: 0; }
+  .hero-eyebrow { display: block; color: var(--text-dim); margin-bottom: var(--s-3); line-height: 1.5; }
 
   .hero-title {
+    display: block;
     font-size: var(--t-display);
     font-weight: 800;
     letter-spacing: -0.035em;
@@ -251,6 +291,16 @@ const { videos: totalVideos, photos: totalPhotos } = totals;
     z-index: 3;
     margin-top: clamp(-4rem, -5vw, -2rem);
   }
+
+  /* --- LAYANAN & PROFIL --- */
+  .home-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-4); margin-bottom: var(--s-6); }
+  .home-title { font-size: var(--t-h2); margin-top: var(--s-2); }
+  .home-more { flex: none; font-size: var(--t-sm); font-weight: 500; color: var(--text-dim); transition: color 0.2s var(--ease); }
+  .home-more:hover { color: var(--brand-hi); }
+  .home-about { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(2rem, 6vw, 5rem); padding-bottom: var(--s-8); }
+  .home-about-body { display: grid; gap: var(--s-4); justify-items: start; color: var(--text-dim); line-height: 1.8; }
+  .home-about-body a:not(.btn) { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 860px) { .home-about { grid-template-columns: 1fr; } }
 
   /* --- KLIEN --- */
   .clients {

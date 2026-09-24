@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+import ServiceGrid from '../../components/ServiceGrid.astro';
+import ProcessSteps from '../../components/ProcessSteps.astro';
+import { services } from '../../data/services';
+import { site, waLink } from '../../data/site';
+import { breadcrumb, business } from '../../lib/seo';
+
+const schema = [
+  breadcrumb([['Beranda', '/'], ['Layanan', '/layanan']]),
+  {
+    '@type': 'ItemList',
+    name: `Layanan ${site.name}`,
+    itemListElement: services.map((s, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: { '@type': 'Service', name: s.name, description: s.short, url: new URL(`/layanan/${s.slug}`, Astro.site).href, provider: business },
+    })),
+  },
+];
+---
+
+<Base
+  title="Layanan Foto & Video Dokumentasi di Bogor dan Jakarta"
+  description={`Semua layanan ${site.name}: dokumentasi event, video company profile, gathering kantor, fun run, wedding, wisuda, foto produk, drone, live streaming, photobooth, dan AI.`}
+  {schema}
+>
+  <section class="wrap head">
+    <p class="eyebrow">Layanan</p>
+    <h1 class="head-title">Layanan foto &amp; video dokumentasi</h1>
+    <p class="head-lead">
+      Dari satu sesi foto produk sampai liputan event berhari-hari di gunung — ini yang bisa {site.name} kerjakan
+      untuk Anda di Bogor, Jakarta, dan sekitarnya sejak 2021.
+    </p>
+  </section>
+
+  <section class="wrap">
+    <ServiceGrid items={services} heading="h2" />
+  </section>
+
+  <ProcessSteps />
+
+  <section class="wrap cta">
+    <h2>Tidak menemukan yang Anda cari?</h2>
+    <p>Ceritakan kebutuhan Anda — kemungkinan besar kami bisa membantu.</p>
+    <a class="btn btn-brand" href={waLink('Halo Tetra Visual, saya ingin berkonsultasi tentang kebutuhan foto/video saya.')} target="_blank" rel="noopener">
+      Konsultasi via WhatsApp
+    </a>
+  </section>
+</Base>
+
+<style>
+  .head { padding-block: clamp(2.5rem, 7vw, 5rem) clamp(1.5rem, 4vw, 3rem); max-width: none; }
+  .head-title { font-size: var(--t-h1); margin-block: var(--s-3) var(--s-4); max-width: 20ch; }
+  .head-lead { color: var(--text-dim); max-width: 60ch; }
+  .cta { text-align: center; padding-bottom: var(--s-9); display: grid; justify-items: center; gap: var(--s-3); }
+  .cta h2 { font-size: var(--t-h2); }
+  .cta p { color: var(--text-dim); margin-bottom: var(--s-3); }
+</style>

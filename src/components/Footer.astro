@@ -1,7 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import logoTetra from '../assets/brand/logo-tetra-visual.png';
-import { site, waLink } from '../data/site';
+import { site, waLink, fullAddress, mapsUrl } from '../data/site';
+import { services } from '../data/services';
 
 const year = new Date().getFullYear();
 ---
@@ -24,7 +25,36 @@ const year = new Date().getFullYear();
       >
         Chat WhatsApp
       </a>
-      <a class="btn btn-ghost" href={`mailto:${site.email}`}>{site.email}</a>
+      <a class="btn btn-ghost" href="/kontak">Isi form singkat</a>
+    </div>
+  </div>
+
+  <div class="wrap foot-cols">
+    <div class="foot-col foot-about">
+      <h2>{site.name}</h2>
+      <p>Jasa foto &amp; video dokumentasi di Bogor sejak 2021 — satu keluarga dengan <a href={site.sister.url} target="_blank" rel="noopener">{site.sister.name}</a>.</p>
+      <address><a href={mapsUrl()} target="_blank" rel="noopener">{fullAddress()}</a></address>
+    </div>
+    <nav class="foot-col" aria-label="Layanan">
+      <h2>Layanan</h2>
+      <ul>{services.map((sv) => <li><a href={`/layanan/${sv.slug}`}>{sv.name}</a></li>)}</ul>
+    </nav>
+    <nav class="foot-col" aria-label="Jelajahi">
+      <h2>Jelajahi</h2>
+      <ul>
+        <li><a href="/work">Karya</a></li>
+        <li><a href="/layanan">Semua layanan</a></li>
+        <li><a href="/about">Tentang kami</a></li>
+        <li><a href="/kontak">Kontak</a></li>
+      </ul>
+    </nav>
+    <div class="foot-col">
+      <h2>Hubungi</h2>
+      <ul>
+        <li><a href={waLink('Halo Tetra Visual, saya ingin bertanya.')} target="_blank" rel="noopener">WhatsApp +{site.whatsapp}</a></li>
+        <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+        <li>Melayani {site.areaServed.join(', ')}</li>
+      </ul>
     </div>
   </div>
 
@@ -70,6 +100,32 @@ const year = new Date().getFullYear();
     margin-top: var(--s-6);
   }
 
+  .foot-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1.2fr 0.8fr 1.1fr;
+    gap: var(--s-6);
+    padding-block: var(--s-7);
+    border-top: 1px solid var(--line);
+    font-size: var(--t-sm);
+    color: var(--text-dim);
+  }
+  .foot-col h2 { font-size: var(--t-xs); font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); margin-bottom: var(--s-3); }
+  .foot-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+  .foot-col a { transition: color 0.2s var(--ease); }
+  .foot-col a:hover { color: var(--text); }
+  .foot-about p { line-height: 1.6; margin-bottom: var(--s-3); }
+  .foot-about p a { text-decoration: underline; text-underline-offset: 3px; }
+  .foot-about address { font-style: normal; line-height: 1.6; }
+  /* Layanan cukup banyak: dua kolom di desktop */
+  .foot-col[aria-label='Layanan'] ul { grid-template-columns: 1fr 1fr; column-gap: var(--s-4); }
+
+  @media (max-width: 960px) {
+    .foot-cols { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .foot-cols { grid-template-columns: 1fr; }
+  }
+
   .foot-bottom {
     display: flex;
     flex-wrap: wrap;
@@ -91,7 +147,33 @@ const year = new Date().getFullYear();
   .foot-social a:hover { color: var(--text); }
 
   @media (max-width: 620px) {
-    .foot-bottom { justify-content: center; text-align: center; }
+    .foot-cols {
+    display: grid;
+    grid-template-columns: 1.4fr 1.2fr 0.8fr 1.1fr;
+    gap: var(--s-6);
+    padding-block: var(--s-7);
+    border-top: 1px solid var(--line);
+    font-size: var(--t-sm);
+    color: var(--text-dim);
+  }
+  .foot-col h2 { font-size: var(--t-xs); font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); margin-bottom: var(--s-3); }
+  .foot-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+  .foot-col a { transition: color 0.2s var(--ease); }
+  .foot-col a:hover { color: var(--text); }
+  .foot-about p { line-height: 1.6; margin-bottom: var(--s-3); }
+  .foot-about p a { text-decoration: underline; text-underline-offset: 3px; }
+  .foot-about address { font-style: normal; line-height: 1.6; }
+  /* Layanan cukup banyak: dua kolom di desktop */
+  .foot-col[aria-label='Layanan'] ul { grid-template-columns: 1fr 1fr; column-gap: var(--s-4); }
+
+  @media (max-width: 960px) {
+    .foot-cols { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .foot-cols { grid-template-columns: 1fr; }
+  }
+
+  .foot-bottom { justify-content: center; text-align: center; }
     /* Di HP tombol dibuat selebar layar supaya mudah ditekan */
     .foot-actions .btn { width: 100%; max-width: 320px; }
   }

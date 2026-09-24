@@ -1,0 +1,46 @@
+---
+import { Image } from 'astro:assets';
+import type { Service } from '../data/services';
+import { serviceCover } from '../lib/service-media';
+
+interface Props {
+  items: Service[];
+  /** Tingkat heading judul kartu (h2 di /layanan, h3 di bawah section lain). */
+  heading?: 'h2' | 'h3';
+}
+const { items, heading: H = 'h3' } = Astro.props;
+---
+
+<ul class="svc-grid">
+  {
+    items.map((s) => (
+      <li>
+        <a class="svc" href={`/layanan/${s.slug}`}>
+          <span class="svc-media">
+            <Image src={serviceCover(s)} alt={`Contoh karya ${s.name} Tetra Visual`} widths={[360, 540]} sizes="(max-width: 640px) 90vw, 360px" loading="lazy" />
+          </span>
+          <span class="svc-body">
+            <H class="svc-name">{s.name}</H>
+            <span class="svc-short">{s.short}</span>
+            <span class="svc-more">Selengkapnya <span aria-hidden="true">→</span></span>
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr)); gap: var(--s-4); list-style: none; margin: 0; padding: 0; }
+  .svc { display: flex; flex-direction: column; height: 100%; border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-elev); border: 1px solid var(--line); transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), border-color 0.25s, box-shadow 0.35s; }
+  .svc:hover { transform: translateY(-4px); border-color: var(--line-strong); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45); }
+  .svc-media { display: block; aspect-ratio: 16 / 9; overflow: hidden; }
+  .svc-media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.32, 0.72, 0, 1); }
+  .svc:hover .svc-media :global(img) { transform: scale(1.05); }
+  .svc-body { display: grid; gap: var(--s-2); padding: var(--s-4) var(--s-5) var(--s-5); flex: 1; align-content: start; }
+  .svc-name { font-size: 1.0625rem; letter-spacing: -0.01em; }
+  .svc-short { font-size: var(--t-sm); color: var(--text-dim); line-height: 1.55; }
+  .svc-more { margin-top: var(--s-2); font-size: var(--t-sm); font-weight: 600; color: var(--brand-hi); }
+  .svc-more span { display: inline-block; transition: transform 0.2s; }
+  .svc:hover .svc-more span { transform: translateX(3px); }
+</style>

@@ -1,0 +1,149 @@
+---
+import Base from '../layouts/Base.astro';
+import { services } from '../data/services';
+import { site, waLink, fullAddress, mapsUrl } from '../data/site';
+import { breadcrumb, business } from '../lib/seo';
+
+const schema = [
+  breadcrumb([['Beranda', '/'], ['Kontak', '/kontak']]),
+  { '@type': 'ContactPage', name: `Kontak ${site.name}`, url: new URL('/kontak', Astro.site).href, about: business },
+];
+const mapEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(fullAddress())}&z=16&output=embed`;
+---
+
+<Base
+  title="Kontak — Jasa Foto & Video Dokumentasi Bogor"
+  description={`Hubungi ${site.name} lewat WhatsApp atau email. Kantor kami di ${site.address.street}, Bogor Tengah, Kota Bogor. Melayani Bogor, Jakarta, dan Jabodetabek.`}
+  {schema}
+>
+  <section class="wrap head">
+    <p class="eyebrow">Kontak</p>
+    <h1 class="head-title">Ceritakan acara Anda</h1>
+    <p class="head-lead">
+      Isi ringkasan di bawah — pesannya langsung tersusun di WhatsApp, jadi admin kami bisa membalas dengan
+      ketersediaan jadwal dan penawaran tanpa banyak tanya-jawab.
+    </p>
+  </section>
+
+  <section class="wrap grid">
+    <form class="brief" data-brief>
+      <label class="field">
+        <span>Nama</span>
+        <input name="nama" autocomplete="name" required placeholder="Nama Anda" />
+      </label>
+      <label class="field">
+        <span>Instansi / perusahaan <small>(opsional)</small></span>
+        <input name="instansi" autocomplete="organization" placeholder="mis. PT Maju Jaya" />
+      </label>
+      <label class="field">
+        <span>Kebutuhan</span>
+        <select name="layanan" required>
+          <option value="">Pilih layanan…</option>
+          {services.map((s) => <option value={s.name}>{s.name}</option>)}
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </label>
+      <div class="row">
+        <label class="field">
+          <span>Tanggal acara</span>
+          <input name="tanggal" type="date" />
+        </label>
+        <label class="field">
+          <span>Kota / lokasi</span>
+          <input name="lokasi" placeholder="mis. Bogor" />
+        </label>
+      </div>
+      <label class="field">
+        <span>Ceritakan singkat <small>(opsional)</small></span>
+        <textarea name="catatan" rows="4" placeholder="Jenis acara, perkiraan durasi, jumlah peserta, hasil yang diinginkan…"></textarea>
+      </label>
+      <button class="btn btn-brand" type="submit">Kirim lewat WhatsApp</button>
+      <p class="note">Tombol ini membuka WhatsApp dengan pesan yang sudah terisi — Anda masih bisa mengeditnya sebelum dikirim.</p>
+    </form>
+
+    <aside class="info">
+      <div class="block">
+        <h2>Kantor</h2>
+        <address>{fullAddress()}</address>
+        <a class="link" href={mapsUrl()} target="_blank" rel="noopener">Buka di Google Maps ↗</a>
+      </div>
+      <div class="block">
+        <h2>WhatsApp</h2>
+        <a class="link" href={waLink('Halo Tetra Visual, saya ingin bertanya.')} target="_blank" rel="noopener">+{site.whatsapp.replace(/^62/, '62 ')}</a>
+      </div>
+      <div class="block">
+        <h2>Email</h2>
+        <a class="link" href={`mailto:${site.email}`}>{site.email}</a>
+      </div>
+      <div class="block">
+        <h2>Media sosial</h2>
+        <p class="socials">{site.social.map((s) => <a class="link" href={s.href} target="_blank" rel="noopener">{s.label}</a>)}</p>
+      </div>
+      <div class="block">
+        <h2>Area layanan</h2>
+        <p>{site.areaServed.join(', ')}, dan luar kota sesuai permintaan.</p>
+      </div>
+      <div class="map">
+        <iframe src={mapEmbed} title={`Lokasi kantor ${site.name} di peta`} loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </aside>
+  </section>
+</Base>
+
+<script is:inline define:vars={{ wa: waLink('') }}>
+  // Susun isi form jadi pesan WhatsApp yang rapi.
+  document.querySelector('[data-brief]')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const d = new FormData(e.target);
+    const v = (k) => String(d.get(k) ?? '').trim();
+    const tgl = v('tanggal') && new Date(v('tanggal')).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const lines = [`Halo Tetra Visual, saya ${v('nama')}${v('instansi') ? ` dari ${v('instansi')}` : ''}.`, `Saya butuh: ${v('layanan')}`];
+    if (tgl) lines.push(`Tanggal: ${tgl}`);
+    if (v('lokasi')) lines.push(`Lokasi: ${v('lokasi')}`);
+    if (v('catatan')) lines.push(`Catatan: ${v('catatan')}`);
+    lines.push('', 'Boleh minta info ketersediaan jadwal dan penawarannya?');
+    window.open(wa + encodeURIComponent(lines.join('\n')), '_blank', 'noopener');
+  });
+</script>
+
+<style>
+  .head { padding-block: clamp(2.5rem, 7vw, 5rem) clamp(1.5rem, 4vw, 2.5rem); }
+  .head-title { font-size: var(--t-h1); margin-block: var(--s-3) var(--s-4); }
+  .head-lead { color: var(--text-dim); max-width: 60ch; }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 5rem); padding-bottom: var(--s-9); }
+  .brief { display: grid; gap: var(--s-4); align-content: start; align-self: start; padding: clamp(1.25rem, 3vw, 2rem); border-radius: var(--radius-lg); background: var(--bg-elev); border: 1px solid var(--line); }
+  .field { display: grid; gap: var(--s-2); font-size: var(--t-sm); font-weight: 600; color: #ddd; }
+  .field small { font-weight: 400; color: var(--text-faint); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+  input, select, textarea {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: #1e1e1e;
+    color: #fff;
+    font: inherit;
+    font-weight: 400;
+    color-scheme: dark;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #fff; }
+  textarea { resize: vertical; }
+  .brief .btn { justify-self: start; }
+  .note { font-size: var(--t-xs); color: var(--text-faint); }
+
+  .info { display: grid; gap: var(--s-5); align-content: start; }
+  .block h2 { font-size: var(--t-xs); font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); margin-bottom: var(--s-2); }
+  address { font-style: normal; line-height: 1.6; margin-bottom: var(--s-2); }
+  .link { text-decoration: underline; text-underline-offset: 3px; }
+  .link:hover { color: var(--brand-hi); }
+  .socials { display: flex; gap: var(--s-4); }
+  .map { aspect-ratio: 4 / 3; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--line); }
+  .map iframe { width: 100%; height: 100%; border: 0; filter: grayscale(0.4) contrast(1.05); }
+
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr; }
+    .brief .btn { justify-self: stretch; }
+  }
+</style>

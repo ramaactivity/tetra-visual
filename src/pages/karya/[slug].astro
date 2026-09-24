@@ -1,0 +1,208 @@
+---
+// Satu halaman untuk tiap proyek — dibuat otomatis dari data dashboard.
+// Inilah halaman yang ditemukan Google untuk pencarian seperti "dokumentasi grand opening samsung".
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Rail from '../../components/Rail.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import PhotoGrid from '../../components/PhotoGrid.astro';
+import Lightbox from '../../components/Lightbox.astro';
+import ProjectModal from '../../components/ProjectModal.astro';
+import VideoModal from '../../components/VideoModal.astro';
+import { allProjects, categoryBySlug, type Project } from '../../data/work';
+import { services } from '../../data/services';
+import { site, waLink } from '../../data/site';
+import { breadcrumb, business, clip, youtubeMeta } from '../../lib/seo';
+import { getImage } from 'astro:assets';
+
+export function getStaticPaths() {
+  return allProjects.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+
+const { p } = Astro.props as { p: Project };
+const cat = categoryBySlug.get(p.category)!;
+const story = p.synopsis || p.desc || cat.blurb;
+const related = services.filter((s) => s.projects.includes(p.slug));
+const more = cat.projects.filter((x) => x.slug !== p.slug);
+
+// Judul Google: deskripsi singkat lebih informatif ("Grand Opening Store Samsung di Jakarta")
+// daripada nama kategori; kalau deskripsinya panjang, pakai jenis dokumentasinya.
+const KIND: Record<string, string> = {
+  event: 'Dokumentasi Event', corporate: 'Dokumentasi Corporate', sport: 'Dokumentasi Olahraga',
+  competition: 'Video Kompetisi', birthday: 'Dokumentasi Ulang Tahun', wedding: 'Dokumentasi Wedding',
+  graduation: 'Dokumentasi Wisuda', other: 'Dokumentasi Acara',
+};
+const pageTitle = `${p.title} — ${p.desc && p.desc.length <= 48 ? p.desc : KIND[p.category] ?? 'Dokumentasi'}`;
+
+const description = clip(`${p.desc || story} Dokumentasi foto & video oleh ${site.name}, Bogor.`);
+
+// VideoObject: membuat video bisa tampil di tab Video & hasil pencarian Google.
+const schema: Record<string, unknown>[] = [
+  breadcrumb([['Beranda', '/'], ['Karya', '/work'], [cat.name, `/work/${cat.slug}`], [p.title, `/karya/${p.slug}`]]),
+];
+if (p.youtubeId) {
+  const meta = await youtubeMeta(p.youtubeId);
+  if (meta.uploadDate) {
+    const thumb = await getImage({ src: p.cover, width: 1280, format: 'jpg' });
+    schema.push({
+      '@type': 'VideoObject',
+      name: p.title,
+      description: story,
+      thumbnailUrl: [new URL(thumb.src, Astro.site).href, `https://i.ytimg.com/vi/${p.youtubeId}/hqdefault.jpg`],
+      uploadDate: meta.uploadDate,
+      ...(meta.duration ? { duration: meta.duration } : {}),
+      embedUrl: `https://www.youtube.com/embed/${p.youtubeId}`,
+      contentUrl: `https://www.youtube.com/watch?v=${p.youtubeId}`,
+      publisher: business,
+    });
+  }
+}
+---
+
+<Base title={pageTitle} {description} ogImage={p.cover} transparentHeader {schema}>
+  <section class="phero">
+    <Image class="phero-bg" src={p.cover} alt="" widths={[768, 1280, 1920]} sizes="100vw" loading="eager" fetchpriority="high" />
+    <div class="phero-veil"></div>
+    <div class="wrap phero-inner">
+      <nav class="crumb" aria-label="Remah roti">
+        <a href="/work">Karya</a><span aria-hidden="true">/</span>
+        <a href={`/work/${cat.slug}`}>{cat.name}</a>
+      </nav>
+      <h1 class="phero-title">{p.title}</h1>
+      {p.desc && <p class="phero-lead">{p.desc}</p>}
+      <p class="phero-meta">
+        <span class="tag">{cat.name}</span>
+        {p.youtubeId && <span>Video</span>}
+        {p.photos.length > 0 && <span>{p.photos.length} foto</span>}
+      </p>
+      <div class="phero-actions">
+        {
+          p.youtubeId && (
+            <a class="btn btn-light" href="#video">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+              Tonton Video
+            </a>
+          )
+        }
+        <a
+          class="btn btn-info"
+          href={waLink(`Halo Tetra Visual, saya lihat karya "${p.title}". Saya ingin dokumentasi serupa, boleh minta info paket?`)}
+          target="_blank"
+          rel="noopener"
+        >
+          Tanya Proyek Serupa
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap body">
+    {
+      p.youtubeId && (
+        <section id="video" class="video">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${p.youtubeId}?rel=0`}
+            title={`Video ${p.title}`}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowfullscreen
+            referrerpolicy="strict-origin-when-cross-origin"
+          />
+        </section>
+      )
+    }
+
+    <section class="about">
+      <div>
+        <h2 class="h2">Tentang proyek ini</h2>
+        <p class="story">{story}</p>
+      </div>
+      <dl class="facts">
+        <div><dt>Kategori</dt><dd><a href={`/work/${cat.slug}`}>{cat.name}</a></dd></div>
+        {
+          related.length > 0 && (
+            <div>
+              <dt>Layanan</dt>
+              <dd>
+                {related.map((s, i) => (
+                  <>
+                    {i > 0 && ', '}
+                    <a href={`/layanan/${s.slug}`}>{s.name}</a>
+                  </>
+                ))}
+              </dd>
+            </div>
+          )
+        }
+        <div><dt>Produksi</dt><dd>{site.name}, Bogor</dd></div>
+      </dl>
+    </section>
+
+    {
+      p.photos.length > 0 && (
+        <section class="photos">
+          <h2 class="h2">Galeri dokumentasi</h2>
+          <PhotoGrid photos={p.photos} label={p.title} />
+        </section>
+      )
+    }
+  </div>
+
+  {
+    more.length > 0 && (
+      <Rail title={`Karya ${cat.name} lainnya`} href={`/work/${cat.slug}`} count={more.length}>
+        {more.map((x) => <VideoCard cover={x.cover} project={x.slug} title={x.title} desc={x.desc} />)}
+      </Rail>
+    )
+  }
+
+  <ProjectModal only={cat.slug} />
+  <VideoModal />
+  <Lightbox />
+</Base>
+
+<style>
+  .phero {
+    position: relative;
+    min-height: min(70svh, 680px);
+    display: flex;
+    align-items: flex-end;
+    margin-top: calc(var(--header-h) * -1);
+    padding-block: var(--s-9) clamp(2rem, 5vw, 3.5rem);
+    overflow: hidden;
+  }
+  .phero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
+  .phero-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--bg) 2%, rgba(35, 35, 35, 0.2) 45%, rgba(35, 35, 35, 0.5) 100%),
+      linear-gradient(to right, rgba(20, 20, 20, 0.85) 0%, rgba(20, 20, 20, 0.35) 45%, transparent 75%);
+  }
+  .phero-inner { position: relative; }
+  .phero-inner > * { max-width: 40rem; }
+  .crumb { display: flex; gap: var(--s-2); font-size: var(--t-xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: var(--s-4); }
+  .crumb a:hover { color: var(--brand-hi); }
+  .phero-title { font-size: var(--t-display); font-weight: 800; letter-spacing: -0.035em; text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6); }
+  .phero-lead { margin-top: var(--s-4); color: #e2e2e2; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7); }
+  .phero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-top: var(--s-4); font-size: var(--t-sm); color: var(--text-dim); }
+  .tag { padding: 0.2rem 0.6rem; border: 1px solid var(--line-strong); border-radius: var(--radius); font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
+  .phero-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-5); }
+
+  .body { display: grid; gap: clamp(2.5rem, 6vw, 4rem); padding-block: var(--s-6) var(--s-4); }
+  .video { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden; background: #000; box-shadow: var(--shadow-lg); max-width: 1100px; }
+  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .h2 { font-size: var(--t-h2); margin-bottom: var(--s-4); }
+  .about { display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: clamp(2rem, 5vw, 4rem); }
+  .story { color: #dcdcdc; line-height: 1.8; max-width: 65ch; }
+  .facts { display: grid; gap: var(--s-4); margin: 0; align-content: start; }
+  .facts dt { font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); }
+  .facts dd { margin: var(--s-1) 0 0; }
+  .facts a { text-decoration: underline; text-underline-offset: 3px; }
+  .facts a:hover { color: var(--brand-hi); }
+
+  @media (max-width: 800px) {
+    .about { grid-template-columns: 1fr; }
+    .phero-actions .btn { flex: 1 1 auto; }
+  }
+</style>

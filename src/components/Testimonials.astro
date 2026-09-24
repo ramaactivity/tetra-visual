@@ -1,0 +1,41 @@
+---
+import { visibleTestimonials } from '../data/testimonials';
+
+interface Props {
+  /** Utamakan testimoni untuk layanan ini. */
+  service?: string;
+}
+const items = visibleTestimonials(Astro.props.service).slice(0, 3);
+---
+
+{
+  items.length > 0 && (
+    <section class="section wrap testi">
+      <p class="eyebrow">Kata klien</p>
+      <h2 class="testi-title">Apa kata mereka</h2>
+      <div class="testi-grid">
+        {items.map((t) => (
+          <figure class:list={['testi-card', { 'is-placeholder': t.placeholder }]}>
+            {t.placeholder && <span class="testi-flag">Placeholder — tidak tampil di situs asli</span>}
+            <blockquote>“{t.quote}”</blockquote>
+            <figcaption>
+              <strong>{t.name}</strong>
+              <span>{t.role}, {t.company}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .testi-title { font-size: var(--t-h2); margin: var(--s-2) 0 var(--s-6); }
+  .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: var(--s-4); }
+  .testi-card { position: relative; margin: 0; padding: var(--s-6); border-radius: var(--radius-lg); background: var(--bg-elev); border: 1px solid var(--line); display: grid; gap: var(--s-5); }
+  .testi-card.is-placeholder { border: 1px dashed #f5c542; }
+  .testi-flag { position: absolute; top: -0.7rem; left: var(--s-4); padding: 0.1rem 0.5rem; border-radius: 4px; background: #f5c542; color: #000; font-size: 0.7rem; font-weight: 700; }
+  blockquote { margin: 0; font-size: 1.0625rem; line-height: 1.7; color: #e6e6e6; }
+  figcaption { display: grid; gap: 0.15rem; font-size: var(--t-sm); }
+  figcaption span { color: var(--text-faint); }
+</style>

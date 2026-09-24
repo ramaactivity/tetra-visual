@@ -4,7 +4,8 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Intro from '../components/Intro.astro';
-import { site } from '../data/site';
+import { site, mapsUrl } from '../data/site';
+import logoFile from '../assets/brand/logo-tetra-master.png';
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { featuredProject } from '../data/work';
@@ -20,6 +21,10 @@ interface Props {
   ogImage?: ImageMetadata;
   /** Sembunyikan latar gelap header di halaman yang punya hero fullscreen. */
   transparentHeader?: boolean;
+  /** Data terstruktur tambahan khusus halaman ini (Service, VideoObject, Breadcrumb, FAQ…). */
+  schema?: Record<string, unknown>[];
+  /** Judul lengkap apa adanya, tanpa akhiran " — Tetra Visual". */
+  rawTitle?: boolean;
 }
 
 const {
@@ -27,6 +32,8 @@ const {
   description = site.description,
   ogImage = defaultOg,
   transparentHeader = false,
+  schema = [],
+  rawTitle = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -35,20 +42,40 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 const og = await getImage({ src: ogImage, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 const ogUrl = new URL(og.src, Astro.site);
 
-const fullTitle = title === site.name ? `${site.name} — ${site.tagline}` : `${title} — ${site.name}`;
+const fullTitle = rawTitle ? title : `${title} — ${site.name}`;
 
-// Data terstruktur supaya Google menampilkan Tetra sebagai bisnis, bukan halaman biasa.
+// Data terstruktur supaya Google menampilkan Tetra sebagai bisnis lokal di Bogor.
+// Nama, alamat, dan nomor harus sama persis dengan Google Business Profile.
+const logo = await getImage({ src: logoFile, width: 512, format: 'png' });
+const home = Astro.site!.href;
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  name: site.name,
-  description: site.description,
-  url: Astro.site?.href,
-  image: ogUrl.href,
-  email: site.email,
-  telephone: `+${site.whatsapp}`,
-  address: { '@type': 'PostalAddress', addressCountry: 'ID' },
-  sameAs: site.social.map((s) => s.href),
+  '@graph': [
+    {
+      '@type': 'LocalBusiness',
+      '@id': `${home}#bisnis`,
+      name: site.name,
+      description: site.description,
+      url: home,
+      logo: new URL(logo.src, Astro.site).href,
+      image: ogUrl.href,
+      email: site.email,
+      telephone: `+${site.whatsapp}`,
+      foundingDate: site.founded,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: site.address.street,
+        addressLocality: site.address.city,
+        addressRegion: site.address.region,
+        postalCode: site.address.postalCode,
+        addressCountry: 'ID',
+      },
+      areaServed: site.areaServed.map((name) => ({ '@type': 'City', name })),
+      hasMap: mapsUrl(),
+      sameAs: [...site.social.map((s) => s.href), site.sister.url],
+    },
+    ...schema,
+  ],
 };
 ---
 

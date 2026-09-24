@@ -94,6 +94,7 @@ const icon = {
           <div><dt>Kategori</dt><dd data-pm-cat></dd></div>
           <div><dt>Produksi</dt><dd>Tetra Visual</dd></div>
           <div><dt>Format</dt><dd>Video & foto dokumentasi</dd></div>
+          <a class="pm-page-link" data-pm-page>Buka halaman proyek →</a>
         </dl>
       </div>
 
@@ -359,6 +360,8 @@ const icon = {
     color: #7a7a7a;
   }
   .pm-side dd { margin: 0.15rem 0 0; font-size: 0.9375rem; color: #eee; }
+  .pm-page-link { font-size: 0.875rem; font-weight: 600; color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+  .pm-page-link:hover { color: var(--brand-hi); }
 
   .pm-sec { margin-top: 2.5rem; }
   .pm-sec-head { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1rem; }
@@ -691,6 +694,7 @@ const icon = {
       startSlides([p.hero, ...(own ? shots.slice(0, 5).map(([, full]) => full) : [])]);
 
       q(dlg, '[data-pm-title]').textContent = p.title;
+      q<HTMLAnchorElement>(dlg, '[data-pm-page]').href = `/karya/${id}`;
       q(dlg, '[data-pm-synopsis]').textContent = p.synopsis;
       qa('[data-pm-cat]').forEach((e) => (e.textContent = c.name));
       q(dlg, '[data-pm-kind]').textContent = p.yt ? 'Video dokumentasi' : 'Dokumentasi';
@@ -855,7 +859,10 @@ const icon = {
     // Kartu di halaman & tombol "Info Selengkapnya" di hero.
     document.addEventListener('click', (e) => {
       const t = (e.target as Element | null)?.closest<HTMLElement>('[data-project]');
-      if (!t) return;
+      if (!t || !projects[t.dataset.project!]) return;
+      // Ctrl/Cmd/Shift-klik atau klik tengah: biarkan membuka halaman proyek di tab baru.
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
       const media = t.querySelector('.card-media');
       open(t.dataset.project!, media?.getBoundingClientRect(), t.querySelector('img')?.currentSrc);
     });

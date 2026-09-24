@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 
 const base = 'http://localhost:4321';
-const pages = ['/', '/work', '/work/corporate', '/work/wedding', '/about'];
+const pages = ['/', '/work', '/work/corporate', '/work/wedding', '/about', '/layanan', '/layanan/dokumentasi-event', '/karya/samsung', '/kontak'];
 const widths = [320, 360, 390, 768, 1024, 1440, 1920];
 
 const browser = await chromium.launch();
@@ -9,6 +9,8 @@ let problems = 0;
 
 for (const w of widths) {
   const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
+  // Lewati layar pembuka supaya yang diperiksa halaman aslinya (layar pembuka diperiksa terpisah).
+  await ctx.addInitScript(() => sessionStorage.setItem('tv-intro', '1'));
   const page = await ctx.newPage();
   for (const p of pages) {
     await page.goto(base + p, { waitUntil: 'networkidle' });

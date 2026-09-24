@@ -2,9 +2,18 @@
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import potret from '../assets/brand/foto-arief.jpg';
-import { categories, totals } from '../data/work';
+import { totals } from '../data/work';
 import { clientLogos } from '../lib/images';
-import { site } from '../data/site';
+import { site, fullAddress, mapsUrl } from '../data/site';
+import { services } from '../data/services';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import { breadcrumb, business } from '../lib/seo';
+
+const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
+const schema = [
+  breadcrumb([['Beranda', '/'], ['Tentang', '/about']]),
+  { '@type': 'AboutPage', name: `Tentang ${site.name}`, url: new URL('/about', Astro.site).href, about: business },
+];
 
 const { videos: totalVideos, photos: totalPhotos } = totals;
 
@@ -13,28 +22,41 @@ const stats = [
   { value: `${totalVideos}`, label: 'Video dokumentasi' },
   { value: `${totalPhotos}`, label: 'Foto terpublikasi' },
   { value: `${clientLogos.length}`, label: 'Brand & institusi' },
-  { value: `${categories.length}`, label: 'Bidang layanan' },
+  { value: `${services.length}`, label: 'Layanan' },
 ];
 ---
 
 <Base
-  title="Tentang Kami"
-  description={`${site.name} adalah tim kreatif fotografi dan sinematografi profesional. ${totalVideos} video dan ${totalPhotos} foto untuk ${clientLogos.length}+ brand.`}
+  title="Tentang Kami — Tim Foto & Video Dokumentasi Bogor"
+  description={`${site.name} adalah tim fotografi dan videografi di Kota Bogor sejak 2021. ${totalVideos} proyek dan ${totalPhotos} foto untuk ${clientLogos.length}+ brand di Bogor, Jakarta, dan Jabodetabek.`}
+  {schema}
 >
   <section class="intro wrap">
     <div class="intro-copy">
-      <p class="eyebrow">Tentang</p>
+      <p class="eyebrow">Tentang {site.name}</p>
 
       <h1 class="intro-title">Dokumentasi adalah seni memuliakan ingatan.</h1>
 
       <div class="intro-body">
         <p>
-          Tetra Visual is a dedicated creative collective specializing in professional
-          photography and cinematography. Whether it's the warmth of a personal story,
-          the dynamism of an event, or the strategic ambition of a business, we capture
-          it all with precision.
+          {site.name} adalah tim fotografi dan sinematografi yang berdiri di Kota Bogor pada 24 Juni 2021.
+          Kehangatan cerita pribadi, energi sebuah acara, hingga ambisi sebuah brand — semuanya kami rekam
+          dengan teliti, supaya tetap hidup lama setelah momennya berlalu.
         </p>
-        <p>We deliver more than just high-quality service; we craft visuals that endure.</p>
+        <p>
+          Dalam {years > 1 ? `${years} tahun` : 'waktu singkat'} kami telah menggarap {totalVideos} proyek untuk
+          {' '}{clientLogos.length}+ brand dan institusi — dari Samsung, Eiger, dan Pertamina Patra Niaga sampai
+          Bank Indonesia dan Dinas Pariwisata Kota Bogor. Karya video promosi kami meraih juara 1 lomba video
+          promosi wisata dan kuliner Kota Bogor.
+        </p>
+        <p>
+          Kami satu keluarga dengan <a href={site.sister.url} target="_blank" rel="noopener">{site.sister.name}</a>,
+          sehingga dokumentasi foto, video, dan photobooth acara Anda bisa ditangani oleh satu tim.
+        </p>
+        <p class="addr">
+          <strong>Kantor:</strong> <a href={mapsUrl()} target="_blank" rel="noopener">{fullAddress()}</a><br />
+          <strong>Area layanan:</strong> {site.areaServed.join(', ')}, dan luar kota.
+        </p>
       </div>
     </div>
 
@@ -66,18 +88,7 @@ const stats = [
 
   <section class="section wrap fields">
     <h2 class="fields-title">Yang kami kerjakan</h2>
-    <ul class="fields-list">
-      {
-        categories.map((c) => (
-          <li class="field">
-            <a href={`/work/${c.slug}`}>
-              <span class="field-name">{c.name}</span>
-              <span class="field-blurb">{c.blurb}</span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <ServiceGrid items={services} />
   </section>
 </Base>
 
@@ -113,6 +124,8 @@ const stats = [
     margin-block: var(--s-4) var(--s-6);
   }
 
+  .intro-body a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+  .addr { font-size: var(--t-sm); line-height: 1.7; }
   .intro-body {
     display: grid;
     gap: var(--s-4);
@@ -153,30 +166,4 @@ const stats = [
   /* --- BIDANG LAYANAN --- */
   .fields-title { font-size: var(--t-h2); margin-bottom: var(--s-5); }
 
-  .fields-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
-    gap: 1px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    background: var(--line);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-  }
-
-  .field a {
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-2);
-    height: 100%;
-    padding: var(--s-5);
-    background: var(--bg);
-    transition: background-color 0.25s var(--ease);
-  }
-  .field a:hover { background: var(--bg-elev); }
-
-  .field-name { font-size: var(--t-h3); font-weight: 700; letter-spacing: -0.015em; }
-  .field-blurb { font-size: var(--t-sm); color: var(--text-dim); line-height: 1.55; }
 </style>

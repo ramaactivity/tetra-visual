@@ -14,13 +14,9 @@ interface Props {
 const { cover, project, title, desc, eager = false } = Astro.props;
 ---
 
-<button
-  class="card"
-  type="button"
-  data-project={project}
-  aria-haspopup="dialog"
-  aria-label={`Lihat detail: ${title}`}
->
+<!-- Tautan sungguhan ke /karya/<slug> supaya Google bisa menelusuri tiap proyek;
+     di browser, klik biasa dicegat ProjectModal dan membuka popup. -->
+<a class="card" href={`/karya/${project}`} data-project={project} aria-label={`Lihat detail: ${title}`}>
   <span class="card-media">
     <Image
       src={cover}
@@ -39,7 +35,7 @@ const { cover, project, title, desc, eager = false } = Astro.props;
     <span class="card-title">{title}</span>
     {desc && <span class="card-desc">{desc}</span>}
   </span>
-</button>
+</a>
 
 <style>
   .card {

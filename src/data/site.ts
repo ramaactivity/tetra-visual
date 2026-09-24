@@ -11,6 +11,20 @@ export const site = {
   whatsapp: '6289611384767',
   email: 'visualtetra@gmail.com',
 
+  // Dipakai di halaman Kontak, footer, dan data terstruktur Google (LocalBusiness).
+  // Harus sama persis dengan Google Business Profile — konsistensi ini sinyal SEO lokal.
+  founded: '2021-06-24',
+  address: {
+    street: 'Jl. Ciwaluya, RT.02/RW.08, Tegallega',
+    district: 'Bogor Tengah',
+    city: 'Kota Bogor',
+    region: 'Jawa Barat',
+    postalCode: '16127',
+  },
+  areaServed: ['Bogor', 'Jakarta', 'Depok', 'Tangerang', 'Bekasi'],
+  /** Satu perusahaan dengan Tetra Photobooth. */
+  sister: { name: 'Tetra Photobooth', url: 'https://tetraphoto.com' },
+
   social: [
     { label: 'Instagram', href: 'https://www.instagram.com/tetravisual.jpeg/' },
     { label: 'TikTok', href: 'https://www.tiktok.com/@tetra.visual' },
@@ -19,3 +33,10 @@ export const site = {
 
 export const waLink = (pesan: string) =>
   `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(pesan)}`;
+
+export const fullAddress = () => {
+  const a = site.address;
+  return `${a.street}, Kec. ${a.district}, ${a.city}, ${a.region} ${a.postalCode}`;
+};
+
+export const mapsUrl = () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress())}`;

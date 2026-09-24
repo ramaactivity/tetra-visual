@@ -159,8 +159,10 @@ const mask = (await getImage({ src: logo, width: 600 })).src;
     position: relative;
     font-size: 0.6875rem;
     font-weight: 500;
-    letter-spacing: 0.7em;
-    margin-right: -0.7em; /* letter-spacing menambah ruang di kanan; seimbangkan agar tetap di tengah */
+    /* Spasi huruf menyesuaikan lebar layar supaya tagline tidak terpotong di HP kecil */
+    --ls: clamp(0.25em, 1.1vw, 0.7em);
+    letter-spacing: var(--ls);
+    margin-right: calc(var(--ls) * -1); /* letter-spacing menambah ruang di kanan; seimbangkan agar tetap di tengah */
     text-transform: uppercase;
     color: var(--text-dim);
     opacity: 0;
@@ -213,8 +215,8 @@ const mask = (await getImage({ src: logo, width: 600 })).src;
     100% { transform: scaleX(1); opacity: 0; }
   }
   @keyframes intro-tag {
-    from { letter-spacing: 1.2em; margin-right: -1.2em; }
-    to { opacity: 1; letter-spacing: 0.7em; margin-right: -0.7em; }
+    from { letter-spacing: calc(var(--ls) * 1.7); margin-right: calc(var(--ls) * -1.7); }
+    to { opacity: 1; letter-spacing: var(--ls); margin-right: calc(var(--ls) * -1); }
   }
   @keyframes intro-grain {
     25% { transform: translate(-3%, 2%); }
