@@ -1,0 +1,129 @@
+---
+import Base from '../../layouts/Base.astro';
+import ServiceGrid from '../../components/ServiceGrid.astro';
+import { articles, fmtDate } from '../../lib/articles';
+import { serviceBySlug } from '../../data/services';
+import { site, waLink } from '../../data/site';
+import { breadcrumb, business } from '../../lib/seo';
+import { serviceCover } from '../../lib/service-media';
+import { getImage } from 'astro:assets';
+
+export function getStaticPaths() {
+  return articles.map((a) => ({ params: { slug: a.slug }, props: { a } }));
+}
+
+const { a } = Astro.props as { a: (typeof articles)[number] };
+const fm = a.frontmatter;
+const { Content } = a;
+const service = fm.service ? serviceBySlug.get(fm.service) : undefined;
+const cover = service ? serviceCover(service) : undefined;
+const image = cover ? new URL((await getImage({ src: cover, width: 1200, format: 'jpg' })).src, Astro.site).href : undefined;
+const others = articles.filter((x) => x.slug !== a.slug).slice(0, 3);
+const date = new Date(fm.date).toISOString().slice(0, 10);
+// Layanan terkait lebih dulu, lalu layanan utama lainnya.
+const related = service
+  ? [service, ...['dokumentasi-event', 'video-company-profile', 'dokumentasi-olahraga', 'gathering-outing-kantor']
+      .filter((x) => x !== service.slug)
+      .map((x) => serviceBySlug.get(x)!)].slice(0, 4)
+  : [];
+
+const schema = [
+  breadcrumb([['Beranda', '/'], ['Artikel', '/artikel'], [fm.title, `/artikel/${a.slug}`]]),
+  {
+    '@type': 'BlogPosting',
+    headline: fm.title,
+    description: fm.description,
+    datePublished: date,
+    dateModified: date,
+    inLanguage: 'id-ID',
+    mainEntityOfPage: new URL(`/artikel/${a.slug}`, Astro.site).href,
+    ...(image ? { image } : {}),
+    author: { '@type': 'Organization', name: site.name, url: Astro.site!.href },
+    publisher: business,
+  },
+];
+---
+
+<Base title={fm.title} description={fm.description} ogImage={cover} {schema}>
+  <article class="wrap post">
+    <header>
+      <nav class="crumb" aria-label="Remah roti"><a href="/artikel">Artikel</a></nav>
+      <h1>{fm.title}</h1>
+      <p class="meta"><time datetime={date}>{fmtDate(fm.date)}</time> · Tim {site.name}</p>
+    </header>
+    <div class="prose"><Content /></div>
+
+    {
+      service && (
+        <aside class="box">
+          <p class="eyebrow">Layanan terkait</p>
+          <h2>{service.h1}</h2>
+          <p>{service.short}</p>
+          <div class="box-actions">
+            <a
+              class="btn btn-brand"
+              href={waLink(`Halo Tetra Visual, saya baru baca artikel "${fm.title}". Saya ingin konsultasi soal ${service.name.toLowerCase()}.`)}
+              target="_blank"
+              rel="noopener"
+            >
+              Konsultasi via WhatsApp
+            </a>
+            <a class="btn btn-ghost" href={`/layanan/${service.slug}`}>Lihat layanan</a>
+          </div>
+        </aside>
+      )
+    }
+  </article>
+
+  {
+    others.length > 0 && (
+      <section class="wrap more">
+        <h2>Artikel lainnya</h2>
+        <ul>
+          {others.map((o) => (
+            <li><a href={`/artikel/${o.slug}`}>{o.frontmatter.title} →</a></li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    related.length > 0 && (
+      <section class="section wrap">
+        <h2 class="svc-title">Layanan kami</h2>
+        <ServiceGrid items={related} />
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .post { max-width: 760px; padding-block: clamp(2.5rem, 7vw, 5rem) var(--s-6); }
+  .crumb { font-size: var(--t-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: var(--s-4); }
+  .crumb a:hover { color: var(--brand-hi); }
+  h1 { font-size: var(--t-h1); line-height: 1.1; }
+  .meta { margin-top: var(--s-4); font-size: var(--t-sm); color: var(--text-faint); }
+
+  .prose { margin-top: var(--s-7); color: #dcdcdc; font-size: clamp(1rem, 1.25vw, 1.0875rem); line-height: 1.85; }
+  .prose :global(p) { margin-block: 0 var(--s-5); }
+  .prose :global(h2) { font-size: clamp(1.25rem, 2vw, 1.5rem); color: #fff; margin: var(--s-7) 0 var(--s-4); line-height: 1.25; }
+  .prose :global(ul), .prose :global(ol) { margin: 0 0 var(--s-5); padding-left: 1.4rem; display: grid; gap: var(--s-2); }
+  .prose :global(li::marker) { color: var(--brand-hi); }
+  .prose :global(strong) { color: #fff; }
+  .prose :global(a) { color: #fff; text-decoration: underline; text-decoration-color: rgba(229, 9, 20, 0.7); text-underline-offset: 3px; }
+  .prose :global(a:hover) { color: var(--brand-hi); }
+  .prose :global(.contains-task-list) { list-style: none; padding-left: 0; }
+  .prose :global(input[type='checkbox']) { margin-right: 0.6rem; accent-color: var(--brand); }
+
+  .box { margin-top: var(--s-7); padding: clamp(1.5rem, 4vw, 2.25rem); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(229, 9, 20, 0.2), rgba(229, 9, 20, 0.04)); border: 1px solid rgba(229, 9, 20, 0.35); display: grid; gap: var(--s-3); }
+  .box h2 { font-size: var(--t-h2); }
+  .box p:not(.eyebrow) { color: #ddd; }
+  .box-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-2); }
+
+  .more { max-width: 760px; padding-bottom: var(--s-4); }
+  .more h2, .svc-title { font-size: var(--t-h2); margin-bottom: var(--s-4); }
+  .more ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+  .more a { text-decoration: underline; text-underline-offset: 3px; color: #ddd; }
+  .more a:hover { color: var(--brand-hi); }
+</style>

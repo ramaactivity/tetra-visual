@@ -13,6 +13,7 @@ import { allProjects, categoryBySlug, type Project } from '../../data/work';
 import { services } from '../../data/services';
 import { site, waLink } from '../../data/site';
 import { breadcrumb, business, clip, youtubeMeta } from '../../lib/seo';
+import { cityPages, CITY_NAMES } from '../../data/cities';
 import { getImage } from 'astro:assets';
 
 export function getStaticPaths() {
@@ -24,6 +25,9 @@ const cat = categoryBySlug.get(p.category)!;
 const story = p.synopsis || p.desc || cat.blurb;
 const related = services.filter((s) => s.projects.includes(p.slug));
 const more = cat.projects.filter((x) => x.slug !== p.slug);
+// Lokasi + tautan ke halaman "layanan di kota ini" bila ada (sinyal lokal untuk Google).
+const cityName = p.city ? CITY_NAMES[p.city] : undefined;
+const cityLink = cityPages.find((c) => c.city === p.city && c.projects.includes(p.slug));
 
 // Judul Google: deskripsi singkat lebih informatif ("Grand Opening Store Samsung di Jakarta")
 // daripada nama kategori; kalau deskripsinya panjang, pakai jenis dokumentasinya.
@@ -133,6 +137,14 @@ if (p.youtubeId) {
                   </>
                 ))}
               </dd>
+            </div>
+          )
+        }
+        {
+          cityName && (
+            <div>
+              <dt>Lokasi</dt>
+              <dd>{cityLink ? <a href={`/layanan/${cityLink.service}/${cityLink.city}`}>{cityName}</a> : cityName}</dd>
             </div>
           )
         }

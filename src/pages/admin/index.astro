@@ -100,6 +100,20 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
               </div>
 
               <label class="field">
+                <span class="label">Kota lokasi</span>
+                <select class="input" name="city">
+                  <option value="">— Tidak disebut —</option>
+                  <option value="bogor">Bogor</option>
+                  <option value="jakarta">Jakarta</option>
+                  <option value="depok">Depok</option>
+                  <option value="tangerang">Tangerang</option>
+                  <option value="bekasi">Bekasi</option>
+                  <option value="luar-kota">Luar kota</option>
+                </select>
+                <span class="hint">Tampil di halaman proyek & membantu muncul di pencarian "jasa … [kota]"</span>
+              </label>
+
+              <label class="field">
                 <span class="label">Link video YouTube</span>
                 <input class="input" name="youtube" placeholder="https://youtu.be/… — kosongkan jika belum ada" />
                 <span class="hint" data-yt-hint>Kosong = tampil "Video segera hadir".</span>
@@ -457,6 +471,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     title: string; category: string; youtube: string; desc: string; synopsis: string;
     cover: string; photos: string[]; order: number; featured: boolean;
     video?: { uploaded: string; duration?: string };
+    city?: string;
   };
   type Entry = { slug: string; data: PF; thumbs: Record<string, string | null>; sha?: string; pending?: boolean };
   /** Hasil editor foto: area crop (0–1, setelah diputar), putaran, sisi terpanjang maks. (0 = asli), kualitas JPEG. */
@@ -809,6 +824,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
       f('desc').value = orig.desc ?? '';
       f<HTMLTextAreaElement>('synopsis').value = orig.synopsis ?? '';
       f('featured').checked = Boolean(orig.featured);
+      f<HTMLSelectElement>('city').value = orig.city ?? '';
       cover = { name: orig.cover, url: thumbs[orig.cover] ?? '' };
       photos = (orig.photos ?? []).map((name) => ({ name, url: thumbs[name] ?? '' }));
       // Foto yang belum sempat tayang belum punya thumbnail — ambil langsung dari repo.
@@ -1221,6 +1237,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
         photos: photoNames,
         order: Number(f('order').value) || 0,
         featured: f('featured').checked,
+        ...(f<HTMLSelectElement>('city').value ? { city: f<HTMLSelectElement>('city').value } : {}),
       };
       // Tanggal unggah video (untuk Google): pakai yang lama bila videonya sama, kalau baru ambil lewat server.
       const ytId = youtubeIdOf(data.youtube);

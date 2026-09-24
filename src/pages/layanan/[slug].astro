@@ -17,6 +17,8 @@ import { site, waLink } from '../../data/site';
 import { breadcrumb, business, faqPage } from '../../lib/seo';
 import { serviceHero, serviceProjects } from '../../lib/service-media';
 import { clientLogos } from '../../lib/images';
+import { cityPagesFor, CITY_NAMES } from '../../data/cities';
+import { articlesFor } from '../../lib/articles';
 
 export function getStaticPaths() {
   return services.map((s) => ({ params: { slug: s.slug }, props: { s } }));
@@ -25,6 +27,8 @@ export function getStaticPaths() {
 const { s } = Astro.props as { s: Service };
 const projects = serviceProjects(s);
 const faq = [...s.faq, ...commonFaq];
+const cities = cityPagesFor(s.slug);
+const reads = articlesFor(s.slug);
 const others = services.filter((x) => x.slug !== s.slug).slice(0, 4);
 const wa = waLink(`Halo Tetra Visual, saya butuh ${s.name.toLowerCase()} untuk acara/keperluan di [kota], tanggal [tanggal]. Boleh minta info paketnya?`);
 
@@ -74,6 +78,18 @@ const schema = [
         <h2 class="mini">Cocok untuk</h2>
         <ul class="pills">{s.forWho.map((i) => <li>{i}</li>)}</ul>
       </div>
+      {
+        cities.length > 0 && (
+          <div>
+            <h2 class="mini">Karya per kota</h2>
+            <ul class="pills">
+              {cities.map((c) => (
+                <li class="pill-link"><a href={`/layanan/${s.slug}/${c.city}`}>{s.name} {CITY_NAMES[c.city]} →</a></li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
     </div>
   </section>
 
@@ -112,6 +128,20 @@ const schema = [
       ))}
     </div>
   </section>
+
+  {
+    reads.length > 0 && (
+      <section class="wrap reads">
+        <p class="eyebrow">Panduan</p>
+        {reads.map((r) => (
+          <a class="read-card" href={`/artikel/${r.slug}`}>
+            <strong>{r.frontmatter.title}</strong>
+            <span>{r.frontmatter.description}</span>
+          </a>
+        ))}
+      </section>
+    )
+  }
 
   <section class="wrap cta">
     <h2>Siap mendokumentasikan acara Anda?</h2>
@@ -164,6 +194,9 @@ const schema = [
   .checks li::before { content: ''; position: absolute; left: 0; top: 0.35em; width: 1.05rem; height: 1.05rem; border-radius: 50%; background: var(--brand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E") center / 62% no-repeat; }
   .pills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2); }
   .pills li { padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid var(--line-strong); font-size: var(--t-sm); color: #ddd; }
+  .pills .pill-link { padding: 0; border-color: rgba(229, 9, 20, 0.5); }
+  .pill-link a { display: block; padding: 0.4rem 0.85rem; transition: background-color 0.2s; border-radius: 999px; }
+  .pill-link a:hover { background: rgba(229, 9, 20, 0.15); }
 
   .trust { padding-block: var(--s-6); text-align: center; }
   .logos { list-style: none; margin: var(--s-5) 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-5) var(--s-7); }
@@ -178,6 +211,10 @@ const schema = [
   details[open] summary::after { transform: rotate(45deg); }
   details p { padding: 0 var(--s-5) var(--s-5); color: var(--text-dim); line-height: 1.7; }
 
+  .reads { display: grid; gap: var(--s-3); max-width: 820px; padding-bottom: var(--s-6); }
+  .read-card { display: grid; gap: var(--s-1); padding: var(--s-5); border-radius: var(--radius-lg); background: var(--bg-elev); border: 1px solid var(--line); transition: border-color 0.2s; }
+  .read-card:hover { border-color: var(--line-strong); }
+  .read-card span { font-size: var(--t-sm); color: var(--text-dim); }
   .cta { text-align: center; display: grid; justify-items: center; gap: var(--s-3); padding: clamp(2.5rem, 6vw, 4rem) var(--gutter); margin-block: var(--s-4); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(229, 9, 20, 0.22), rgba(229, 9, 20, 0.05)); border: 1px solid rgba(229, 9, 20, 0.35); max-width: calc(var(--maxw) - 2 * var(--gutter)); width: calc(100% - 2 * var(--gutter)); }
   .cta h2 { font-size: var(--t-h2); }
   .cta p { color: #ddd; max-width: 52ch; margin-bottom: var(--s-2); }

@@ -10,5 +10,6 @@
     "02.jpg"
   ],
   "order": 2,
-  "featured": false
+  "featured": false,
+  "city": "bogor"
 }

@@ -1,0 +1,49 @@
+---
+import Base from '../../layouts/Base.astro';
+import { articles, fmtDate } from '../../lib/articles';
+import { breadcrumb } from '../../lib/seo';
+
+const schema = [breadcrumb([['Beranda', '/'], ['Artikel', '/artikel']])];
+---
+
+<Base
+  title="Artikel & Panduan Dokumentasi Foto dan Video"
+  description="Panduan praktis seputar dokumentasi event, video company profile, fun run, dan gathering kantor dari tim Tetra Visual, Bogor."
+  {schema}
+>
+  <section class="wrap head">
+    <p class="eyebrow">Artikel</p>
+    <h1 class="head-title">Panduan dokumentasi foto &amp; video</h1>
+    <p class="head-lead">Hal-hal yang perlu Anda ketahui sebelum memesan jasa dokumentasi — ditulis dari pengalaman lapangan kami.</p>
+  </section>
+
+  <section class="wrap">
+    <ul class="list">
+      {
+        articles.map((a) => (
+          <li>
+            <a class="item" href={`/artikel/${a.slug}`}>
+              <time datetime={String(a.frontmatter.date)}>{fmtDate(a.frontmatter.date)}</time>
+              <h2>{a.frontmatter.title}</h2>
+              <p>{a.frontmatter.description}</p>
+              <span class="read">Baca <span aria-hidden="true">→</span></span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .head { padding-block: clamp(2.5rem, 7vw, 5rem) clamp(1.5rem, 4vw, 3rem); }
+  .head-title { font-size: var(--t-h1); margin-block: var(--s-3) var(--s-4); max-width: 22ch; }
+  .head-lead { color: var(--text-dim); max-width: 60ch; }
+  .list { list-style: none; margin: 0 0 var(--s-9); padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr)); gap: var(--s-4); }
+  .item { display: grid; gap: var(--s-3); height: 100%; align-content: start; padding: var(--s-6); border-radius: var(--radius-lg); background: var(--bg-elev); border: 1px solid var(--line); transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), border-color 0.25s; }
+  .item:hover { transform: translateY(-4px); border-color: var(--line-strong); }
+  time { font-size: var(--t-xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); }
+  .item h2 { font-size: 1.25rem; line-height: 1.3; }
+  .item p { color: var(--text-dim); font-size: var(--t-sm); line-height: 1.65; }
+  .read { font-size: var(--t-sm); font-weight: 600; color: var(--brand-hi); }
+</style>

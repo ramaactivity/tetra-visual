@@ -76,6 +76,8 @@ export interface ProjectFile {
   featured: boolean;
   /** Data video YouTube untuk Google (tanggal unggah wajib, durasi ISO 8601). Diisi dashboard saat Simpan. */
   video?: { uploaded: string; duration?: string };
+  /** Kota lokasi proyek (bogor, jakarta, depok, tangerang, bekasi, luar-kota). Kosong = tidak disebut. */
+  city?: string;
 }
 
 export interface Project {
@@ -90,6 +92,7 @@ export interface Project {
   order: number;
   featured: boolean;
   video?: { uploaded: string; duration?: string };
+  city?: string;
 }
 
 export interface Category {
@@ -140,6 +143,7 @@ const projects: Project[] = Object.entries(files)
       order: f.order ?? 0,
       featured: Boolean(f.featured),
       video: f.video,
+      city: f.city || undefined,
     }];
   })
   .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
