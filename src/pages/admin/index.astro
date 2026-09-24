@@ -348,7 +348,7 @@ const tokenUrl =
     title: string; category: string; youtube: string; desc: string; synopsis: string;
     cover: string; photos: string[]; order: number; featured: boolean;
   };
-  type Entry = { slug: string; data: PF; thumbs: Record<string, string | null>; pending?: boolean };
+  type Entry = { slug: string; data: PF; thumbs: Record<string, string | null>; sha?: string; pending?: boolean };
   /** Foto di editor: `name` = file yang sudah ada di repo, `blob` = foto baru yang belum diunggah. */
   type Pic = { name?: string; blob?: Blob; url: string };
 
@@ -524,7 +524,23 @@ const tokenUrl =
     const res = await fetch('/admin/data.json', { cache: 'no-store' });
     const json = await res.json();
     cats = json.categories;
-    const fresh: Entry[] = json.projects;
+    let fresh: Entry[] = json.projects;
+
+    // Cocokkan dengan isi repo saat ini: proyek yang baru dibuat/diubah dari sesi lain
+    // (atau sebelum situs selesai tayang ulang) tetap tampil dengan data terbarunya.
+    try {
+      const listing: { name: string; sha: string }[] = await ghJson(`/contents/src/content/projects?ref=${BRANCH}`);
+      const inRepo = new Map(listing.filter((x) => x.name.endsWith('.json')).map((x) => [x.name.slice(0, -5), x.sha]));
+      fresh = fresh.filter((x) => inRepo.has(x.slug));
+      await Promise.all([...inRepo].map(async ([slug, sha]) => {
+        const known = fresh.find((x) => x.slug === slug);
+        if (known?.sha === sha) return;
+        const data = await (await readRaw(`src/content/projects/${slug}.json`)).json() as PF;
+        const entry: Entry = { slug, data, thumbs: known?.thumbs ?? {}, sha, pending: true };
+        fresh = [...fresh.filter((x) => x.slug !== slug), entry];
+      }));
+    } catch { /* tanpa koneksi ke GitHub: pakai data situs apa adanya */ }
+
     for (const s of [...deleted]) if (!fresh.some((x) => x.slug === s)) deleted.delete(s);
     const same = (a: Entry, b: Entry) => a.slug === b.slug && JSON.stringify(a.data) === JSON.stringify(b.data);
     const pending = entries.filter((e) => e.pending && !fresh.some((x) => same(x, e)));
@@ -560,6 +576,13 @@ const tokenUrl =
       media.className = 'pcard-media';
       const src = e.thumbs[e.data.cover];
       if (src) { const i = new Image(); i.loading = 'lazy'; i.src = src; i.alt = ''; media.append(i); }
+      else if (e.pending && src === undefined) {
+        // Belum tayang = belum ada thumbnail di situs; ambil cover langsung dari repo.
+        e.thumbs[e.data.cover] = null;
+        readRaw(`src/assets/projects/${e.slug}/${e.data.cover}`)
+          .then(async (r) => { e.thumbs[e.data.cover] = URL.createObjectURL(await r.blob()); renderList(); })
+          .catch(() => {});
+      }
       const badges = document.createElement('span');
       badges.className = 'badges';
       const badge = (cls: string, text: string) => { const s = document.createElement('span'); s.className = `badge ${cls}`; s.textContent = text; badges.append(s); };
@@ -631,8 +654,7 @@ const tokenUrl =
       }
     } else {
       catSelect.value = filterCat || 'event';
-      const max = Math.max(0, ...entries.filter((e) => e.data.category === catSelect.value).map((e) => e.data.order));
-      f('order').value = String(max + 1);
+      suggestOrder();
     }
     syncYoutube();
     syncSlugHint();
@@ -641,6 +663,13 @@ const tokenUrl =
     show('editor');
     history.pushState({ editor: true }, '');
   }
+
+  // Proyek baru otomatis ditaruh paling akhir di kategorinya.
+  function suggestOrder() {
+    const max = Math.max(0, ...entries.filter((e) => e.data.category === catSelect.value).map((e) => e.data.order));
+    f('order').value = String(max + 1);
+  }
+  catSelect.addEventListener('change', () => { if (!edSlug) suggestOrder(); });
 
   function syncSlugHint() {
     const hint = $('[data-slug-hint]');
