@@ -1,30 +1,35 @@
 ---
 // Satu lightbox untuk semua foto di halaman, termasuk galeri di popup detail
 // yang baru dibuat saat dibuka. Satu kelompok = [data-lightbox-item] dengan induk yang sama.
+// Foto tampil instan dari thumbnail yang sudah dimuat, lalu diganti versi tajamnya.
 ---
 
-<dialog class="lb" data-lightbox aria-label="Foto diperbesar">
+<dialog class="lb" data-lightbox aria-label="Foto diperbesar" tabindex="-1">
+  <div class="lb-stage" data-lb-stage>
+    <img class="lb-img" data-lb-img alt="" />
+  </div>
+
   <button class="lb-btn lb-close" type="button" data-lb-close aria-label="Tutup">
-    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"
       ><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg
     >
   </button>
 
-  <button class="lb-btn lb-prev" type="button" data-lb-prev aria-label="Foto sebelumnya">
-    <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"
+  <button class="lb-btn lb-nav lb-prev" type="button" data-lb-prev aria-label="Foto sebelumnya">
+    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"
       ><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg
     >
   </button>
-
-  <img data-lb-img alt="" />
-
-  <button class="lb-btn lb-next" type="button" data-lb-next aria-label="Foto berikutnya">
-    <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"
+  <button class="lb-btn lb-nav lb-next" type="button" data-lb-next aria-label="Foto berikutnya">
+    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"
       ><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg
     >
   </button>
 
-  <p class="lb-count" data-lb-count aria-live="polite"></p>
+  <div class="lb-foot">
+    <div class="lb-progress"><span data-lb-bar></span></div>
+    <p class="lb-count" data-lb-count aria-live="polite"></p>
+  </div>
 </dialog>
 
 <style>
@@ -36,58 +41,76 @@
     padding: 0;
     border: 0;
     background: transparent;
-    display: none;
-    place-items: center;
+    color: var(--text);
+    outline: none;
+    overflow: hidden;
   }
-  .lb[open] { display: grid; }
-  .lb::backdrop { background: rgba(4, 5, 6, 0.96); }
-  .lb[open] img { animation: lb-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-  .lb[open]::backdrop { animation: lb-fade 0.3s ease-out both; }
-  @keyframes lb-in { from { opacity: 0; transform: scale(0.94); } }
-  @keyframes lb-fade { from { opacity: 0; } }
+  .lb::backdrop { background: rgba(0, 0, 0, 0.94); }
 
-  .lb img {
-    max-width: min(92vw, 1600px);
-    max-height: 82dvh;
+  .lb-stage {
+    position: absolute;
+    inset: 4.5rem clamp(1rem, 7vw, 6.5rem) 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lb-img {
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+    max-height: 100%;
     width: auto;
     height: auto;
     object-fit: contain;
-    border-radius: var(--radius);
-    transition: opacity 0.2s var(--ease);
+    border-radius: 4px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+    user-select: none;
+    -webkit-user-drag: none;
   }
 
   .lb-btn {
     position: absolute;
+    z-index: 2;
     display: grid;
     place-items: center;
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
-    color: var(--text);
+    color: #fff;
     background: rgba(255, 255, 255, 0.08);
-    transition: background-color 0.2s var(--ease);
+    backdrop-filter: blur(10px);
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
   }
-  .lb-btn:hover { background: rgba(255, 255, 255, 0.2); }
+  .lb-btn:hover { background: #fff; color: #000; }
+  .lb-btn:active { transform: scale(0.92); }
+  .lb-close { top: 1rem; right: 1rem; }
+  .lb-close:hover { transform: rotate(90deg); }
+  .lb-nav { top: 50%; margin-top: -26px; }
+  .lb-prev { left: clamp(0.5rem, 2vw, 1.75rem); }
+  .lb-next { right: clamp(0.5rem, 2vw, 1.75rem); }
+  .lb-prev:hover { transform: translateX(-3px); }
+  .lb-next:hover { transform: translateX(3px); }
 
-  .lb-close { top: var(--s-4); right: var(--s-4); }
-  .lb-prev { left: clamp(0.5rem, 3vw, 2rem); }
-  .lb-next { right: clamp(0.5rem, 3vw, 2rem); }
-
-  .lb-count {
+  .lb-foot {
     position: absolute;
-    bottom: var(--s-5);
     left: 50%;
+    bottom: 1.5rem;
     transform: translateX(-50%);
-    font-size: var(--t-sm);
-    color: var(--text-dim);
-    font-variant-numeric: tabular-nums;
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
   }
+  .lb-progress { width: 140px; height: 2px; border-radius: 2px; background: rgba(255, 255, 255, 0.18); overflow: hidden; }
+  .lb-progress span { display: block; height: 100%; width: 0; background: var(--brand); transition: width 0.4s cubic-bezier(0.32, 0.72, 0, 1); }
+  .lb-count { font-size: var(--t-sm); font-weight: 500; color: var(--text-dim); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
 
   @media (max-width: 600px) {
-    /* Di HP navigasi utama pakai geser jari; tombol dikecilkan ke bawah */
-    .lb-prev, .lb-next { bottom: var(--s-8); top: auto; }
-    .lb-prev { left: var(--s-5); }
-    .lb-next { right: var(--s-5); }
+    .lb-stage { inset: 4rem 0 6.5rem; }
+    .lb-img { border-radius: 0; }
+    .lb-nav { top: auto; bottom: 1.1rem; margin: 0; width: 46px; height: 46px; }
+    .lb-prev { left: 1rem; }
+    .lb-next { right: 1rem; }
+    .lb-foot { bottom: 1.6rem; }
   }
 </style>
 
@@ -95,41 +118,122 @@
   const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
   const img = dialog?.querySelector<HTMLImageElement>('[data-lb-img]');
   const counter = dialog?.querySelector<HTMLElement>('[data-lb-count]');
+  const bar = dialog?.querySelector<HTMLElement>('[data-lb-bar]');
 
-  if (dialog && img && counter) {
+  if (dialog && img && counter && bar) {
+    const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let items: HTMLElement[] = [];
     let index = 0;
+    let busy = false;
+    const preloaded = new Map<string, Promise<void>>();
 
-    const show = (i: number) => {
-      // Melingkar: dari foto terakhir lanjut ke foto pertama.
-      index = (i + items.length) % items.length;
-      const item = items[index]!;
-      img.src = item.dataset.full ?? '';
-      img.alt = item.querySelector('img')?.alt ?? '';
-      counter.textContent = `${index + 1} / ${items.length}`;
+    const thumbOf = (item: HTMLElement) => item.querySelector('img')?.currentSrc || item.querySelector('img')?.src || '';
+    // Unduh & decode versi tajam sekali saja, lalu pakai ulang.
+    const preload = (src: string) => {
+      if (!preloaded.has(src)) {
+        const i = new Image();
+        i.src = src;
+        preloaded.set(src, i.decode().catch(() => {}));
+      }
+      return preloaded.get(src)!;
     };
 
-    document.addEventListener('click', (e) => {
+    const at = (i: number) => items[(i + items.length) % items.length]!;
+
+    // Tampilkan thumbnail (sudah ada di cache) seketika, lalu tukar ke versi tajam
+    // begitu siap — ukurannya sama, jadi pergantiannya tidak terlihat melompat.
+    const load = async (i: number) => {
+      index = (i + items.length) % items.length;
+      const item = items[index]!;
+      const full = item.dataset.full ?? '';
+      img.src = thumbOf(item) || full;
+      img.alt = item.querySelector('img')?.alt ?? '';
+      counter.textContent = `${index + 1} / ${items.length}`;
+      bar.style.width = `${((index + 1) / items.length) * 100}%`;
+      try { await img.decode(); } catch { /* biarkan */ }
+      preload(full).then(() => { if (items[index] === item) img.src = full; });
+      // Foto sebelah disiapkan duluan supaya geser berikutnya langsung tajam.
+      [1, -1].forEach((d) => { if (items.length > 1) preload(at(index + d).dataset.full ?? ''); });
+    };
+
+    const go = async (d: number) => {
+      if (busy || items.length < 2) return;
+      if (reduced.matches) return load(index + d);
+      busy = true;
+      await img.animate(
+        [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-d * 60}px) scale(0.98)` }],
+        { duration: 160, easing: 'ease-in', fill: 'forwards' },
+      ).finished;
+      await load(index + d);
+      img.getAnimations().forEach((a) => a.cancel());
+      img.animate(
+        [{ opacity: 0, transform: `translateX(${d * 60}px) scale(0.98)` }, { opacity: 1, transform: 'none' }],
+        { duration: 380, easing: EASE },
+      );
+      busy = false;
+    };
+
+    // Foto "terbang" dari thumbnail di galeri ke tengah layar.
+    const flyFrom = (item: HTMLElement) => {
+      const a = item.getBoundingClientRect();
+      const b = img.getBoundingClientRect();
+      if (!a.width || !b.width) return `scale(0.9)`;
+      return `translate(${a.left + a.width / 2 - (b.left + b.width / 2)}px, ${a.top + a.height / 2 - (b.top + b.height / 2)}px) scale(${a.width / b.width})`;
+    };
+
+    document.addEventListener('click', async (e) => {
       const item = (e.target as Element | null)?.closest<HTMLElement>('[data-lightbox-item]');
       if (!item?.parentElement) return;
       items = Array.from(item.parentElement.querySelectorAll<HTMLElement>(':scope > [data-lightbox-item]'));
-      show(items.indexOf(item));
       dialog.showModal();
+      dialog.focus({ preventScroll: true }); // tanpa ini tombol tutup tampil dengan cincin fokus
+      await load(items.indexOf(item));
+      if (reduced.matches) return;
+      img.animate([{ transform: flyFrom(item), opacity: 0.6 }, { transform: 'none', opacity: 1 }], { duration: 480, easing: EASE });
+      dialog.animate({ opacity: [0, 1] }, { duration: 350, pseudoElement: '::backdrop' });
+      dialog.querySelectorAll('.lb-btn, .lb-foot').forEach((b) =>
+        b.animate({ opacity: [0, 1] }, { duration: 300, delay: 200, fill: 'backwards' }));
     });
 
-    dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
-    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => show(index - 1));
-    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => show(index + 1));
+    let closing = false;
+    const close = () => {
+      if (closing || !dialog.open) return;
+      if (reduced.matches) return dialog.close();
+      closing = true;
+      const item = items[index];
+      const r = item?.getBoundingClientRect();
+      const visible = r && r.width > 0 && r.bottom > 0 && r.top < innerHeight;
+      const anims = [
+        img.animate(
+          [{ transform: 'none', opacity: 1 }, { transform: visible ? flyFrom(item!) : 'scale(0.9)', opacity: visible ? 0.3 : 0 }],
+          { duration: 360, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' },
+        ),
+        dialog.animate({ opacity: [1, 0] }, { duration: 360, pseudoElement: '::backdrop', fill: 'forwards' }),
+        ...Array.from(dialog.querySelectorAll('.lb-btn, .lb-foot')).map((b) => b.animate({ opacity: [1, 0] }, { duration: 150, fill: 'forwards' })),
+      ];
+      anims[0]!.onfinish = () => {
+        dialog.close();
+        anims.forEach((a) => a.cancel());
+        closing = false;
+      };
+    };
 
-    // Navigasi papan ketik (Esc sudah ditangani <dialog>).
+    dialog.querySelector('[data-lb-close]')?.addEventListener('click', close);
+    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => go(-1));
+    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => go(1));
+    dialog.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+
+    // Navigasi papan ketik (Esc ditangani lewat 'cancel').
     dialog.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') { e.preventDefault(); show(index + 1); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); show(index - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
     });
 
-    // Klik latar menutup, klik foto tidak.
+    // Klik area gelap menutup, klik foto tidak.
     dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) dialog.close();
+      const t = e.target as Element;
+      if (t === dialog || t.matches('[data-lb-stage]')) close();
     });
 
     // Geser jari di HP.
@@ -137,10 +241,10 @@
     dialog.addEventListener('touchstart', (e) => { startX = e.changedTouches[0]!.screenX; }, { passive: true });
     dialog.addEventListener('touchend', (e) => {
       const dx = startX - e.changedTouches[0]!.screenX;
-      if (Math.abs(dx) > 50) show(index + (dx > 0 ? 1 : -1));
+      if (Math.abs(dx) > 50) go(dx > 0 ? 1 : -1);
     }, { passive: true });
 
-    // Kembalikan fokus ke foto yang tadi diklik saat lightbox ditutup.
-    dialog.addEventListener('close', () => items[index]?.focus());
+    // Kembalikan fokus ke foto yang tadi dibuka saat lightbox ditutup.
+    dialog.addEventListener('close', () => items[index]?.focus({ preventScroll: true }));
   }
 </script>

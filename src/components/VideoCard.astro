@@ -89,15 +89,15 @@ const { cover, project, title, desc, eager = false } = Astro.props;
     transition: transform 0.25s var(--ease);
   }
 
-  .card:hover .card-media :global(img),
-  .card:focus-visible .card-media :global(img) {
-    transform: scale(1.06);
-    filter: brightness(0.6);
-  }
-  .card:hover .card-play,
+  /* Hover cukup halus — setengah detik kemudian kartu pratinjau (ProjectModal) mengambil alih.
+     Ikon putar hanya untuk keyboard & layar sentuh, yang tidak mendapat pratinjau. */
+  .card:hover .card-media :global(img) { transform: scale(1.04); filter: brightness(1.08); }
+  .card:focus-visible .card-media :global(img) { transform: scale(1.04); filter: brightness(0.6); }
   .card:focus-visible .card-play { opacity: 1; }
-  .card:hover .card-play svg,
   .card:focus-visible .card-play svg { transform: scale(1); }
+  @media (hover: none) {
+    .card:active .card-media :global(img) { transform: scale(0.98); }
+  }
 
   .card-body {
     display: block;

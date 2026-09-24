@@ -40,7 +40,7 @@ for (const cat of categories.filter((c) => !only || c.slug === only)) {
       yt: isYoutubeId(v.youtubeId) ? v.youtubeId : '',
       hero: await url(cover, 1280),
       thumb: await url(cover, 480),
-      photos: v.photos ?? null,
+      photos: v.photos?.length ? v.photos : null,
     };
   }
 }
@@ -48,35 +48,44 @@ for (const cat of categories.filter((c) => !only || c.slug === only)) {
 // `<` di-escape supaya teks data tidak bisa menutup tag <script>.
 const json = JSON.stringify({ cats, projects, wa: waLink('') }).replace(/</g, '\\u003c');
 
-const chevron = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg>';
+const icon = {
+  play: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg>',
+  chevron: '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  wa: '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm5.8 14.13c-.25.69-1.44 1.32-1.99 1.37-.53.05-1.02.24-3.45-.72-2.91-1.15-4.75-4.15-4.89-4.34-.14-.2-1.16-1.55-1.16-2.95s.73-2.09.99-2.38c.26-.29.57-.36.76-.36l.55.01c.18.01.41-.07.64.49.24.57.8 1.97.87 2.11.07.15.12.32.02.51-.09.19-.14.31-.28.48l-.42.49c-.14.14-.29.29-.12.57.16.29.73 1.2 1.56 1.94 1.07.96 1.98 1.25 2.26 1.39.28.14.45.12.61-.07.17-.19.71-.83.9-1.11.19-.29.38-.24.64-.14.26.09 1.65.78 1.94.92.28.14.47.21.54.33.07.12.07.69-.18 1.36Z"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+};
 ---
 
 <script type="application/json" data-project-data is:inline set:html={json} />
 
 <dialog class="pm" data-pm aria-labelledby="pm-title">
-  <article class="pm-panel" data-pm-panel>
+  <article class="pm-panel" data-pm-panel tabindex="-1">
     <button class="pm-close" type="button" data-pm-close aria-label="Tutup">
-      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
         ><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg
       >
     </button>
 
     <div class="pm-hero" data-pm-hero-box>
-      <img class="pm-hero-img" data-pm-hero alt="" />
+      <div class="pm-slides" data-pm-slides></div>
       <div class="pm-hero-veil"></div>
-      <div class="pm-hero-copy">
+      <div class="pm-dots" data-pm-dots></div>
+      <div class="pm-hero-copy" data-pm-hero-copy>
+        <p class="pm-eyebrow"><span class="pm-eyebrow-mark"></span><span data-pm-cat></span></p>
         <h2 id="pm-title" class="pm-title" data-pm-title></h2>
+        <p class="pm-meta">
+          <span class="pm-badge">HD</span>
+          <span data-pm-kind></span>
+          <span class="pm-dot" aria-hidden="true"></span>
+          <span data-pm-count></span>
+        </p>
         <div class="pm-actions">
-          <button class="btn btn-light pm-play" type="button" data-pm-play>
-            <Fragment set:html={playIcon} />
-            Putar
+          <button class="pm-btn pm-btn-play" type="button" data-pm-play>
+            <Fragment set:html={icon.play} /> Putar Video
           </button>
-          <p class="pm-soon" data-pm-soon hidden>Video segera hadir</p>
-          <a class="pm-circle" data-pm-wa target="_blank" rel="noopener" aria-label="Tanya proyek serupa lewat WhatsApp" title="Tanya proyek serupa">
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
-              ><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg
-            >
+          <p class="pm-btn pm-btn-soon" data-pm-soon hidden><Fragment set:html={icon.clock} /> Video segera hadir</p>
+          <a class="pm-btn pm-btn-ghost" data-pm-wa target="_blank" rel="noopener">
+            <Fragment set:html={icon.wa} /> Tanya Proyek Serupa
           </a>
         </div>
       </div>
@@ -84,38 +93,36 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
 
     <div class="pm-body" data-pm-body>
       <div class="pm-info">
-        <div>
-          <p class="pm-meta">
-            <span class="pm-match" data-pm-cat></span>
-            <span class="pm-badge">HD</span>
-            <span data-pm-count></span>
-          </p>
-          <p class="pm-synopsis" data-pm-synopsis></p>
-        </div>
+        <p class="pm-synopsis" data-pm-synopsis></p>
         <dl class="pm-side">
-          <div><dt>Kategori:</dt> <dd data-pm-cat></dd></div>
-          <div><dt>Produksi:</dt> <dd>Tetra Visual</dd></div>
-          <div><dt>Format:</dt> <dd>Video & Foto Dokumentasi</dd></div>
+          <div><dt>Kategori</dt><dd data-pm-cat></dd></div>
+          <div><dt>Produksi</dt><dd>Tetra Visual</dd></div>
+          <div><dt>Format</dt><dd>Video & foto dokumentasi</dd></div>
         </dl>
       </div>
 
       <section class="pm-sec" data-pm-gallery-sec>
-        <h3 class="pm-h">Galeri Dokumentasi</h3>
+        <div class="pm-sec-head">
+          <h3 class="pm-h">Galeri Dokumentasi</h3>
+          <span class="pm-h-count" data-pm-gallery-count></span>
+        </div>
         <p class="pm-note" data-pm-gallery-note></p>
         <div class="pm-gallery" data-pm-list></div>
         <div class="pm-bar">
-          <button class="pm-circle pm-expand" type="button" data-pm-expand aria-expanded="false" aria-label="Tampilkan semua foto">
-            <Fragment set:html={chevron} />
+          <button class="pm-expand" type="button" data-pm-expand aria-expanded="false">
+            <span data-pm-expand-label></span><Fragment set:html={icon.chevron} />
           </button>
         </div>
       </section>
 
       <section class="pm-sec" data-pm-more-sec>
-        <h3 class="pm-h">Lainnya di <span data-pm-cat></span></h3>
+        <div class="pm-sec-head">
+          <h3 class="pm-h">Lainnya di <span data-pm-cat></span></h3>
+        </div>
         <div class="pm-more" data-pm-list></div>
         <div class="pm-bar">
-          <button class="pm-circle pm-expand" type="button" data-pm-expand aria-expanded="false" aria-label="Tampilkan semua karya">
-            <Fragment set:html={chevron} />
+          <button class="pm-expand" type="button" data-pm-expand aria-expanded="false">
+            <span data-pm-expand-label></span><Fragment set:html={icon.chevron} />
           </button>
         </div>
       </section>
@@ -128,18 +135,17 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
   <button class="pv-media" type="button" tabindex="-1" data-pv-open><img data-pv-img alt="" /></button>
   <div class="pv-info" data-pv-info>
     <div class="pv-actions">
-      <button class="pm-circle pv-play" type="button" tabindex="-1" data-pv-play><Fragment set:html={playIcon} /></button>
-      <button class="pm-circle pv-more" type="button" tabindex="-1" data-pv-open><Fragment set:html={chevron} /></button>
+      <button class="pv-circle pv-play" type="button" tabindex="-1" data-pv-play data-tip="Putar"><Fragment set:html={icon.play} /></button>
+      <button class="pv-circle pv-more" type="button" tabindex="-1" data-pv-open data-tip="Info selengkapnya"><Fragment set:html={icon.chevron} /></button>
     </div>
     <p class="pv-title" data-pv-title></p>
-    <p class="pm-meta pv-meta"><span class="pm-match" data-pv-cat></span><span class="pm-badge">HD</span></p>
+    <p class="pv-meta"><span class="pv-cat" data-pv-cat></span><span class="pm-badge">HD</span></p>
     <p class="pv-desc" data-pv-desc></p>
   </div>
 </div>
 
 <style>
-  /* Warna permukaan Netflix untuk popup (sedikit lebih gelap dari latar halaman) */
-  .pm, .pv { --surface: #181818; --card: #2f2f2f; }
+  .pm, .pv { --surface: #181818; --card: #252525; --pm-ease: cubic-bezier(0.32, 0.72, 0, 1); }
 
   .pm {
     position: fixed;
@@ -149,249 +155,296 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
     max-width: none;
     max-height: none;
     margin: 0;
-    padding: 2rem var(--s-4) 4rem;
+    padding: 2.5rem var(--s-4) 4rem;
     border: 0;
     background: transparent;
     color: var(--text);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
-  .pm::backdrop { background: rgba(0, 0, 0, 0.7); }
+  /* Latar jauh lebih gelap supaya popup benar-benar terpisah dari halaman */
+  .pm::backdrop { background: rgba(0, 0, 0, 0.86); }
 
   .pm-panel {
     position: relative;
-    max-width: 850px;
+    max-width: 880px;
     margin: 0 auto;
     background: var(--surface);
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: rgba(0, 0, 0, 0.75) 0 3px 10px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 30px 90px rgba(0, 0, 0, 0.9);
     transform-origin: 0 0;
+    outline: none;
   }
 
   .pm-close {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    z-index: 3;
+    z-index: 4;
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: var(--surface);
-    transition: background-color 0.2s var(--ease);
+    background: rgba(20, 20, 20, 0.75);
+    backdrop-filter: blur(8px);
+    transition: background-color 0.2s var(--ease), transform 0.25s var(--pm-ease);
   }
-  .pm-close:hover { background: #333; }
+  .pm-close:hover { background: #fff; color: #000; transform: rotate(90deg); }
 
-  /* --- HERO --- */
+  /* --- HERO: slideshow foto proyek --- */
   .pm-hero {
     position: relative;
     aspect-ratio: 16 / 9;
     overflow: hidden;
     background: #000 center / cover no-repeat;
   }
-  .pm-hero-img {
+  .pm-slides { position: absolute; inset: 0; }
+  .pm-slides :global(.pm-slide) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    transition: opacity 0.5s var(--ease);
+    transition: opacity 1.2s ease;
   }
-  /* Zoom pelan menggantikan trailer yang diputar Netflix di posisi ini */
-  .pm-hero-img.is-loaded { opacity: 1; animation: pm-drift 18s ease-out forwards; }
-  @keyframes pm-drift { to { transform: scale(1.1); } }
+  /* Tiap foto bergerak pelan (Ken Burns); arah acak diberi lewat transform-origin */
+  .pm-slides :global(.pm-slide.is-on) { opacity: 1; animation: pm-drift 7s linear forwards; }
+  @keyframes pm-drift { from { transform: scale(1.02); } to { transform: scale(1.14); } }
 
   .pm-hero-veil {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, var(--surface) 0%, rgba(24, 24, 24, 0.55) 22%, transparent 55%);
+    background:
+      linear-gradient(to top, var(--surface) 0%, rgba(24, 24, 24, 0.7) 24%, rgba(24, 24, 24, 0) 58%),
+      linear-gradient(to right, rgba(0, 0, 0, 0.55) 0%, transparent 55%);
   }
+
+  /* Indikator foto ala "stories": bar aktif terisi selama foto tampil */
+  .pm-dots {
+    position: absolute;
+    top: 1.6rem;
+    left: 3rem;
+    z-index: 3;
+    display: flex;
+    gap: 6px;
+  }
+  .pm-dots :global(button) {
+    position: relative;
+    width: 28px;
+    height: 16px;
+    padding: 0;
+    background: none;
+  }
+  .pm-dots :global(button::before),
+  .pm-dots :global(button::after) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 3px;
+    margin-top: -1.5px;
+    border-radius: 2px;
+  }
+  .pm-dots :global(button::before) { right: 0; background: rgba(255, 255, 255, 0.3); }
+  .pm-dots :global(button::after) { width: 0; background: #fff; }
+  .pm-dots :global(button.is-past::after) { width: 100%; }
+  .pm-dots :global(button.is-on::after) { animation: pm-dot var(--slide-ms) linear forwards; }
+  @keyframes pm-dot { to { width: 100%; } }
 
   .pm-hero-copy {
     position: absolute;
     left: 3rem;
     right: 3rem;
     bottom: 2.25rem;
-  }
-  .pm-title {
-    max-width: 18ch;
-    font-size: clamp(1.5rem, 3.6vw, 2.6rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+    z-index: 2;
   }
 
-  .pm-actions {
+  .pm-eyebrow {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    margin-top: var(--s-4);
+    margin-bottom: 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #fff;
   }
-  .pm-play { padding-inline: 1.6rem 2rem; font-size: 1rem; }
-  .pm-soon {
-    padding: 0.6rem 1rem;
-    border-radius: var(--radius);
-    background: rgba(109, 109, 110, 0.7);
-    font-size: var(--t-sm);
-    font-weight: 600;
-  }
+  .pm-eyebrow-mark { width: 4px; height: 1.1em; border-radius: 2px; background: var(--brand); }
 
-  /* Tombol bulat bergaris khas Netflix: tambah, info, perluas */
-  .pm-circle {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    background: rgba(42, 42, 42, 0.6);
-    color: var(--text);
-    transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease), transform 0.2s var(--ease);
-  }
-  .pm-circle:hover { border-color: #fff; background: rgba(255, 255, 255, 0.1); }
-  .pm-circle:active { transform: scale(0.94); }
-
-  /* --- ISI --- */
-  .pm-body { padding: 0 3rem 3rem; }
-
-  .pm-info {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    column-gap: 2rem;
+  .pm-title {
+    max-width: 20ch;
+    font-size: clamp(1.75rem, 4vw, 2.9rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
   }
 
   .pm-meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: var(--s-4);
-    font-size: 1rem;
-    color: #bcbcbc;
+    gap: 0.6rem;
+    margin-top: 0.85rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #d6d6d6;
   }
-  .pm-match { color: #46d369; font-weight: 700; }
+  .pm-dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.6; }
   .pm-badge {
-    padding: 0 0.4em;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 0.05em 0.45em;
+    border: 1px solid rgba(255, 255, 255, 0.45);
     border-radius: 3px;
-    font-size: 0.7rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     line-height: 1.5;
   }
 
-  .pm-synopsis { font-size: 1rem; line-height: 1.6; color: #fff; }
+  .pm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.4rem;
+  }
 
-  .pm-side { margin: 0; font-size: 0.875rem; line-height: 1.5; }
-  .pm-side div { margin-bottom: 0.6rem; }
-  .pm-side dt { display: inline; color: #777; }
-  .pm-side dd { display: inline; margin: 0; color: #ddd; }
+  .pm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 48px;
+    padding: 0 1.6rem 0 1.35rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background-color 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--pm-ease), box-shadow 0.25s var(--ease);
+  }
+  .pm-btn :global(svg) { flex: none; transition: transform 0.25s var(--pm-ease); }
+  .pm-btn-play { background: #fff; color: #000; }
+  .pm-btn-play:hover { background: #e6e6e6; box-shadow: 0 8px 30px rgba(255, 255, 255, 0.18); }
+  .pm-btn-play:hover :global(svg) { transform: scale(1.15); }
+  .pm-btn-ghost { background: rgba(109, 109, 110, 0.55); color: #fff; backdrop-filter: blur(10px); }
+  .pm-btn-ghost:hover { background: rgba(109, 109, 110, 0.85); }
+  .pm-btn-ghost:hover :global(svg) { transform: rotate(-10deg) scale(1.1); }
+  .pm-btn:active { transform: scale(0.96); }
+  .pm-btn-soon {
+    color: #cfcfcf;
+    border: 1px dashed rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.35);
+    font-weight: 600;
+    cursor: default;
+  }
 
-  .pm-sec { margin-top: 3rem; }
-  .pm-h { font-size: 1.5rem; margin-bottom: var(--s-4); }
-  .pm-note { margin: calc(var(--s-3) * -1) 0 var(--s-4); font-size: var(--t-sm); color: var(--text-faint); }
+  /* --- ISI --- */
+  .pm-body { padding: 0.5rem 3rem 3rem; }
+
+  .pm-info {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    gap: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .pm-synopsis { font-size: 1.0625rem; line-height: 1.75; color: #e5e5e5; max-width: 60ch; }
+
+  .pm-side { display: grid; gap: 0.9rem; margin: 0; align-content: start; }
+  .pm-side dt {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #7a7a7a;
+  }
+  .pm-side dd { margin: 0.15rem 0 0; font-size: 0.9375rem; color: #eee; }
+
+  .pm-sec { margin-top: 2.5rem; }
+  .pm-sec-head { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1rem; }
+  .pm-h { font-size: 1.375rem; font-weight: 700; letter-spacing: -0.02em; }
+  .pm-h-count { font-size: 0.875rem; font-weight: 500; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+  .pm-note { margin: -0.5rem 0 1rem; font-size: var(--t-sm); color: var(--text-faint); }
   .pm-note:empty { display: none; }
 
+  /* Foto pertama dibuat besar supaya galeri punya titik fokus */
   .pm-gallery {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.6rem;
+    grid-template-columns: repeat(var(--cols, 4), 1fr);
+    gap: 6px;
   }
   .pm-more {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
   }
-  /* Ringkas dulu seperti "More Like This" — tombol panah di bawah membuka sisanya */
   .pm-gallery:not(.is-open) > :global(:nth-child(n + 10)),
   .pm-more:not(.is-open) > :global(:nth-child(n + 7)) { display: none; }
 
-  .pm-bar {
-    display: flex;
-    justify-content: center;
-    height: 1.5rem;
-    border-bottom: 2px solid #404040;
-    margin-bottom: 1.5rem;
-  }
-  .pm-expand { transform: translateY(50%); background: rgba(42, 42, 42, 0.95); }
-  .pm-expand:active { transform: translateY(50%) scale(0.94); }
-  .pm-expand :global(svg) { transition: transform 0.3s var(--ease); }
-  .pm-expand[aria-expanded='true'] :global(svg) { transform: rotate(180deg); }
-
   .pm-panel :global(.pm-shot) {
+    position: relative;
     padding: 0;
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    border-radius: var(--radius);
+    border-radius: 4px;
     background: var(--card);
+    animation: pm-rise 0.6s var(--pm-ease) both;
+    animation-delay: calc(var(--i, 0) * 40ms);
   }
+  .pm-panel :global(.pm-gallery.has-feature .pm-shot:first-child) { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
+  .pm-panel :global(.pm-gallery.is-single .pm-shot) { aspect-ratio: 16 / 9; }
   .pm-panel :global(.pm-shot img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s var(--ease), filter 0.3s var(--ease);
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.6s var(--pm-ease);
   }
-  .pm-panel :global(.pm-shot:hover img) { transform: scale(1.06); filter: brightness(1.1); }
+  .pm-panel :global(.pm-shot img.is-loaded) { opacity: 1; }
+  .pm-panel :global(.pm-shot::after) {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='M16 16l4 4M11 8.5v5M8.5 11h5'/%3E%3C/svg%3E") center / 30px no-repeat;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .pm-panel :global(.pm-shot:hover img) { transform: scale(1.07); }
+  .pm-panel :global(.pm-shot:hover::after) { opacity: 1; }
+  @keyframes pm-rise { from { opacity: 0; transform: translateY(14px); } }
 
   .pm-panel :global(.pm-card) {
     display: flex;
     flex-direction: column;
     padding: 0;
     text-align: left;
-    border-radius: var(--radius);
+    border-radius: 6px;
     overflow: hidden;
     background: var(--card);
-    transition: background-color 0.2s var(--ease);
+    transition: background-color 0.25s var(--ease), transform 0.35s var(--pm-ease), box-shadow 0.35s var(--ease);
+    animation: pm-rise 0.6s var(--pm-ease) both;
+    animation-delay: calc(var(--i, 0) * 50ms);
   }
-  .pm-panel :global(.pm-card:hover) { background: #3a3a3a; }
+  .pm-panel :global(.pm-card:hover) { background: #2f2f2f; transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5); }
   .pm-panel :global(.pm-card-media) { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; }
-  .pm-panel :global(.pm-card-media img) { width: 100%; height: 100%; object-fit: cover; }
+  .pm-panel :global(.pm-card-media img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--pm-ease); }
+  .pm-panel :global(.pm-card:hover .pm-card-media img) { transform: scale(1.06); }
   .pm-panel :global(.pm-card-media::after) {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='rgba(30,30,30,.6)' stroke='white' stroke-width='2'/%3E%3Cpath d='M19 15v18l14-9z' fill='white'/%3E%3C/svg%3E") center / 44px no-repeat;
+    background: rgba(0, 0, 0, 0.35) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='rgba(20,20,20,.55)' stroke='white' stroke-width='2'/%3E%3Cpath d='M19 15v18l14-9z' fill='white'/%3E%3C/svg%3E") center / 44px no-repeat;
     opacity: 0;
-    transition: opacity 0.2s var(--ease);
+    transition: opacity 0.25s var(--ease);
   }
   .pm-panel :global(.pm-card:hover .pm-card-media::after) { opacity: 1; }
   .pm-panel :global(.pm-card-body) { display: block; padding: 0.9rem 1rem 1.1rem; }
   .pm-panel :global(.pm-card-title) { display: block; font-size: 0.95rem; font-weight: 600; line-height: 1.35; }
   .pm-panel :global(.pm-card-desc) {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    margin-top: 0.4rem;
-    font-size: 0.8125rem;
-    line-height: 1.45;
-    color: #d2d2d2;
-  }
-
-  /* --- PRATINJAU HOVER --- */
-  .pv {
-    position: fixed;
-    z-index: 150;
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--surface);
-    box-shadow: rgba(0, 0, 0, 0.75) 0 3px 10px;
-    transform-origin: 0 0;
-    color: var(--text);
-  }
-  .pv-media { display: block; width: 100%; padding: 0; aspect-ratio: 16 / 9; }
-  .pv-media img { width: 100%; height: 100%; object-fit: cover; }
-  .pv-info { padding: 0.9rem 1rem 1.1rem; }
-  .pv-actions { display: flex; gap: 0.5rem; margin-bottom: 0.8rem; }
-  .pv-actions .pm-circle { width: 36px; height: 36px; }
-  .pv-actions :global(svg) { width: 18px; height: 18px; }
-  .pv-play { background: #fff; border-color: #fff; color: #000; }
-  .pv-play:hover { background: rgba(255, 255, 255, 0.8); }
-  .pv-more { margin-left: auto; }
-  .pv-title { font-size: 0.95rem; font-weight: 700; line-height: 1.3; }
-  .pv-meta { margin: 0.4rem 0 0; font-size: 0.8125rem; }
-  .pv-desc {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -400,26 +453,123 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
     margin-top: 0.4rem;
     font-size: 0.8125rem;
     line-height: 1.45;
+    color: #a8a8a8;
+  }
+
+  /* Garis pemisah dengan tombol "Tampilkan semua" di tengahnya, gaya Netflix */
+  .pm-bar {
+    display: flex;
+    justify-content: center;
+    height: 1.25rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .pm-expand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 40px;
+    padding: 0 1rem 0 1.2rem;
+    transform: translateY(50%);
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: #202020;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+  }
+  .pm-expand:hover { border-color: #fff; background: #2a2a2a; }
+  .pm-expand :global(svg) { transition: transform 0.35s var(--pm-ease); }
+  .pm-expand[aria-expanded='true'] :global(svg) { transform: rotate(180deg); }
+
+  /* --- PRATINJAU HOVER --- */
+  .pv {
+    position: fixed;
+    z-index: 150;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 18px 50px rgba(0, 0, 0, 0.85);
+    transform-origin: 0 0;
+    color: var(--text);
+    will-change: transform;
+  }
+  .pv-media { display: block; width: 100%; padding: 0; aspect-ratio: 16 / 9; overflow: hidden; }
+  .pv-media img { width: 100%; height: 100%; object-fit: cover; }
+  .pv:not([hidden]) .pv-media img { animation: pm-drift 8s linear forwards; }
+  .pv-info { padding: 0.9rem 1rem 1.1rem; }
+  .pv-actions { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+
+  .pv-circle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    background: rgba(42, 42, 42, 0.6);
+    color: #fff;
+    transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease), transform 0.25s var(--pm-ease);
+  }
+  .pv-circle :global(svg) { width: 18px; height: 18px; }
+  .pv-circle:hover { border-color: #fff; transform: scale(1.1); }
+  .pv-play { background: #fff; border-color: #fff; color: #000; }
+  .pv-play:hover { background: #e6e6e6; }
+  .pv-more { margin-left: auto; }
+  /* Tooltip kecil seperti di Netflix */
+  .pv-circle::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    background: #e6e6e6;
+    color: #000;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(-50%, 4px);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.2s var(--pm-ease);
+  }
+  .pv-circle:hover::after { opacity: 1; transform: translate(-50%, 0); }
+
+  .pv-title { font-size: 1rem; font-weight: 700; line-height: 1.3; }
+  .pv-meta { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem; font-size: 0.8125rem; }
+  .pv-cat { color: #46d369; font-weight: 700; }
+  .pv-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 0.45rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
     color: #bcbcbc;
   }
   .pv-desc:empty { display: none; }
 
   @media (max-width: 700px) {
     .pm { padding: 0; }
-    .pm-panel { border-radius: 0; min-height: 100%; }
+    .pm-panel { border-radius: 0; min-height: 100%; box-shadow: none; }
     /* Di HP judul & tombol turun ke bawah gambar, seperti aplikasi Netflix */
     .pm-hero { aspect-ratio: auto; background-color: var(--surface); background-size: 100% auto; background-position: top; }
-    .pm-hero-img { height: auto; aspect-ratio: 16 / 9; }
+    .pm-slides { position: relative; aspect-ratio: 16 / 9; }
     .pm-hero-veil { bottom: auto; aspect-ratio: 16 / 9; }
-    .pm-hero-copy { position: relative; left: auto; right: auto; bottom: auto; margin-top: -1.5rem; padding: 0 1rem 1.25rem; }
-    .pm-actions { display: grid; grid-template-columns: 1fr auto; }
-    .pm-play, .pm-soon { justify-content: center; text-align: center; }
+    .pm-dots { top: 1.1rem; left: 1rem; }
+    .pm-hero-copy { position: relative; left: auto; right: auto; bottom: auto; margin-top: -2rem; padding: 0 1rem 1.25rem; }
+    .pm-actions { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
     .pm-body { padding: 0 1rem 2rem; }
-    .pm-info { grid-template-columns: 1fr; row-gap: 1rem; }
-    .pm-gallery { gap: 4px; }
-    .pm-more { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .pm-info { grid-template-columns: 1fr; gap: 1.5rem; }
+    .pm-side { grid-template-columns: repeat(3, auto); justify-content: start; column-gap: 1.5rem; }
+    .pm-gallery { grid-template-columns: repeat(min(var(--cols, 3), 3), 1fr); gap: 4px; }
+    .pm-more { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
     .pm-sec { margin-top: 2rem; }
-    .pm-h { font-size: 1.25rem; }
+    .pm-h { font-size: 1.2rem; }
   }
 </style>
 
@@ -449,15 +599,17 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
       i.loading = 'lazy'; // harus sebelum src
       i.decoding = 'async';
       i.alt = alt;
+      i.onload = () => i.classList.add('is-loaded');
       i.src = src;
       return i;
     };
 
-    const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+    const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const panel = q(dlg, '[data-pm-panel]');
     const heroBox = q(dlg, '[data-pm-hero-box]');
-    const hero = q<HTMLImageElement>(dlg, '[data-pm-hero]');
+    const slidesBox = q(dlg, '[data-pm-slides]');
+    const dotsBox = q(dlg, '[data-pm-dots]');
     const play = q(dlg, '[data-pm-play]');
     const [gallery, more] = Array.from(qa('[data-pm-list]'));
     let current = '';
@@ -465,35 +617,117 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
     // Kartu di halaman (bukan di popup) untuk proyek ini — tujuan animasi saat menutup.
     const pageCard = (id: string) => document.querySelector<HTMLElement>(`.card[data-project="${id}"] .card-media`);
 
-    const fill = (id: string, placeholder?: string) => {
+    // Foto proyek itu sendiri bila sudah dipetakan di work.ts; kalau belum, dokumentasi kategorinya.
+    const shotsOf = (p: Project) => {
+      const c = cats[p.slug]!;
+      const own = (p.photos ?? []).map((n) => c.photos[n - 1]).filter((s) => s !== undefined);
+      return { own: own.length > 0, shots: own.length ? own : c.photos };
+    };
+
+    // --- SLIDESHOW HERO ---
+    const SLIDE_MS = 5000;
+    const ORIGINS = ['20% 30%', '80% 30%', '50% 80%', '30% 70%', '70% 60%'];
+    let slides: string[] = [];
+    let slideRun = 0;
+    let slideTimer = 0;
+    dotsBox.style.setProperty('--slide-ms', `${SLIDE_MS}ms`);
+
+    const showSlide = async (i: number, run: number) => {
+      const src = slides[i]!;
+      const im = new Image();
+      im.className = 'pm-slide';
+      im.alt = '';
+      im.src = src;
+      try { await im.decode(); } catch { /* tetap tampilkan */ }
+      if (run !== slideRun) return;
+      im.style.transformOrigin = ORIGINS[i % ORIGINS.length]!;
+      slidesBox.append(im);
+      requestAnimationFrame(() => im.classList.add('is-on'));
+      const old = Array.from(slidesBox.children).slice(0, -1);
+      old.forEach((o) => o.classList.remove('is-on'));
+      setTimeout(() => old.forEach((o) => o.remove()), 1300);
+
+      Array.from(dotsBox.children).forEach((d, k) => {
+        d.classList.toggle('is-on', k === i);
+        d.classList.toggle('is-past', k < i);
+      });
+      if (slides.length < 2) return;
+      clearTimeout(slideTimer);
+      slideTimer = window.setTimeout(function next() {
+        // Jangan ganti foto saat video atau lightbox sedang dibuka di atas popup.
+        if (document.querySelector('dialog[data-video-modal][open], dialog[data-lightbox][open]')) {
+          slideTimer = window.setTimeout(next, 1000);
+          return;
+        }
+        showSlide((i + 1) % slides.length, run);
+      }, SLIDE_MS);
+    };
+
+    const startSlides = (list: string[]) => {
+      stopSlides();
+      slides = list;
+      const run = slideRun;
+      dotsBox.replaceChildren(...(list.length > 1 ? list.map((_, k) => {
+        const d = el('button', '');
+        d.setAttribute('type', 'button');
+        d.setAttribute('aria-label', `Foto ${k + 1} dari ${list.length}`);
+        d.addEventListener('click', () => { clearTimeout(slideTimer); showSlide(k, run); });
+        return d;
+      }) : []));
+      showSlide(0, run);
+    };
+    function stopSlides() {
+      slideRun++;
+      clearTimeout(slideTimer);
+    }
+
+    // Bagian atas diisi langsung; galeri & daftar lain dibangun setelah animasi buka
+    // supaya ratusan elemen tidak dibuat di tengah animasi (penyebab patah-patah).
+    const fillHead = (id: string, placeholder?: string) => {
       const p = projects[id]!;
       const c = cats[p.slug]!;
+      const { own, shots } = shotsOf(p);
       current = id;
 
       heroBox.style.backgroundImage = `url("${placeholder || p.thumb}")`;
-      hero.classList.remove('is-loaded');
-      hero.onload = () => hero.classList.add('is-loaded');
-      hero.alt = `Cuplikan ${p.title}`;
-      hero.src = p.hero;
-      if (hero.complete) hero.classList.add('is-loaded');
+      slidesBox.replaceChildren();
+      // Slideshow hanya memakai foto milik proyek ini — foto kategori bukan cerita proyek ini.
+      startSlides([p.hero, ...(own ? shots.slice(0, 5).map(([, full]) => full) : [])]);
 
       q(dlg, '[data-pm-title]').textContent = p.title;
       q(dlg, '[data-pm-synopsis]').textContent = p.synopsis;
       qa('[data-pm-cat]').forEach((e) => (e.textContent = c.name));
+      q(dlg, '[data-pm-kind]').textContent = p.yt ? 'Video dokumentasi' : 'Dokumentasi';
+      q(dlg, '[data-pm-count]').textContent = `${shots.length} foto`;
       play.hidden = !p.yt;
       q(dlg, '[data-pm-soon]').hidden = Boolean(p.yt);
       play.dataset.videoId = p.yt;
       play.dataset.videoTitle = p.title;
       q<HTMLAnchorElement>(dlg, '[data-pm-wa]').href =
         wa + encodeURIComponent(`Halo Tetra Visual, saya lihat karya "${p.title}". Saya ingin dokumentasi serupa, boleh minta info paket?`);
+      gallery!.replaceChildren();
+      more!.replaceChildren();
+    };
 
-      // Foto khusus proyek bila diisi di work.ts; kalau tidak, dokumentasi kategorinya.
-      const shots = p.photos ? p.photos.map((n) => c.photos[n - 1]).filter((s) => s !== undefined) : c.photos;
-      q(dlg, '[data-pm-count]').textContent = `${shots.length} foto`;
-      q(dlg, '[data-pm-gallery-note]').textContent = p.photos ? '' : `Cuplikan dari dokumentasi ${c.name.toLowerCase()} Tetra Visual.`;
+    const fillBody = (id: string) => {
+      if (id !== current) return;
+      const p = projects[id]!;
+      const c = cats[p.slug]!;
+      const { own, shots } = shotsOf(p);
+
+      q(dlg, '[data-pm-gallery-count]').textContent = String(shots.length);
+      q(dlg, '[data-pm-gallery-note]').textContent = own
+        ? ''
+        : `Foto khusus proyek ini belum tersedia — berikut dokumentasi ${c.name.toLowerCase()} Tetra Visual lainnya.`;
+      // Foto sedikit: kolom menyesuaikan jumlahnya. Banyak: foto pertama dibesarkan jadi titik fokus.
+      const n = shots.length;
+      gallery!.style.setProperty('--cols', String(n >= 5 ? 4 : n === 4 ? 2 : Math.max(n, 1)));
+      gallery!.classList.toggle('has-feature', n >= 5);
+      gallery!.classList.toggle('is-single', n === 1);
       gallery!.replaceChildren(...shots.map(([thumb, full], i) => {
         const b = el('button', 'pm-shot');
         b.setAttribute('type', 'button');
+        b.style.setProperty('--i', String(Math.min(i, 9)));
         b.dataset.lightboxItem = '';
         b.dataset.full = full;
         b.setAttribute('aria-label', `Perbesar foto ${i + 1} dari ${shots.length}`);
@@ -502,9 +736,10 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
       }));
 
       const others = Object.entries(projects).filter(([k, o]) => o.slug === p.slug && k !== id);
-      more!.replaceChildren(...others.map(([k, o]) => {
+      more!.replaceChildren(...others.map(([k, o], i) => {
         const b = el('button', 'pm-card');
         b.setAttribute('type', 'button');
+        b.style.setProperty('--i', String(Math.min(i, 6)));
         b.dataset.pmOpen = k;
         const media = el('span', 'pm-card-media');
         media.append(img(o.thumb, ''));
@@ -517,63 +752,73 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
 
       q(dlg, '[data-pm-gallery-sec]').hidden = !shots.length;
       q(dlg, '[data-pm-more-sec]').hidden = !others.length;
-      [[gallery!, 9], [more!, 6]].forEach(([list, max]) => {
+      [[gallery!, 9, 'foto'], [more!, 6, 'karya']].forEach(([list, max, noun]) => {
         const l = list as HTMLElement;
         l.classList.remove('is-open');
         const bar = l.nextElementSibling as HTMLElement;
         bar.hidden = l.children.length <= (max as number);
-        q(bar, '[data-pm-expand]').setAttribute('aria-expanded', 'false');
+        const btn = q(bar, '[data-pm-expand]');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.dataset.more = `Tampilkan semua ${l.children.length} ${noun}`;
+        q(btn, '[data-pm-expand-label]').textContent = btn.dataset.more;
       });
     };
 
     // Popup "tumbuh" dari kartu yang diklik: hero 16:9 popup ditumpuk tepat di atas
-    // gambar kartu 16:9, lalu dibesarkan ke ukuran aslinya.
+    // gambar kartu 16:9, lalu dibesarkan ke ukuran aslinya. Hanya transform & opacity
+    // yang dianimasikan — keduanya dikerjakan GPU, jadi tetap mulus.
     const flip = (from: DOMRect) => {
       const to = heroBox.getBoundingClientRect();
-      const s = from.width / to.width;
-      return `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${s})`;
+      return `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width})`;
     };
 
     const open = (id: string, from?: DOMRect, placeholder?: string) => {
       if (!projects[id]) return;
       hidePreview(true);
-      fill(id, placeholder);
+      fillHead(id, placeholder);
       dlg.showModal();
       dlg.scrollTop = 0;
-      if (reduced.matches) return;
+      panel.focus({ preventScroll: true }); // jangan beri cincin fokus ke tombol tutup
+      if (reduced.matches) return fillBody(id);
 
       const grow = from && from.width > 0;
-      panel.animate(
+      panel.style.willChange = 'transform';
+      const anim = panel.animate(
         grow
-          ? [{ transform: flip(from), borderRadius: '24px' }, { transform: 'none', borderRadius: '8px' }]
-          : [{ transform: 'translateY(40px) scale(0.94)', opacity: 0 }, { transform: 'none', opacity: 1 }],
-        { duration: grow ? 450 : 350, easing: EASE },
+          ? [{ transform: flip(from) }, { transform: 'none' }]
+          : [{ transform: 'translateY(60px) scale(0.96)', opacity: 0 }, { transform: 'none', opacity: 1 }],
+        { duration: grow ? 560 : 450, easing: EASE },
       );
-      for (const part of [q(dlg, '[data-pm-body]'), q(dlg, '.pm-hero-copy'), q(dlg, '[data-pm-close]')]) {
-        part.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], {
-          duration: 350, delay: grow ? 220 : 120, easing: EASE, fill: 'backwards',
+      anim.onfinish = () => { panel.style.willChange = ''; fillBody(id); };
+      for (const part of [q(dlg, '[data-pm-body]'), q(dlg, '[data-pm-hero-copy]'), q(dlg, '[data-pm-close]'), dotsBox]) {
+        part.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], {
+          duration: 500, delay: grow ? 260 : 150, easing: EASE, fill: 'backwards',
         });
       }
-      dlg.animate({ opacity: [0, 1] }, { duration: 350, pseudoElement: '::backdrop' });
+      dlg.animate({ opacity: [0, 1] }, { duration: 450, easing: 'ease-out', pseudoElement: '::backdrop' });
     };
 
     let closing = false;
     const close = () => {
       if (closing || !dlg.open) return;
+      stopSlides();
       if (reduced.matches) return dlg.close();
       closing = true;
 
       // Kembali mengecil ke kartunya, selama kartu itu terlihat dan popup belum digulir jauh.
       const card = pageCard(current)?.getBoundingClientRect();
       const visible = card && card.width > 0 && card.bottom > 0 && card.top < innerHeight && dlg.scrollTop < 120;
-      const anims = [panel.animate(
-        visible
-          ? [{ transform: 'none', opacity: 1 }, { transform: flip(card), opacity: 0.4 }]
-          : [{ transform: 'none', opacity: 1 }, { transform: 'translateY(40px) scale(0.94)', opacity: 0 }],
-        { duration: visible ? 380 : 250, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' },
-      ),
+      const anims = [
+        panel.animate(
+          visible
+            ? [{ transform: 'none', opacity: 1 }, { transform: flip(card), opacity: 0.2 }]
+            : [{ transform: 'none', opacity: 1 }, { transform: 'translateY(60px) scale(0.96)', opacity: 0 }],
+          { duration: visible ? 420 : 300, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' },
+        ),
         q(dlg, '[data-pm-body]').animate({ opacity: [1, 0] }, { duration: 150, fill: 'forwards' }),
-        dlg.animate({ opacity: [1, 0] }, { duration: 380, pseudoElement: '::backdrop', fill: 'forwards' })];
+        q(dlg, '[data-pm-hero-copy]').animate({ opacity: [1, 0] }, { duration: 150, fill: 'forwards' }),
+        dlg.animate({ opacity: [1, 0] }, { duration: 420, pseudoElement: '::backdrop', fill: 'forwards' }),
+      ];
       // fill:'forwards' harus dibatalkan setelah tutup, kalau tidak popup berikutnya ikut tak terlihat.
       anims[0]!.onfinish = () => {
         dlg.close();
@@ -583,17 +828,19 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
     };
 
     const swap = (id: string) => {
-      const out = panel.animate({ opacity: [1, 0] }, { duration: 150, easing: 'ease-in', fill: 'forwards' });
+      const out = panel.animate({ opacity: [1, 0], transform: ['none', 'scale(0.98)'] }, { duration: 180, easing: 'ease-in', fill: 'forwards' });
       out.onfinish = () => {
-        fill(id);
+        fillHead(id);
         dlg.scrollTo({ top: 0 });
         out.cancel();
-        panel.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 350, easing: EASE });
+        const back = panel.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 450, easing: EASE });
+        back.onfinish = () => fillBody(id);
       };
     };
 
     // Esc & klik di luar panel menutup dengan animasi, bukan hilang mendadak.
     dlg.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+    dlg.addEventListener('close', stopSlides);
     dlg.addEventListener('click', (e) => {
       const t = e.target as Element;
       if (t === dlg || t.closest('[data-pm-close]')) return close();
@@ -604,6 +851,8 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
         const list = expand.parentElement!.previousElementSibling!;
         const isOpen = list.classList.toggle('is-open');
         expand.setAttribute('aria-expanded', String(isOpen));
+        q(expand, '[data-pm-expand-label]').textContent = isOpen ? 'Tampilkan lebih sedikit' : expand.dataset.more!;
+        if (!isOpen) list.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
     });
 
@@ -637,8 +886,8 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
       pvPlay.dataset.videoId = p.yt;
       pvPlay.dataset.videoTitle = p.title;
 
-      // 1.5× kartu, berpusat di kartu tapi tidak keluar layar (kartu tepi membesar ke dalam).
-      const w = Math.min(r.width * 1.5, innerWidth - 16);
+      // 1.45× kartu, berpusat di kartu tapi tidak keluar layar (kartu tepi membesar ke dalam).
+      const w = Math.min(r.width * 1.45, innerWidth - 16);
       const vw = document.documentElement.clientWidth;
       const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, vw - w - 8));
       const top = Math.max(8, r.top + r.height / 2 - (w * 9) / 16 / 2);
@@ -646,11 +895,13 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
       pv.hidden = false;
 
       if (reduced.matches) return;
-      const s = r.width / w;
-      pv.animate([{ transform: `translate(${r.left - left}px, ${r.top - top}px) scale(${s})` }, { transform: 'none' }], {
-        duration: 300, easing: EASE,
+      pv.animate(
+        [{ transform: `translate(${r.left - left}px, ${r.top - top}px) scale(${r.width / w})`, boxShadow: '0 0 0 rgba(0,0,0,0)' }, { transform: 'none' }],
+        { duration: 420, easing: EASE },
+      );
+      q(pv, '[data-pv-info]').animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], {
+        duration: 350, delay: 120, easing: EASE, fill: 'backwards',
       });
-      q(pv, '[data-pv-info]').animate({ opacity: [0, 1] }, { duration: 250, delay: 100, fill: 'backwards' });
     };
 
     function hidePreview(instant = false) {
@@ -660,11 +911,12 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
       if (pv!.hidden) return;
       if (instant || reduced.matches || !card) { pv!.hidden = true; return; }
       const box = pv!.getBoundingClientRect();
+      q(pv!, '[data-pv-info]').animate({ opacity: [1, 0] }, { duration: 120, fill: 'forwards' });
       const anim = pv!.animate(
-        [{ transform: 'none', opacity: 1 }, { transform: `translate(${card.left - box.left}px, ${card.top - box.top}px) scale(${card.width / box.width})`, opacity: 0 }],
-        { duration: 220, easing: 'ease-in', fill: 'forwards' },
+        [{ transform: 'none' }, { transform: `translate(${card.left - box.left}px, ${card.top - box.top}px) scale(${card.width / box.width})` }],
+        { duration: 300, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' },
       );
-      anim.onfinish = () => { pv!.hidden = true; anim.cancel(); };
+      anim.onfinish = () => { pv!.hidden = true; pv!.getAnimations({ subtree: true }).forEach((a) => a.cancel()); };
     }
 
     document.addEventListener('pointerover', (e) => {
@@ -672,7 +924,7 @@ const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="t
       const card = (e.target as Element).closest<HTMLElement>('.card[data-project]');
       if (!card || card === pvCard) return;
       clearTimeout(timer);
-      timer = window.setTimeout(() => showPreview(card), 450);
+      timer = window.setTimeout(() => showPreview(card), 500);
     });
     document.addEventListener('pointerout', (e) => {
       const card = (e.target as Element).closest('.card[data-project]');

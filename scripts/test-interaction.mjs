@@ -15,14 +15,17 @@ await p.waitForTimeout(700);
 ok('klik kartu membuka popup detail, bukan langsung video', await p.isVisible('dialog[data-pm]') && !(await p.isVisible('dialog[data-video-modal]')));
 ok('popup berisi judul & sinopsis', !!(await p.textContent('[data-pm-title]'))?.trim() && !!(await p.textContent('[data-pm-synopsis]'))?.trim());
 ok('popup berisi galeri foto', (await p.locator('.pm-gallery .pm-shot').count()) > 0);
+await p.click('.pm-more [data-pm-open="corporate-6"]'); // corporate-6 PT. SYSLAB: 2 foto milik proyek sendiri
+await p.waitForTimeout(900);
+ok('galeri memakai foto proyek itu sendiri', (await p.locator('.pm-gallery .pm-shot').count()) === 2 && !(await p.textContent('[data-pm-gallery-note]')));
 await p.click('.pm-gallery .pm-shot');
 await p.waitForTimeout(400);
 ok('foto galeri popup membuka lightbox', await p.isVisible('dialog[data-lightbox]'));
 await p.keyboard.press('Escape');
-await p.waitForTimeout(300);
+await p.waitForTimeout(600);
 ok('Esc menutup lightbox, popup tetap terbuka', !(await p.isVisible('dialog[data-lightbox]')) && await p.isVisible('dialog[data-pm]'));
 const t1 = await p.textContent('[data-pm-title]');
-await p.click('.pm-more .pm-card >> nth=1'); // nth=0 = Jajaki Rasa, belum ada ID YouTube
+await p.click('.pm-more [data-pm-open="corporate-3"]'); // proyek yang punya video
 await p.waitForTimeout(700);
 ok('karya lain mengganti isi popup', (await p.textContent('[data-pm-title]')) !== t1);
 await p.click('[data-pm-play]');
@@ -63,7 +66,7 @@ await p.keyboard.press('ArrowLeft');
 await p.waitForTimeout(400);
 ok('navigasi keyboard', (await p.textContent('[data-lb-count]')) === c1);
 await p.keyboard.press('Escape');
-await p.waitForTimeout(300);
+await p.waitForTimeout(600);
 ok('Esc menutup lightbox', !(await p.isVisible('dialog[data-lightbox]')));
 
 ok('tombol WhatsApp benar', !!(await p.getAttribute('.nav-cta', 'href'))?.includes('wa.me/'));

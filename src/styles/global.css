@@ -58,6 +58,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Ruang scrollbar tetap disisakan, jadi halaman tidak melompat saat popup mengunci gulir */
+  scrollbar-gutter: stable;
   /* supaya anchor tidak tertutup header sticky */
   scroll-padding-top: calc(var(--header-h) + var(--s-4));
   -webkit-text-size-adjust: 100%;
