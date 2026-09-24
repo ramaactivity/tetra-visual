@@ -28,6 +28,19 @@ const ytCache = new Map<string, YtMeta>();
 export async function youtubeMeta(id: string): Promise<YtMeta> {
   const hit = ytCache.get(id);
   if (hit) return hit;
+  // Jalur resmi (tidak diblokir di server): YouTube Data API, bila kuncinya tersedia.
+  const { YOUTUBE_API_KEY } = await import('astro:env/server');
+  if (YOUTUBE_API_KEY) {
+    try {
+      const api = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${id}&key=${YOUTUBE_API_KEY}`;
+      const item = (await (await fetch(api, { signal: AbortSignal.timeout(8000) })).json()).items?.[0];
+      if (item?.snippet?.publishedAt) {
+        const meta = { uploadDate: String(item.snippet.publishedAt).slice(0, 10), duration: item.contentDetails?.duration };
+        ytCache.set(id, meta);
+        return meta;
+      }
+    } catch { /* lanjut ke cara kedua */ }
+  }
   try {
     const html = await (
       await fetch(`https://www.youtube.com/watch?v=${id}`, {

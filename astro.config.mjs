@@ -18,6 +18,9 @@ export default defineConfig({
       ADMIN_PASSWORD: envField.string({ context: 'server', access: 'secret', optional: true }),
       ADMIN_SESSION_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
       TETRA_DASHBOARD_GITHUB_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Kunci YouTube Data API (gratis, Google Cloud). Tanpa ini tanggal video proyek baru
+      // tidak bisa diisi otomatis, karena YouTube memblokir server Vercel.
+      YOUTUBE_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
   // Alamat produksi. Dipakai untuk sitemap, canonical, dan tag Open Graph
