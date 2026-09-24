@@ -109,6 +109,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   }
 }
 
+/* Atribut hidden harus menang dari display milik kelas seperti .btn */
+[hidden] { display: none !important; }
+
+/* Halaman di belakang popup tidak ikut tergulir */
+html:has(dialog[open]) { overflow: hidden; }
+
 /* Teks hanya untuk pembaca layar */
 .sr-only {
   position: absolute; width: 1px; height: 1px;
@@ -168,7 +174,11 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .btn-brand:hover { background: var(--brand-hi); }
 
 .btn-light { background: var(--text); color: var(--bg); }
-.btn-light:hover { background: #ffffff; }
+.btn-light:hover { background: rgba(255, 255, 255, 0.75); }
+
+/* Tombol "Info Selengkapnya" ala Netflix: abu transparan */
+.btn-info { background: rgba(109, 109, 110, 0.7); color: var(--text); }
+.btn-info:hover { background: rgba(109, 109, 110, 0.4); }
 
 .btn-ghost { border: 1px solid var(--line-strong); color: var(--text); }
 .btn-ghost:hover { border-color: var(--text); background: rgba(255, 255, 255, 0.06); }

@@ -11,13 +11,39 @@ const p = await (await b.newContext({ viewport: { width: 1440, height: 900 } }))
 
 await p.goto(`${BASE}/`, { waitUntil: 'networkidle' });
 await p.click('.card');
-await p.waitForTimeout(500);
-ok('klik kartu membuka pemutar video', await p.isVisible('dialog[data-video-modal]'));
+await p.waitForTimeout(700);
+ok('klik kartu membuka popup detail, bukan langsung video', await p.isVisible('dialog[data-pm]') && !(await p.isVisible('dialog[data-video-modal]')));
+ok('popup berisi judul & sinopsis', !!(await p.textContent('[data-pm-title]'))?.trim() && !!(await p.textContent('[data-pm-synopsis]'))?.trim());
+ok('popup berisi galeri foto', (await p.locator('.pm-gallery .pm-shot').count()) > 0);
+await p.click('.pm-gallery .pm-shot');
+await p.waitForTimeout(400);
+ok('foto galeri popup membuka lightbox', await p.isVisible('dialog[data-lightbox]'));
+await p.keyboard.press('Escape');
+await p.waitForTimeout(300);
+ok('Esc menutup lightbox, popup tetap terbuka', !(await p.isVisible('dialog[data-lightbox]')) && await p.isVisible('dialog[data-pm]'));
+const t1 = await p.textContent('[data-pm-title]');
+await p.click('.pm-more .pm-card >> nth=1'); // nth=0 = Jajaki Rasa, belum ada ID YouTube
+await p.waitForTimeout(700);
+ok('karya lain mengganti isi popup', (await p.textContent('[data-pm-title]')) !== t1);
+await p.click('[data-pm-play]');
+await p.waitForTimeout(600);
+ok('tombol Putar membuka pemutar video', await p.isVisible('dialog[data-video-modal]'));
 const src = await p.getAttribute('[data-video-frame]', 'src');
 ok('iframe pakai youtube-nocookie', !!src?.includes('youtube-nocookie.com/embed/'));
 await p.click('[data-video-close]');
 await p.waitForTimeout(300);
 ok('menutup menghentikan video', (await p.getAttribute('[data-video-frame]', 'src')) === '');
+await p.keyboard.press('Escape');
+await p.waitForTimeout(700);
+ok('Esc menutup popup detail', !(await p.isVisible('dialog[data-pm]')));
+
+await p.mouse.move(0, 0);
+await p.hover('.rows .card >> nth=1');
+await p.waitForTimeout(900);
+ok('hover kartu memunculkan pratinjau', await p.isVisible('[data-pv]'));
+await p.mouse.move(5, 5);
+await p.waitForTimeout(500);
+ok('pratinjau hilang saat kursor pergi', !(await p.isVisible('[data-pv]')));
 
 const before = await p.evaluate(() => document.querySelector('.rail').scrollLeft);
 await p.hover('.rail-shell');

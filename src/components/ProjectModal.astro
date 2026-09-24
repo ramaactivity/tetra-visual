@@ -1,0 +1,694 @@
+---
+// Popup detail proyek ala Netflix + kartu pratinjau saat kursor diam di atas kartu.
+// Kartu mana pun dengan data-project="<slug>-<cover>" akan membukanya.
+// Tombol Putar memakai data-video-id, jadi pemutarnya tetap VideoModal.
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { categories } from '../data/work';
+import { getCover, getPhotos } from '../lib/images';
+import { waLink } from '../data/site';
+
+interface Props {
+  /** Batasi ke satu kategori (halaman kategori) supaya data yang dikirim kecil. */
+  only?: string;
+}
+const { only } = Astro.props;
+
+const url = async (src: ImageMetadata, width: number) => (await getImage({ src, width })).src;
+// Placeholder 'ISI_ID_VIDEO_YOUTUBE_DISINI' dan sejenisnya tidak boleh diputar.
+const isYoutubeId = (id: string) => /^[\w-]{11}$/.test(id);
+
+const cats: Record<string, { name: string; photos: [string, string][] }> = {};
+const projects: Record<string, {
+  slug: string; title: string; desc: string; synopsis: string;
+  yt: string; hero: string; thumb: string; photos: number[] | null;
+}> = {};
+
+for (const cat of categories.filter((c) => !only || c.slug === only)) {
+  cats[cat.slug] = {
+    name: cat.name,
+    photos: await Promise.all(getPhotos(cat.slug).map(async (p) => [await url(p, 480), await url(p, 1920)] as [string, string])),
+  };
+  for (const v of cat.videos) {
+    const cover = getCover(cat.slug, v.cover);
+    if (!cover) continue;
+    projects[`${cat.slug}-${v.cover}`] = {
+      slug: cat.slug,
+      title: v.title,
+      desc: v.desc,
+      synopsis: v.synopsis || v.desc || cat.blurb,
+      yt: isYoutubeId(v.youtubeId) ? v.youtubeId : '',
+      hero: await url(cover, 1280),
+      thumb: await url(cover, 480),
+      photos: v.photos ?? null,
+    };
+  }
+}
+
+// `<` di-escape supaya teks data tidak bisa menutup tag <script>.
+const json = JSON.stringify({ cats, projects, wa: waLink('') }).replace(/</g, '\\u003c');
+
+const chevron = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const playIcon = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg>';
+---
+
+<script type="application/json" data-project-data is:inline set:html={json} />
+
+<dialog class="pm" data-pm aria-labelledby="pm-title">
+  <article class="pm-panel" data-pm-panel>
+    <button class="pm-close" type="button" data-pm-close aria-label="Tutup">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"
+        ><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg
+      >
+    </button>
+
+    <div class="pm-hero" data-pm-hero-box>
+      <img class="pm-hero-img" data-pm-hero alt="" />
+      <div class="pm-hero-veil"></div>
+      <div class="pm-hero-copy">
+        <h2 id="pm-title" class="pm-title" data-pm-title></h2>
+        <div class="pm-actions">
+          <button class="btn btn-light pm-play" type="button" data-pm-play>
+            <Fragment set:html={playIcon} />
+            Putar
+          </button>
+          <p class="pm-soon" data-pm-soon hidden>Video segera hadir</p>
+          <a class="pm-circle" data-pm-wa target="_blank" rel="noopener" aria-label="Tanya proyek serupa lewat WhatsApp" title="Tanya proyek serupa">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+              ><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg
+            >
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="pm-body" data-pm-body>
+      <div class="pm-info">
+        <div>
+          <p class="pm-meta">
+            <span class="pm-match" data-pm-cat></span>
+            <span class="pm-badge">HD</span>
+            <span data-pm-count></span>
+          </p>
+          <p class="pm-synopsis" data-pm-synopsis></p>
+        </div>
+        <dl class="pm-side">
+          <div><dt>Kategori:</dt> <dd data-pm-cat></dd></div>
+          <div><dt>Produksi:</dt> <dd>Tetra Visual</dd></div>
+          <div><dt>Format:</dt> <dd>Video & Foto Dokumentasi</dd></div>
+        </dl>
+      </div>
+
+      <section class="pm-sec" data-pm-gallery-sec>
+        <h3 class="pm-h">Galeri Dokumentasi</h3>
+        <p class="pm-note" data-pm-gallery-note></p>
+        <div class="pm-gallery" data-pm-list></div>
+        <div class="pm-bar">
+          <button class="pm-circle pm-expand" type="button" data-pm-expand aria-expanded="false" aria-label="Tampilkan semua foto">
+            <Fragment set:html={chevron} />
+          </button>
+        </div>
+      </section>
+
+      <section class="pm-sec" data-pm-more-sec>
+        <h3 class="pm-h">Lainnya di <span data-pm-cat></span></h3>
+        <div class="pm-more" data-pm-list></div>
+        <div class="pm-bar">
+          <button class="pm-circle pm-expand" type="button" data-pm-expand aria-expanded="false" aria-label="Tampilkan semua karya">
+            <Fragment set:html={chevron} />
+          </button>
+        </div>
+      </section>
+    </div>
+  </article>
+</dialog>
+
+<!-- Pratinjau saat hover: hanya untuk mouse, pengguna keyboard/sentuh langsung memakai kartu. -->
+<div class="pv" data-pv aria-hidden="true" hidden>
+  <button class="pv-media" type="button" tabindex="-1" data-pv-open><img data-pv-img alt="" /></button>
+  <div class="pv-info" data-pv-info>
+    <div class="pv-actions">
+      <button class="pm-circle pv-play" type="button" tabindex="-1" data-pv-play><Fragment set:html={playIcon} /></button>
+      <button class="pm-circle pv-more" type="button" tabindex="-1" data-pv-open><Fragment set:html={chevron} /></button>
+    </div>
+    <p class="pv-title" data-pv-title></p>
+    <p class="pm-meta pv-meta"><span class="pm-match" data-pv-cat></span><span class="pm-badge">HD</span></p>
+    <p class="pv-desc" data-pv-desc></p>
+  </div>
+</div>
+
+<style>
+  /* Warna permukaan Netflix untuk popup (sedikit lebih gelap dari latar halaman) */
+  .pm, .pv { --surface: #181818; --card: #2f2f2f; }
+
+  .pm {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 2rem var(--s-4) 4rem;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .pm::backdrop { background: rgba(0, 0, 0, 0.7); }
+
+  .pm-panel {
+    position: relative;
+    max-width: 850px;
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: rgba(0, 0, 0, 0.75) 0 3px 10px;
+    transform-origin: 0 0;
+  }
+
+  .pm-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--surface);
+    transition: background-color 0.2s var(--ease);
+  }
+  .pm-close:hover { background: #333; }
+
+  /* --- HERO --- */
+  .pm-hero {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #000 center / cover no-repeat;
+  }
+  .pm-hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.5s var(--ease);
+  }
+  /* Zoom pelan menggantikan trailer yang diputar Netflix di posisi ini */
+  .pm-hero-img.is-loaded { opacity: 1; animation: pm-drift 18s ease-out forwards; }
+  @keyframes pm-drift { to { transform: scale(1.1); } }
+
+  .pm-hero-veil {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--surface) 0%, rgba(24, 24, 24, 0.55) 22%, transparent 55%);
+  }
+
+  .pm-hero-copy {
+    position: absolute;
+    left: 3rem;
+    right: 3rem;
+    bottom: 2.25rem;
+  }
+  .pm-title {
+    max-width: 18ch;
+    font-size: clamp(1.5rem, 3.6vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+  }
+
+  .pm-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: var(--s-4);
+  }
+  .pm-play { padding-inline: 1.6rem 2rem; font-size: 1rem; }
+  .pm-soon {
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius);
+    background: rgba(109, 109, 110, 0.7);
+    font-size: var(--t-sm);
+    font-weight: 600;
+  }
+
+  /* Tombol bulat bergaris khas Netflix: tambah, info, perluas */
+  .pm-circle {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(42, 42, 42, 0.6);
+    color: var(--text);
+    transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease), transform 0.2s var(--ease);
+  }
+  .pm-circle:hover { border-color: #fff; background: rgba(255, 255, 255, 0.1); }
+  .pm-circle:active { transform: scale(0.94); }
+
+  /* --- ISI --- */
+  .pm-body { padding: 0 3rem 3rem; }
+
+  .pm-info {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    column-gap: 2rem;
+  }
+
+  .pm-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: var(--s-4);
+    font-size: 1rem;
+    color: #bcbcbc;
+  }
+  .pm-match { color: #46d369; font-weight: 700; }
+  .pm-badge {
+    padding: 0 0.4em;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    font-size: 0.7rem;
+    line-height: 1.5;
+  }
+
+  .pm-synopsis { font-size: 1rem; line-height: 1.6; color: #fff; }
+
+  .pm-side { margin: 0; font-size: 0.875rem; line-height: 1.5; }
+  .pm-side div { margin-bottom: 0.6rem; }
+  .pm-side dt { display: inline; color: #777; }
+  .pm-side dd { display: inline; margin: 0; color: #ddd; }
+
+  .pm-sec { margin-top: 3rem; }
+  .pm-h { font-size: 1.5rem; margin-bottom: var(--s-4); }
+  .pm-note { margin: calc(var(--s-3) * -1) 0 var(--s-4); font-size: var(--t-sm); color: var(--text-faint); }
+  .pm-note:empty { display: none; }
+
+  .pm-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+  }
+  .pm-more {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  /* Ringkas dulu seperti "More Like This" — tombol panah di bawah membuka sisanya */
+  .pm-gallery:not(.is-open) > :global(:nth-child(n + 10)),
+  .pm-more:not(.is-open) > :global(:nth-child(n + 7)) { display: none; }
+
+  .pm-bar {
+    display: flex;
+    justify-content: center;
+    height: 1.5rem;
+    border-bottom: 2px solid #404040;
+    margin-bottom: 1.5rem;
+  }
+  .pm-expand { transform: translateY(50%); background: rgba(42, 42, 42, 0.95); }
+  .pm-expand:active { transform: translateY(50%) scale(0.94); }
+  .pm-expand :global(svg) { transition: transform 0.3s var(--ease); }
+  .pm-expand[aria-expanded='true'] :global(svg) { transform: rotate(180deg); }
+
+  .pm-panel :global(.pm-shot) {
+    padding: 0;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--card);
+  }
+  .pm-panel :global(.pm-shot img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s var(--ease), filter 0.3s var(--ease);
+  }
+  .pm-panel :global(.pm-shot:hover img) { transform: scale(1.06); filter: brightness(1.1); }
+
+  .pm-panel :global(.pm-card) {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    text-align: left;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--card);
+    transition: background-color 0.2s var(--ease);
+  }
+  .pm-panel :global(.pm-card:hover) { background: #3a3a3a; }
+  .pm-panel :global(.pm-card-media) { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; }
+  .pm-panel :global(.pm-card-media img) { width: 100%; height: 100%; object-fit: cover; }
+  .pm-panel :global(.pm-card-media::after) {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='rgba(30,30,30,.6)' stroke='white' stroke-width='2'/%3E%3Cpath d='M19 15v18l14-9z' fill='white'/%3E%3C/svg%3E") center / 44px no-repeat;
+    opacity: 0;
+    transition: opacity 0.2s var(--ease);
+  }
+  .pm-panel :global(.pm-card:hover .pm-card-media::after) { opacity: 1; }
+  .pm-panel :global(.pm-card-body) { display: block; padding: 0.9rem 1rem 1.1rem; }
+  .pm-panel :global(.pm-card-title) { display: block; font-size: 0.95rem; font-weight: 600; line-height: 1.35; }
+  .pm-panel :global(.pm-card-desc) {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 0.4rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: #d2d2d2;
+  }
+
+  /* --- PRATINJAU HOVER --- */
+  .pv {
+    position: fixed;
+    z-index: 150;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: rgba(0, 0, 0, 0.75) 0 3px 10px;
+    transform-origin: 0 0;
+    color: var(--text);
+  }
+  .pv-media { display: block; width: 100%; padding: 0; aspect-ratio: 16 / 9; }
+  .pv-media img { width: 100%; height: 100%; object-fit: cover; }
+  .pv-info { padding: 0.9rem 1rem 1.1rem; }
+  .pv-actions { display: flex; gap: 0.5rem; margin-bottom: 0.8rem; }
+  .pv-actions .pm-circle { width: 36px; height: 36px; }
+  .pv-actions :global(svg) { width: 18px; height: 18px; }
+  .pv-play { background: #fff; border-color: #fff; color: #000; }
+  .pv-play:hover { background: rgba(255, 255, 255, 0.8); }
+  .pv-more { margin-left: auto; }
+  .pv-title { font-size: 0.95rem; font-weight: 700; line-height: 1.3; }
+  .pv-meta { margin: 0.4rem 0 0; font-size: 0.8125rem; }
+  .pv-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 0.4rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: #bcbcbc;
+  }
+  .pv-desc:empty { display: none; }
+
+  @media (max-width: 700px) {
+    .pm { padding: 0; }
+    .pm-panel { border-radius: 0; min-height: 100%; }
+    /* Di HP judul & tombol turun ke bawah gambar, seperti aplikasi Netflix */
+    .pm-hero { aspect-ratio: auto; background-color: var(--surface); background-size: 100% auto; background-position: top; }
+    .pm-hero-img { height: auto; aspect-ratio: 16 / 9; }
+    .pm-hero-veil { bottom: auto; aspect-ratio: 16 / 9; }
+    .pm-hero-copy { position: relative; left: auto; right: auto; bottom: auto; margin-top: -1.5rem; padding: 0 1rem 1.25rem; }
+    .pm-actions { display: grid; grid-template-columns: 1fr auto; }
+    .pm-play, .pm-soon { justify-content: center; text-align: center; }
+    .pm-body { padding: 0 1rem 2rem; }
+    .pm-info { grid-template-columns: 1fr; row-gap: 1rem; }
+    .pm-gallery { gap: 4px; }
+    .pm-more { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .pm-sec { margin-top: 2rem; }
+    .pm-h { font-size: 1.25rem; }
+  }
+</style>
+
+<script>
+  type Project = {
+    slug: string; title: string; desc: string; synopsis: string;
+    yt: string; hero: string; thumb: string; photos: number[] | null;
+  };
+  type Data = { cats: Record<string, { name: string; photos: [string, string][] }>; projects: Record<string, Project>; wa: string };
+
+  const raw = document.querySelector('[data-project-data]');
+  const dlg = document.querySelector<HTMLDialogElement>('[data-pm]');
+  const pv = document.querySelector<HTMLElement>('[data-pv]');
+
+  if (raw?.textContent && dlg && pv) {
+    const { cats, projects, wa }: Data = JSON.parse(raw.textContent);
+    const q = <T extends HTMLElement = HTMLElement>(root: ParentNode, sel: string) => root.querySelector<T>(sel)!;
+    const qa = (sel: string) => dlg.querySelectorAll<HTMLElement>(sel);
+    const el = (tag: string, cls: string, text = '') => {
+      const e = document.createElement(tag);
+      e.className = cls;
+      e.textContent = text;
+      return e;
+    };
+    const img = (src: string, alt: string) => {
+      const i = document.createElement('img');
+      i.loading = 'lazy'; // harus sebelum src
+      i.decoding = 'async';
+      i.alt = alt;
+      i.src = src;
+      return i;
+    };
+
+    const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const panel = q(dlg, '[data-pm-panel]');
+    const heroBox = q(dlg, '[data-pm-hero-box]');
+    const hero = q<HTMLImageElement>(dlg, '[data-pm-hero]');
+    const play = q(dlg, '[data-pm-play]');
+    const [gallery, more] = Array.from(qa('[data-pm-list]'));
+    let current = '';
+
+    // Kartu di halaman (bukan di popup) untuk proyek ini — tujuan animasi saat menutup.
+    const pageCard = (id: string) => document.querySelector<HTMLElement>(`.card[data-project="${id}"] .card-media`);
+
+    const fill = (id: string, placeholder?: string) => {
+      const p = projects[id]!;
+      const c = cats[p.slug]!;
+      current = id;
+
+      heroBox.style.backgroundImage = `url("${placeholder || p.thumb}")`;
+      hero.classList.remove('is-loaded');
+      hero.onload = () => hero.classList.add('is-loaded');
+      hero.alt = `Cuplikan ${p.title}`;
+      hero.src = p.hero;
+      if (hero.complete) hero.classList.add('is-loaded');
+
+      q(dlg, '[data-pm-title]').textContent = p.title;
+      q(dlg, '[data-pm-synopsis]').textContent = p.synopsis;
+      qa('[data-pm-cat]').forEach((e) => (e.textContent = c.name));
+      play.hidden = !p.yt;
+      q(dlg, '[data-pm-soon]').hidden = Boolean(p.yt);
+      play.dataset.videoId = p.yt;
+      play.dataset.videoTitle = p.title;
+      q<HTMLAnchorElement>(dlg, '[data-pm-wa]').href =
+        wa + encodeURIComponent(`Halo Tetra Visual, saya lihat karya "${p.title}". Saya ingin dokumentasi serupa, boleh minta info paket?`);
+
+      // Foto khusus proyek bila diisi di work.ts; kalau tidak, dokumentasi kategorinya.
+      const shots = p.photos ? p.photos.map((n) => c.photos[n - 1]).filter((s) => s !== undefined) : c.photos;
+      q(dlg, '[data-pm-count]').textContent = `${shots.length} foto`;
+      q(dlg, '[data-pm-gallery-note]').textContent = p.photos ? '' : `Cuplikan dari dokumentasi ${c.name.toLowerCase()} Tetra Visual.`;
+      gallery!.replaceChildren(...shots.map(([thumb, full], i) => {
+        const b = el('button', 'pm-shot');
+        b.setAttribute('type', 'button');
+        b.dataset.lightboxItem = '';
+        b.dataset.full = full;
+        b.setAttribute('aria-label', `Perbesar foto ${i + 1} dari ${shots.length}`);
+        b.append(img(thumb, `Dokumentasi ${p.title} — foto ${i + 1}`));
+        return b;
+      }));
+
+      const others = Object.entries(projects).filter(([k, o]) => o.slug === p.slug && k !== id);
+      more!.replaceChildren(...others.map(([k, o]) => {
+        const b = el('button', 'pm-card');
+        b.setAttribute('type', 'button');
+        b.dataset.pmOpen = k;
+        const media = el('span', 'pm-card-media');
+        media.append(img(o.thumb, ''));
+        const body = el('span', 'pm-card-body');
+        body.append(el('span', 'pm-card-title', o.title));
+        if (o.desc) body.append(el('span', 'pm-card-desc', o.desc));
+        b.append(media, body);
+        return b;
+      }));
+
+      q(dlg, '[data-pm-gallery-sec]').hidden = !shots.length;
+      q(dlg, '[data-pm-more-sec]').hidden = !others.length;
+      [[gallery!, 9], [more!, 6]].forEach(([list, max]) => {
+        const l = list as HTMLElement;
+        l.classList.remove('is-open');
+        const bar = l.nextElementSibling as HTMLElement;
+        bar.hidden = l.children.length <= (max as number);
+        q(bar, '[data-pm-expand]').setAttribute('aria-expanded', 'false');
+      });
+    };
+
+    // Popup "tumbuh" dari kartu yang diklik: hero 16:9 popup ditumpuk tepat di atas
+    // gambar kartu 16:9, lalu dibesarkan ke ukuran aslinya.
+    const flip = (from: DOMRect) => {
+      const to = heroBox.getBoundingClientRect();
+      const s = from.width / to.width;
+      return `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${s})`;
+    };
+
+    const open = (id: string, from?: DOMRect, placeholder?: string) => {
+      if (!projects[id]) return;
+      hidePreview(true);
+      fill(id, placeholder);
+      dlg.showModal();
+      dlg.scrollTop = 0;
+      if (reduced.matches) return;
+
+      const grow = from && from.width > 0;
+      panel.animate(
+        grow
+          ? [{ transform: flip(from), borderRadius: '24px' }, { transform: 'none', borderRadius: '8px' }]
+          : [{ transform: 'translateY(40px) scale(0.94)', opacity: 0 }, { transform: 'none', opacity: 1 }],
+        { duration: grow ? 450 : 350, easing: EASE },
+      );
+      for (const part of [q(dlg, '[data-pm-body]'), q(dlg, '.pm-hero-copy'), q(dlg, '[data-pm-close]')]) {
+        part.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], {
+          duration: 350, delay: grow ? 220 : 120, easing: EASE, fill: 'backwards',
+        });
+      }
+      dlg.animate({ opacity: [0, 1] }, { duration: 350, pseudoElement: '::backdrop' });
+    };
+
+    let closing = false;
+    const close = () => {
+      if (closing || !dlg.open) return;
+      if (reduced.matches) return dlg.close();
+      closing = true;
+
+      // Kembali mengecil ke kartunya, selama kartu itu terlihat dan popup belum digulir jauh.
+      const card = pageCard(current)?.getBoundingClientRect();
+      const visible = card && card.width > 0 && card.bottom > 0 && card.top < innerHeight && dlg.scrollTop < 120;
+      const anims = [panel.animate(
+        visible
+          ? [{ transform: 'none', opacity: 1 }, { transform: flip(card), opacity: 0.4 }]
+          : [{ transform: 'none', opacity: 1 }, { transform: 'translateY(40px) scale(0.94)', opacity: 0 }],
+        { duration: visible ? 380 : 250, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' },
+      ),
+        q(dlg, '[data-pm-body]').animate({ opacity: [1, 0] }, { duration: 150, fill: 'forwards' }),
+        dlg.animate({ opacity: [1, 0] }, { duration: 380, pseudoElement: '::backdrop', fill: 'forwards' })];
+      // fill:'forwards' harus dibatalkan setelah tutup, kalau tidak popup berikutnya ikut tak terlihat.
+      anims[0]!.onfinish = () => {
+        dlg.close();
+        anims.forEach((a) => a.cancel());
+        closing = false;
+      };
+    };
+
+    const swap = (id: string) => {
+      const out = panel.animate({ opacity: [1, 0] }, { duration: 150, easing: 'ease-in', fill: 'forwards' });
+      out.onfinish = () => {
+        fill(id);
+        dlg.scrollTo({ top: 0 });
+        out.cancel();
+        panel.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 350, easing: EASE });
+      };
+    };
+
+    // Esc & klik di luar panel menutup dengan animasi, bukan hilang mendadak.
+    dlg.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+    dlg.addEventListener('click', (e) => {
+      const t = e.target as Element;
+      if (t === dlg || t.closest('[data-pm-close]')) return close();
+      const other = t.closest<HTMLElement>('[data-pm-open]');
+      if (other) return swap(other.dataset.pmOpen!);
+      const expand = t.closest<HTMLElement>('[data-pm-expand]');
+      if (expand) {
+        const list = expand.parentElement!.previousElementSibling!;
+        const isOpen = list.classList.toggle('is-open');
+        expand.setAttribute('aria-expanded', String(isOpen));
+      }
+    });
+
+    // Kartu di halaman & tombol "Info Selengkapnya" di hero.
+    document.addEventListener('click', (e) => {
+      const t = (e.target as Element | null)?.closest<HTMLElement>('[data-project]');
+      if (!t) return;
+      const media = t.querySelector('.card-media');
+      open(t.dataset.project!, media?.getBoundingClientRect(), t.querySelector('img')?.currentSrc);
+    });
+
+    // --- PRATINJAU HOVER ---
+    const canHover = matchMedia('(hover: hover) and (pointer: fine)');
+    const pvImg = q<HTMLImageElement>(pv, '[data-pv-img]');
+    const pvPlay = q(pv, '[data-pv-play]');
+    let timer = 0;
+    let pvCard: HTMLElement | null = null;
+
+    const showPreview = (card: HTMLElement) => {
+      const p = projects[card.dataset.project!];
+      const r = card.querySelector('.card-media')?.getBoundingClientRect();
+      if (!p || !r || r.width === 0 || dlg.open) return;
+      pv.getAnimations({ subtree: true }).forEach((a) => a.cancel());
+      pvCard = card;
+
+      pvImg.src = card.querySelector('img')?.currentSrc || p.thumb;
+      q(pv, '[data-pv-title]').textContent = p.title;
+      q(pv, '[data-pv-cat]').textContent = cats[p.slug]!.name;
+      q(pv, '[data-pv-desc]').textContent = p.desc;
+      pvPlay.hidden = !p.yt;
+      pvPlay.dataset.videoId = p.yt;
+      pvPlay.dataset.videoTitle = p.title;
+
+      // 1.5× kartu, berpusat di kartu tapi tidak keluar layar (kartu tepi membesar ke dalam).
+      const w = Math.min(r.width * 1.5, innerWidth - 16);
+      const vw = document.documentElement.clientWidth;
+      const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, vw - w - 8));
+      const top = Math.max(8, r.top + r.height / 2 - (w * 9) / 16 / 2);
+      Object.assign(pv.style, { left: `${left}px`, top: `${top}px`, width: `${w}px` });
+      pv.hidden = false;
+
+      if (reduced.matches) return;
+      const s = r.width / w;
+      pv.animate([{ transform: `translate(${r.left - left}px, ${r.top - top}px) scale(${s})` }, { transform: 'none' }], {
+        duration: 300, easing: EASE,
+      });
+      q(pv, '[data-pv-info]').animate({ opacity: [0, 1] }, { duration: 250, delay: 100, fill: 'backwards' });
+    };
+
+    function hidePreview(instant = false) {
+      clearTimeout(timer);
+      const card = pvCard?.querySelector('.card-media')?.getBoundingClientRect();
+      pvCard = null;
+      if (pv!.hidden) return;
+      if (instant || reduced.matches || !card) { pv!.hidden = true; return; }
+      const box = pv!.getBoundingClientRect();
+      const anim = pv!.animate(
+        [{ transform: 'none', opacity: 1 }, { transform: `translate(${card.left - box.left}px, ${card.top - box.top}px) scale(${card.width / box.width})`, opacity: 0 }],
+        { duration: 220, easing: 'ease-in', fill: 'forwards' },
+      );
+      anim.onfinish = () => { pv!.hidden = true; anim.cancel(); };
+    }
+
+    document.addEventListener('pointerover', (e) => {
+      if (!canHover.matches || e.pointerType !== 'mouse') return;
+      const card = (e.target as Element).closest<HTMLElement>('.card[data-project]');
+      if (!card || card === pvCard) return;
+      clearTimeout(timer);
+      timer = window.setTimeout(() => showPreview(card), 450);
+    });
+    document.addEventListener('pointerout', (e) => {
+      const card = (e.target as Element).closest('.card[data-project]');
+      const to = e.relatedTarget as Node | null;
+      if (card && !card.contains(to) && !pv.contains(to)) clearTimeout(timer);
+    });
+    pv.addEventListener('pointerleave', () => hidePreview());
+    // Baris ikut digeser atau halaman digulir → pratinjau sudah tidak di tempatnya.
+    document.addEventListener('scroll', () => hidePreview(true), { capture: true, passive: true });
+    addEventListener('resize', () => hidePreview(true));
+
+    pv.addEventListener('click', (e) => {
+      const t = e.target as Element;
+      // Putar ditangani VideoModal lewat data-video-id; pratinjau cukup disingkirkan.
+      if (t.closest('[data-pv-play]')) return hidePreview(true);
+      if (t.closest('[data-pv-open]') && pvCard) open(pvCard.dataset.project!, pvImg.getBoundingClientRect(), pvImg.currentSrc);
+    });
+  }
+</script>

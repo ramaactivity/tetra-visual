@@ -1,6 +1,6 @@
 ---
-// Satu lightbox untuk semua foto di halaman.
-// Mengambil semua [data-lightbox-item] dalam urutan DOM.
+// Satu lightbox untuk semua foto di halaman, termasuk galeri di popup detail
+// yang baru dibuat saat dibuka. Satu kelompok = [data-lightbox-item] dengan induk yang sama.
 ---
 
 <dialog class="lb" data-lightbox aria-label="Foto diperbesar">
@@ -41,6 +41,10 @@
   }
   .lb[open] { display: grid; }
   .lb::backdrop { background: rgba(4, 5, 6, 0.96); }
+  .lb[open] img { animation: lb-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .lb[open]::backdrop { animation: lb-fade 0.3s ease-out both; }
+  @keyframes lb-in { from { opacity: 0; transform: scale(0.94); } }
+  @keyframes lb-fade { from { opacity: 0; } }
 
   .lb img {
     max-width: min(92vw, 1600px);
@@ -91,9 +95,9 @@
   const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
   const img = dialog?.querySelector<HTMLImageElement>('[data-lb-img]');
   const counter = dialog?.querySelector<HTMLElement>('[data-lb-count]');
-  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-lightbox-item]'));
 
-  if (dialog && img && counter && items.length) {
+  if (dialog && img && counter) {
+    let items: HTMLElement[] = [];
     let index = 0;
 
     const show = (i: number) => {
@@ -105,12 +109,13 @@
       counter.textContent = `${index + 1} / ${items.length}`;
     };
 
-    items.forEach((item, i) =>
-      item.addEventListener('click', () => {
-        show(i);
-        dialog.showModal();
-      }),
-    );
+    document.addEventListener('click', (e) => {
+      const item = (e.target as Element | null)?.closest<HTMLElement>('[data-lightbox-item]');
+      if (!item?.parentElement) return;
+      items = Array.from(item.parentElement.querySelectorAll<HTMLElement>(':scope > [data-lightbox-item]'));
+      show(items.indexOf(item));
+      dialog.showModal();
+    });
 
     dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
     dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => show(index - 1));

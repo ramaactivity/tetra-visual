@@ -6,6 +6,7 @@ import VideoCard from '../../components/VideoCard.astro';
 import VideoModal from '../../components/VideoModal.astro';
 import PhotoGrid from '../../components/PhotoGrid.astro';
 import Lightbox from '../../components/Lightbox.astro';
+import ProjectModal from '../../components/ProjectModal.astro';
 import { categories } from '../../data/work';
 import { getCover, getPhotos } from '../../lib/images';
 import { site, waLink } from '../../data/site';
@@ -82,7 +83,7 @@ const others = categories.filter((c) => c.slug !== cat.slug);
           {cat.videos.map((v, i) => {
             const cover = getCover(cat.slug, v.cover);
             return cover ? (
-              <VideoCard cover={cover} youtubeId={v.youtubeId} title={v.title} desc={v.desc} eager={i < 3} />
+              <VideoCard cover={cover} project={`${cat.slug}-${v.cover}`} title={v.title} desc={v.desc} eager={i < 3} />
             ) : null;
           })}
         </Rail>
@@ -111,6 +112,7 @@ const others = categories.filter((c) => c.slug !== cat.slug);
     </ul>
   </section>
 
+  <ProjectModal only={cat.slug} />
   <VideoModal />
   <Lightbox />
 </Base>

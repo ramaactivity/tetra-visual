@@ -1,6 +1,8 @@
 // DIBUAT OTOMATIS dari situs HTML lama, lalu boleh diedit manual.
 // Menambah video: cukup tambah entri di sini + taruh cover di
 // src/assets/work/<slug>/covers/cover-NN.jpg (NN sesuai urutan).
+// Popup detail: isi `synopsis` untuk cerita proyek, dan `photos: [3, 4, 7]`
+// supaya galerinya hanya foto proyek itu (bukan semua foto kategori).
 
 export interface Video {
   /** Nomor cover: src/assets/work/<slug>/covers/cover-NN.jpg */
@@ -8,6 +10,11 @@ export interface Video {
   youtubeId: string;
   title: string;
   desc: string;
+  /** Sinopsis panjang di popup detail. Kosong = pakai `desc`. */
+  synopsis?: string;
+  /** Nomor foto dokumentasi proyek ini: photos/photo-NN.jpg.
+   *  Kosong = popup menampilkan semua foto kategori. */
+  photos?: number[];
 }
 
 export interface Category {
