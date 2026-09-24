@@ -138,6 +138,7 @@ const j2 = JSON.parse(t2.find((x) => x.path === 'src/content/projects/pt-syslab.
 ok('foto yang dihapus ikut dihapus dari repo', t2.some((x) => x.path === 'src/assets/projects/pt-syslab/01.jpg' && x.sha === null));
 ok('foto lama yang diedit jadi file baru, file lamanya dihapus', JSON.stringify(j2.photos) === '["03.jpg","04.jpg"]'
   && t2.some((x) => x.path === 'src/assets/projects/pt-syslab/02.jpg' && x.sha === null));
+ok('data video (tanggal unggah) tidak hilang saat proyek diedit', j2.video?.uploaded === '2026-04-03');
 const prevFeatured = t2.find((x) => x.path === 'src/content/projects/mountain-jungle-course-2022.json');
 ok('unggulan lama dilepas di commit yang sama', j2.featured === true && JSON.parse(prevFeatured?.content ?? '{}').featured === false);
 

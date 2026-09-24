@@ -74,6 +74,8 @@ export interface ProjectFile {
   order: number;
   /** Karya unggulan: tampil di hero beranda. */
   featured: boolean;
+  /** Data video YouTube untuk Google (tanggal unggah wajib, durasi ISO 8601). Diisi dashboard saat Simpan. */
+  video?: { uploaded: string; duration?: string };
 }
 
 export interface Project {
@@ -87,6 +89,7 @@ export interface Project {
   photos: ImageMetadata[];
   order: number;
   featured: boolean;
+  video?: { uploaded: string; duration?: string };
 }
 
 export interface Category {
@@ -136,6 +139,7 @@ const projects: Project[] = Object.entries(files)
       photos: (f.photos ?? []).map(img).filter((i): i is ImageMetadata => Boolean(i)),
       order: f.order ?? 0,
       featured: Boolean(f.featured),
+      video: f.video,
     }];
   })
   .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));

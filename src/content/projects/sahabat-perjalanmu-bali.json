@@ -10,5 +10,9 @@
     "02.jpg"
   ],
   "order": 6,
-  "featured": false
+  "featured": false,
+  "video": {
+    "uploaded": "2026-04-03",
+    "duration": "PT1M50S"
+  }
 }

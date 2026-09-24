@@ -9,5 +9,9 @@
     "01.jpg"
   ],
   "order": 3,
-  "featured": false
+  "featured": false,
+  "video": {
+    "uploaded": "2026-04-04",
+    "duration": "PT4M8S"
+  }
 }

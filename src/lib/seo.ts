@@ -22,20 +22,30 @@ export function clip(text: string, max = 155) {
 }
 
 // Tanggal unggah & durasi video YouTube — wajib untuk hasil pencarian video Google.
-// Diambil saat build (sekali per video); gagal = video tetap tampil, hanya tanpa data ini.
-const ytCache = new Map<string, Promise<{ uploadDate?: string; duration?: string }>>();
-export function youtubeMeta(id: string) {
-  if (!ytCache.has(id)) {
-    ytCache.set(
-      id,
-      fetch(`https://www.youtube.com/watch?v=${id}`, { headers: { 'Accept-Language': 'en' }, signal: AbortSignal.timeout(8000) })
-        .then((r) => r.text())
-        .then((html) => ({
-          uploadDate: html.match(/itemprop="uploadDate" content="([^"]+)"/)?.[1],
-          duration: html.match(/itemprop="duration" content="([^"]+)"/)?.[1],
-        }))
-        .catch(() => ({})),
-    );
+// Hanya hasil yang berhasil disimpan di cache: kegagalan sesaat tidak boleh menempel.
+type YtMeta = { uploadDate?: string; duration?: string };
+const ytCache = new Map<string, YtMeta>();
+export async function youtubeMeta(id: string): Promise<YtMeta> {
+  const hit = ytCache.get(id);
+  if (hit) return hit;
+  try {
+    const html = await (
+      await fetch(`https://www.youtube.com/watch?v=${id}`, {
+        headers: {
+          'Accept-Language': 'en',
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36',
+        },
+        signal: AbortSignal.timeout(8000),
+      })
+    ).text();
+    const uploadDate = html.match(/itemprop="uploadDate" content="([^"]+)"/)?.[1] ?? html.match(/"uploadDate":"([^"]+)"/)?.[1];
+    const secs = Number(html.match(/"lengthSeconds":"(\d+)"/)?.[1]);
+    const duration = html.match(/itemprop="duration" content="([^"]+)"/)?.[1] ?? (secs ? `PT${Math.floor(secs / 60)}M${secs % 60}S` : undefined);
+    if (!uploadDate) return {};
+    const meta = { uploadDate: uploadDate.slice(0, 10), duration };
+    ytCache.set(id, meta);
+    return meta;
+  } catch {
+    return {};
   }
-  return ytCache.get(id)!;
 }

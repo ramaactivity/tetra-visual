@@ -41,7 +41,9 @@ const schema: Record<string, unknown>[] = [
   breadcrumb([['Beranda', '/'], ['Karya', '/work'], [cat.name, `/work/${cat.slug}`], [p.title, `/karya/${p.slug}`]]),
 ];
 if (p.youtubeId) {
-  const meta = await youtubeMeta(p.youtubeId);
+  // Data dari file proyek (diisi dashboard); cadangannya diambil saat build — YouTube
+  // kadang memblokir server build, jadi cadangan ini boleh gagal.
+  const meta = p.video?.uploaded ? { uploadDate: p.video.uploaded, duration: p.video.duration } : await youtubeMeta(p.youtubeId);
   if (meta.uploadDate) {
     const thumb = await getImage({ src: p.cover, width: 1280, format: 'jpg' });
     schema.push({
