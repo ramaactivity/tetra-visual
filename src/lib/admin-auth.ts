@@ -23,7 +23,8 @@ const users = new Map(
 export const configured = () => Boolean(users.size && ADMIN_SESSION_SECRET && TETRA_DASHBOARD_GITHUB_TOKEN);
 export const githubToken = () => TETRA_DASHBOARD_GITHUB_TOKEN!;
 /** "wahab" → "Wahab", untuk ditampilkan & dicatat di proyek. */
-export const displayName = (user: string) => user.charAt(0).toUpperCase() + user.slice(1);
+const NAMES: Record<string, string> = { tetravisual: 'Tetra Visual' };
+export const displayName = (user: string) => NAMES[user] ?? user.charAt(0).toUpperCase() + user.slice(1);
 
 const sign = (v: string) => createHmac('sha256', ADMIN_SESSION_SECRET!).update(v).digest('base64url');
 
