@@ -12,16 +12,28 @@ import { services } from '../data/services';
 
 // Campuran layanan utama di beranda (semua layanan ada di /layanan).
 const HOME_SERVICES = ['dokumentasi-event', 'video-company-profile', 'gathering-outing-kantor', 'dokumentasi-olahraga', 'paket-wedding', 'paket-prewedding', 'foto-wisuda', 'drone-aerial'];
-import { categories, categoryBySlug, featuredProject, asset, totals } from '../data/work';
+import { categories, featuredProject, asset, totals, allProjects } from '../data/work';
 import { clientLogos } from '../lib/images';
-import { site } from '../data/site';
+import { site, waLink } from '../data/site';
+import ProcessSteps from '../components/ProcessSteps.astro';
 
 // Karya unggulan yang tombolnya ada di hero — dipilih lewat centang "unggulan" di dashboard.
 const featured = featuredProject;
-const featuredCat = featured && categoryBySlug.get(featured.category);
 
-// Urutan kategori diatur di data/work.ts (terkuat lebih dulu). Kategori kosong tidak tampil.
-const rows = categories.filter((c) => c.projects.length > 0);
+// Kategori kosong tidak tampil. Beranda hanya menampilkan kartu kategori, bukan 8 baris penuh
+// (riset NN/g: 74% perhatian habis di dua layar pertama — sisanya harus ringkas).
+const cats = categories.filter((c) => c.projects.length > 0 && c.hero);
+
+// "Karya terbaru" otomatis dari tanggal di dashboard, jadi beranda selalu terasa segar.
+const newest = [...allProjects].sort((a, b) => (Date.parse(b.date ?? '') || 0) - (Date.parse(a.date ?? '') || 0)).slice(0, 10);
+
+// Karya unggulan: pilihan terbaik lintas kategori (proyek yang dihapus otomatis terlewati).
+const PICKS = [
+  'samsung', 'mountain-jungle-course-2024', 'bulan-k3-nasional-pertamina-patra-niaga', 'qris-jelajah-indonesia',
+  'ipb-half-marathon-2024', 'juara-1-promosi-wisata-kota-bogor', 'wedding-of-firly-bima', 'nutrifood',
+  'fun-run-bank-indonesia-2025', 'jarambah-kampung-wisata', 'under-armor', 'sweet-17th-vanessa',
+];
+const picks = PICKS.map((slug) => allProjects.find((p) => p.slug === slug)).filter((p) => p !== undefined);
 
 // Slideshow hero: hanya foto kamera asli (3000–6000px), bukan frame video 1920px yang pecah
 // saat di-zoom. Bukan cover video juga — cover ada teks judulnya yang bertabrakan dengan tulisan hero.
@@ -73,57 +85,63 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
         <!-- H1 memuat kata kunci (dibaca Google) lewat label kecil; tampilan judul besar tetap. -->
         <h1 class="hero-h1">
           <span class="eyebrow hero-eyebrow">Jasa Foto &amp; Video Dokumentasi · Bogor &amp; Jakarta</span>
-          <span class="hero-title">Kami merekam yang layak dikenang.</span>
+          <span class="hero-title">Foto &amp; video yang membuat acara Anda dikenang.</span>
         </h1>
 
         <p class="hero-lead">
-          Tim fotografi dan videografi dari Bogor untuk event, corporate, olahraga, dan momen pribadi.
-          Dipercaya {clientLogos.length}+ brand — dari Eiger sampai Samsung.
+          Dokumentasi event, perusahaan, olahraga, hingga pernikahan — oleh tim dari Bogor yang dipercaya
+          Samsung, Eiger, Pertamina, dan Bank Indonesia.
         </p>
 
-        {featured && (
-          <div class="hero-actions">
-            {featured.youtubeId && (
-              <button class="btn btn-light" type="button" data-video-id={featured.youtubeId} data-video-title={featured.title}>
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
-                Putar Karya Unggulan
-              </button>
-            )}
-            <button class="btn btn-info" type="button" data-project={featured.slug} aria-haspopup="dialog">
-              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
-              Info Selengkapnya
+        <!-- Satu tujuan utama: chat WhatsApp. Tombol kedua untuk yang ingin melihat bukti dulu. -->
+        <div class="hero-actions">
+          <a class="btn btn-brand hero-cta" href={waLink('Halo Tetra Visual, saya ingin konsultasi untuk dokumentasi acara saya.')} target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Z"></path></svg>
+            Konsultasi via WhatsApp
+          </a>
+          {featured?.youtubeId && (
+            <button class="btn btn-info" type="button" data-video-id={featured.youtubeId} data-video-title={featured.title}>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg>
+              Tonton Karya
             </button>
-          </div>
-        )}
+          )}
+        </div>
 
-        {featured && featuredCat && (
-          <p class="hero-meta">
-            <span class="hero-tag">{featuredCat.name}</span>
-            <span class="hero-meta-text">{featured.title}</span>
-          </p>
-        )}
+        <p class="hero-proof">
+          <span><strong>{totalVideos}</strong> proyek</span>
+          <span><strong>{clientLogos.length}+</strong> brand &amp; institusi</span>
+          <span>sejak <strong>{site.founded.slice(0, 4)}</strong></span>
+        </p>
+
       </div>
     </div>
   </section>
 
-  <!-- BARIS PER KATEGORI -->
+  <!-- LAYAR KEDUA: karya terbaru (bukti + rasa penasaran) lalu logo klien -->
   <div class="rows">
-    {
-      rows.map((cat, rowIndex) => (
-        <Rail title={cat.name} href={`/work/${cat.slug}`} count={cat.projects.length}>
-          {cat.projects.map((p, i) => (
-            <VideoCard cover={p.cover} project={p.slug} title={p.title} desc={p.desc} eager={rowIndex === 0 && i < 3} />
-          ))}
-        </Rail>
-      ))
-    }
+    <Rail title="Karya terbaru" href="/work" hrefLabel="Semua karya" count={newest.length}>
+      {newest.map((p, i) => <VideoCard cover={p.cover} project={p.slug} title={p.title} desc={p.desc} date={p.date} eager={i < 3} />)}
+    </Rail>
   </div>
 
-  <!-- LAYANAN: banner pembuka sebagai pemisah dari baris portofolio di atasnya -->
+  <section class="logos" aria-label="Dipercaya oleh" data-reveal>
+    <p class="eyebrow logos-eyebrow">Dipercaya {clientLogos.length}+ brand, instansi &amp; komunitas</p>
+    <div class="logos-track">
+      {[0, 1].map((copy) => (
+        <ul class="logos-list" aria-hidden={copy === 1 ? 'true' : undefined}>
+          {clientLogos.map((logo, i) => (
+            <li><Image src={logo} alt={copy === 0 ? `Logo klien ${i + 1}` : ''} widths={[240]} sizes="140px" loading="lazy" /></li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </section>
+
+  <!-- LAYANAN: banner pembuka + kartu -->
   <section class="svc-banner" aria-labelledby="svc-banner-title">
     {svcBanner && <Image class="svc-banner-bg" src={svcBanner} alt="" widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="lazy" />}
     <div class="svc-banner-veil"></div>
-    <div class="wrap svc-banner-inner">
+    <div class="wrap svc-banner-inner" data-reveal>
       <p class="eyebrow svc-banner-eyebrow"><span></span>Layanan kami</p>
       <h2 id="svc-banner-title" class="svc-banner-title">Satu tim untuk setiap momen — dari panggung sampai pelaminan.</h2>
       <p class="svc-banner-lead">
@@ -142,7 +160,7 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
     </div>
   </section>
 
-  <section class="wrap home-svc">
+  <section class="wrap home-svc" data-reveal>
     <div class="home-head">
       <h2 class="home-title">Apa yang bisa kami kerjakan</h2>
       <a class="home-more" href="/layanan">Semua layanan <span aria-hidden="true">→</span></a>
@@ -150,8 +168,33 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
     <ServiceGrid items={HOME_SERVICES.map((slug) => services.find((x) => x.slug === slug)!).filter(Boolean)} />
   </section>
 
+  <!-- KARYA UNGGULAN + JELAJAH PER KATEGORI -->
+  <div data-reveal>
+    <Rail title="Karya unggulan" href="/work" hrefLabel="Semua karya" count={picks.length}>
+      {picks.map((p) => <VideoCard cover={p.cover} project={p.slug} title={p.title} desc={p.desc} date={p.date} />)}
+    </Rail>
+  </div>
+
+  <section class="wrap cats" data-reveal>
+    <h2 class="home-title">Jelajahi karya per kategori</h2>
+    <ul class="cats-grid">
+      {cats.map((c) => (
+        <li>
+          <a class="cat" href={`/work/${c.slug}`}>
+            <Image src={c.hero!} alt={`Dokumentasi ${c.name} oleh ${site.name}`} widths={[400, 640]} sizes="(max-width: 700px) 50vw, 25vw" loading="lazy" />
+            <span class="cat-veil"></span>
+            <span class="cat-text">
+              <span class="cat-name">{c.name}</span>
+              <span class="cat-count">{c.projects.length} proyek</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
   <!-- PROFIL SINGKAT: teks yang dibaca Google untuk memahami bisnis ini -->
-  <section class="wrap home-about">
+  <section class="wrap home-about" data-reveal>
     <h2 class="home-title">Jasa foto &amp; video dokumentasi di Bogor sejak 2021</h2>
     <div class="home-about-body">
       <p>
@@ -168,26 +211,9 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
     </div>
   </section>
 
-  <Testimonials />
+  <div data-reveal><ProcessSteps /></div>
 
-  <!-- KLIEN -->
-  <section class="section clients">
-    <div class="wrap">
-      <div class="clients-head">
-        <p class="eyebrow clients-eyebrow">Dipercaya oleh</p>
-        <h2 class="clients-title">Brand, Perusahaan & Komunitas</h2>
-      </div>
-      <ul class="clients-grid">
-        {
-          clientLogos.map((logo, i) => (
-            <li class="client-card">
-              <Image src={logo} alt={`Logo klien ${i + 1}`} widths={[240, 360, 480]} sizes="(max-width: 640px) 150px, 220px" loading="lazy" />
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+  <Testimonials />
 
   <ProjectModal />
   <VideoModal />
@@ -288,26 +314,7 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
     margin-top: var(--s-5);
   }
 
-  .hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--s-3);
-    margin-top: var(--s-5);
-    font-size: var(--t-xs);
-    color: var(--text-dim);
-  }
 
-  .hero-tag {
-    padding: 0.25rem 0.7rem;
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius);
-    font-size: var(--t-xs);
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text);
-  }
 
   /* Baris pertama sedikit menimpa hero — kesan berlapis khas Netflix */
   .rows {
@@ -315,6 +322,46 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
     z-index: 3;
     margin-top: clamp(-4rem, -5vw, -2rem);
   }
+
+  .hero-proof { display: flex; flex-wrap: wrap; gap: 0.35rem 0; }
+  .hero-proof span + span::before { content: '·'; margin: 0 0.6rem; opacity: 0.6; }
+  .hero-proof { margin-top: var(--s-5); font-size: var(--t-sm); color: var(--text-dim); text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7); }
+  .hero-proof strong { color: #fff; font-weight: 700; }
+  .hero-cta { box-shadow: 0 10px 30px rgba(229, 9, 20, 0.35); }
+
+  /* --- LOGO KLIEN BERJALAN --- */
+  .logos { padding-block: var(--s-6) var(--s-4); overflow: hidden; }
+  .logos-eyebrow { text-align: center; margin-bottom: var(--s-5); }
+  .logos-track {
+    display: flex;
+    width: max-content;
+    animation: logos-run 60s linear infinite;
+    -webkit-mask: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+  .logos:hover .logos-track { animation-play-state: paused; }
+  .logos-list { display: flex; align-items: center; gap: clamp(2.5rem, 5vw, 4.5rem); list-style: none; margin: 0; padding: 0 clamp(1.25rem, 2.5vw, 2.25rem); }
+  .logos-list :global(img) { width: auto; height: auto; max-width: 130px; max-height: 44px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.7; transition: opacity 0.2s; }
+  .logos-list li:hover :global(img) { opacity: 1; }
+  @keyframes logos-run { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .logos-track { animation: none; width: auto; flex-wrap: wrap; justify-content: center; -webkit-mask: none; mask: none; }
+    .logos-list[aria-hidden] { display: none; }
+    .logos-list { flex-wrap: wrap; justify-content: center; row-gap: var(--s-5); }
+  }
+
+  /* --- KATEGORI --- */
+  .cats { padding-block: var(--s-6) var(--s-8); }
+  .cats .home-title { margin-bottom: var(--s-5); }
+  .cats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); list-style: none; margin: 0; padding: 0; }
+  .cat { position: relative; display: block; aspect-ratio: 4 / 3; border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-elev); }
+  .cat :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s cubic-bezier(0.32, 0.72, 0, 1), filter 0.3s; }
+  .cat:hover :global(img) { transform: scale(1.07); filter: brightness(1.1); }
+  .cat-veil { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.1) 60%); }
+  .cat-text { position: absolute; left: var(--s-4); right: var(--s-4); bottom: var(--s-4); display: grid; gap: 0.1rem; }
+  .cat-name { font-size: clamp(1.05rem, 1.6vw, 1.35rem); font-weight: 800; letter-spacing: -0.02em; }
+  .cat-count { font-size: var(--t-xs); color: var(--text-dim); letter-spacing: 0.06em; }
+  @media (max-width: 700px) { .cats-grid { grid-template-columns: repeat(2, 1fr); } }
 
   /* --- BANNER LAYANAN --- */
   .svc-banner {
@@ -366,6 +413,20 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
   .svc-stats dt { font-size: var(--t-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); }
   .svc-banner-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-7); }
   .home-svc { padding-top: var(--s-4); padding-bottom: var(--s-9); }
+  /* HP: kartu layanan jadi baris geser ke samping, bukan 8 kartu panjang ke bawah */
+  @media (max-width: 640px) {
+    .home-svc :global(.svc-grid) {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin-inline: calc(var(--gutter) * -1);
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
+    }
+    .home-svc :global(.svc-grid::-webkit-scrollbar) { display: none; }
+    .home-svc :global(.svc-grid > li) { flex: 0 0 78%; scroll-snap-align: start; }
+  }
   @media (max-width: 700px) {
     .svc-banner { min-height: 0; padding-block: var(--s-9) var(--s-8); }
     .svc-stats { grid-template-columns: repeat(2, auto); gap: var(--s-5) var(--s-7); }
@@ -381,111 +442,6 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
   .home-about-body { display: grid; gap: var(--s-4); justify-items: start; color: var(--text-dim); line-height: 1.8; }
   .home-about-body a:not(.btn) { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
   @media (max-width: 860px) { .home-about { grid-template-columns: 1fr; } }
-
-  /* --- KLIEN --- */
-  .clients {
-    border-top: 1px solid var(--line);
-    margin-top: var(--s-8);
-    padding-top: clamp(3.5rem, 7vw, 6rem);
-    padding-bottom: clamp(3.5rem, 7vw, 6rem);
-  }
-
-  .clients-head {
-    text-align: center;
-    max-width: 48rem;
-    margin: 0 auto var(--s-8);
-  }
-
-  .clients-eyebrow {
-    margin-bottom: var(--s-2);
-  }
-
-  .clients-title {
-    font-size: var(--t-h2);
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  /* Grid logo yang rapi & proporsional:
-     - 5 kolom di desktop (> 1080px): 29 logo tersusun 5-5-5-5-5-4 (baris terakhir 4 rata tengah)
-     - 4 kolom di laptop/tablet landscape (820px - 1079px)
-     - 3 kolom di tablet portrait (560px - 819px)
-     - 2 kolom di HP (< 560px)
-     Tiap kartu logo diberi bingkai halus (subtle tile) dengan padding lega,
-     membuat logo dari berbagai proporsi (persegi, horizontal panjang, lambang)
-     memiliki bobot optis yang seimbang dan terbaca jelas. */
-  .clients-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: clamp(0.75rem, 1.4vw, 1.25rem);
-    list-style: none;
-    margin: 0 auto;
-    padding: 0;
-    max-width: 1280px;
-  }
-
-  .client-card {
-    flex: 0 0 calc((100% - 4 * clamp(0.75rem, 1.4vw, 1.25rem)) / 5);
-    min-width: 170px;
-    height: clamp(84px, 8vw, 100px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--s-3) clamp(1rem, 2vw, 1.5rem);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    transition: background-color 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.25s var(--ease);
-  }
-
-  .client-card:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--line-strong);
-    transform: translateY(-2px);
-  }
-
-  .client-card :global(img) {
-    width: auto;
-    height: auto;
-    max-width: clamp(120px, 13vw, 160px);
-    max-height: clamp(40px, 4.5vw, 52px);
-    object-fit: contain;
-    filter: brightness(0) invert(1);
-    opacity: 0.82;
-    transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
-  }
-
-  .client-card:hover :global(img) {
-    opacity: 1;
-    transform: scale(1.04);
-  }
-
-  @media (max-width: 1080px) {
-    .client-card {
-      flex: 0 0 calc((100% - 3 * clamp(0.75rem, 1.4vw, 1.25rem)) / 4);
-    }
-  }
-
-  @media (max-width: 820px) {
-    .client-card {
-      flex: 0 0 calc((100% - 2 * clamp(0.75rem, 1.4vw, 1.25rem)) / 3);
-      min-width: 140px;
-    }
-  }
-
-  @media (max-width: 560px) {
-    .client-card {
-      flex: 0 0 calc((100% - clamp(0.75rem, 1.4vw, 1.25rem)) / 2);
-      min-width: 130px;
-      height: 76px;
-      padding: var(--s-2) var(--s-3);
-    }
-    .client-card :global(img) {
-      max-width: 120px;
-      max-height: 38px;
-    }
-  }
 
   @media (max-width: 700px) {
     .hero { min-height: 88svh; align-items: flex-end; }

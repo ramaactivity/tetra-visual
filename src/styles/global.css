@@ -203,3 +203,33 @@ html:has(dialog[open]) { overflow: hidden; }
 }
 .rail::-webkit-scrollbar { display: none; }
 .rail > * { scroll-snap-align: start; flex: 0 0 auto; }
+
+/* --- MUNCUL SAAT DIGULIR --- */
+/* Hanya aktif bila JavaScript jalan (kelas .js-reveal), supaya konten tak pernah tersembunyi permanen. */
+.js-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.js-reveal [data-reveal].is-in { opacity: 1; transform: none; }
+
+/* --- TOMBOL WHATSAPP MELAYANG (HP) --- */
+.wa-float {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 90;
+  display: none;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  transform: translateY(120px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.wa-float.is-on { transform: none; }
+@media (max-width: 800px) { .wa-float { display: grid; } }
+html:has(dialog[open]) .wa-float { display: none; }
