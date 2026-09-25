@@ -47,13 +47,16 @@ Klik **Simpan** → perubahan masuk ke GitHub sebagai satu commit → GitHub Act
 menayangkan ulang situs (±3 menit). Status "Sedang menayangkan… / Sudah tayang"
 tampil di pojok kanan atas dashboard.
 
-Setiap anggota tim punya akun sendiri (tetra, rama, wahab, arief, iqbal, bowo — daftar
-& password di `.env.local`, kunci `ADMIN_USERS`). Tiap proyek mencatat siapa yang
+Setiap anggota tim punya akun sendiri (tetravisual, rama, wahab, arief, iqbal, bowo).
+Masing-masing bisa mengubah nama, username, password, dan foto lewat tombol nama di
+pojok kanan atas dashboard. Akun tersimpan di `data-admin/users.json` (password berupa
+hash, hanya bisa dibaca server). `ADMIN_USERS` di `.env.local`/Vercel hanya cadangan
+bila file itu tak terbaca. Tiap proyek mencatat siapa yang
 mengunggah dan terakhir mengedit; riwayat GitHub juga atas nama orang itu. Sesi bertahan 30 hari per browser. Token GitHub hanya disimpan
 di server (Environment Variables Vercel), tidak pernah dikirim ke browser —
 browser berbicara ke `/api/admin/*`, satu-satunya bagian situs yang berjalan di server.
 
-**Menambah orang / mengganti password:** ubah `ADMIN_USERS` di `.env.local` dan di Vercel
+**Menambah atau menghapus orang:** minta Claude menambah/menghapus entri di `data-admin/users.json` (tidak perlu deploy ulang). Lupa password: minta Claude membuatkan password sementara. Cadangan lama: ubah `ADMIN_USERS` di `.env.local` dan di Vercel
 (Project → Settings → Environment Variables), lalu deploy ulang.
 
 Di balik layar, tiap proyek = satu file `src/content/projects/<slug>.json` + folder

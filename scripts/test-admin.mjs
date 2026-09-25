@@ -18,9 +18,9 @@ await ctx.route('**/api/admin/login', async (route) => {
   if (m === 'POST') {
     const { username, password } = JSON.parse(route.request().postData());
     loggedIn = username === 'tetravisual' && password === 'benar';
-    return route.fulfill({ status: loggedIn ? 200 : 401, contentType: 'application/json', body: JSON.stringify(loggedIn ? { ok: true } : { error: 'Username atau password salah.' }) });
+    return route.fulfill({ status: loggedIn ? 200 : 401, contentType: 'application/json', body: JSON.stringify(loggedIn ? { ok: true, profile: { username: 'tetravisual', name: 'Tetra Visual', avatar: '' } } : { error: 'Username atau password salah.' }) });
   }
-  return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ configured: true, loggedIn, name: loggedIn ? 'Tetravisual' : null }) });
+  return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ configured: true, loggedIn, profile: loggedIn ? { username: 'tetravisual', name: 'Tetra Visual', avatar: '' } : null }) });
 });
 await ctx.route('**/api/admin/github**', async (route) => {
   const req = route.request();

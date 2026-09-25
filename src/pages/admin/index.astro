@@ -51,11 +51,36 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
         </a>
         <div class="top-right">
           <span class="deploy" data-deploy hidden></span>
-          <span class="me" data-me></span>
+          <button class="me" type="button" data-me hidden><span class="me-av" data-me-av></span><span data-me-name></span></button>
           <a class="btn btn-ghost btn-sm" href="/" target="_blank" rel="noopener">Lihat situs ↗</a>
           <button class="btn btn-ghost btn-sm" type="button" data-logout>Keluar</button>
         </div>
       </header>
+
+      <!-- PROFIL -->
+      <main class="wrap profile" data-view="profile" hidden>
+        <button class="back" type="button" data-profile-back>← Semua karya</button>
+        <h1>Profil saya</h1>
+        <form class="pf" data-pf novalidate>
+          <div class="pf-av">
+            <span class="pf-av-img" data-pf-av></span>
+            <div class="pf-av-actions">
+              <label class="btn btn-ghost btn-sm">Ganti foto<input type="file" accept="image/*" data-pf-av-input hidden /></label>
+              <button class="btn btn-ghost btn-sm" type="button" data-pf-av-del>Hapus foto</button>
+            </div>
+          </div>
+          <label class="field"><span class="label">Nama tampilan</span><input class="input" name="name" maxlength="40" required /><span class="hint">Tampil di "oleh …" pada proyek yang Anda unggah.</span></label>
+          <label class="field"><span class="label">Username</span><input class="input" name="username" autocomplete="username" autocapitalize="none" /><span class="hint">Untuk masuk. Huruf kecil, angka, titik, strip.</span></label>
+          <fieldset class="pf-pw">
+            <legend class="label">Ganti password <span class="muted">(opsional)</span></legend>
+            <input class="input" type="password" name="newPassword" autocomplete="new-password" placeholder="Password baru (min. 8 karakter)" />
+            <input class="input" type="password" name="confirmPassword" autocomplete="new-password" placeholder="Ulangi password baru" />
+          </fieldset>
+          <label class="field" data-pf-current hidden><span class="label">Password saat ini <em>*</em></span><input class="input" type="password" name="currentPassword" autocomplete="current-password" /><span class="hint">Wajib untuk mengganti username atau password.</span></label>
+          <p class="form-error" data-pf-error hidden></p>
+          <div class="pf-actions"><button class="btn btn-brand" type="submit" data-pf-save>Simpan profil</button></div>
+        </form>
+      </main>
 
       <!-- DAFTAR -->
       <main class="wrap list" data-view="list">
@@ -369,8 +394,20 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
   .pcard-title { display: block; margin-top: 0.6rem; font-weight: 600; font-size: 0.9375rem; line-height: 1.3; }
   .pcard-meta { display: block; margin-top: 0.2rem; font-size: 0.8125rem; color: var(--text-faint); }
   .pcard-who { display: block; margin-top: 0.15rem; font-size: 0.75rem; color: #8c8c8c; }
-  .me { font-size: 0.8125rem; color: var(--text-dim); }
-  .me b { color: #fff; }
+  .me { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem 0.25rem 0.25rem; border-radius: 999px; font-size: 0.8125rem; font-weight: 600; background: #232323; transition: background-color 0.2s; }
+  .me:hover { background: #2f2f2f; }
+  .me-av, .pf-av-img { display: grid; place-items: center; border-radius: 50%; background: var(--brand) center / cover no-repeat; color: #fff; font-weight: 700; flex: none; }
+  .me-av { width: 28px; height: 28px; font-size: 0.75rem; }
+  .profile { padding-block: 2rem 6rem; max-width: 620px; }
+  .profile h1 { font-size: var(--t-h1); margin-bottom: 1.75rem; }
+  .pf { display: grid; gap: 1.25rem; }
+  .pf-av { display: flex; align-items: center; gap: 1.25rem; }
+  .pf-av-img { width: 88px; height: 88px; font-size: 2rem; }
+  .pf-av-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .pf-av-actions label { cursor: pointer; }
+  .pf-pw { display: grid; gap: 0.6rem; border: 0; padding: 0; margin: 0; }
+  .pf-pw legend { margin-bottom: 0.4rem; }
+  .pf-actions { display: flex; justify-content: flex-end; }
   .ed-audit { font-size: 0.8125rem; color: var(--text-faint); margin: -1rem 0 1.5rem; }
 
   /* EDITOR */
@@ -515,7 +552,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
   const API = '/api/admin/github';
 
   const $ = <T extends HTMLElement = HTMLElement,>(sel: string) => document.querySelector<T>(sel)!;
-  const views = { login: $('[data-view="login"]'), app: $('[data-view="app"]'), list: $('[data-view="list"]'), editor: $('[data-view="editor"]') };
+  const views = { login: $('[data-view="login"]'), app: $('[data-view="app"]'), list: $('[data-view="list"]'), editor: $('[data-view="editor"]'), profile: $('[data-view="profile"]') };
 
   try { localStorage.removeItem('tv-admin-token'); } catch { /* sisa cara masuk lama */ }
   let entries: Entry[] = [];
@@ -645,9 +682,10 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     if (text !== null) $('[data-busy-text]').textContent = text;
     $('[data-busy-bar]').style.width = `${pct ?? 0}%`;
   }
-  function show(view: 'list' | 'editor') {
+  function show(view: 'list' | 'editor' | 'profile') {
     views.list.hidden = view !== 'list';
     views.editor.hidden = view !== 'editor';
+    views.profile.hidden = view !== 'profile';
     scrollTo({ top: 0 });
   }
 
@@ -1383,10 +1421,98 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
   addEventListener('popstate', () => { if (!views.editor.hidden && !leaveEditor()) history.pushState({ editor: true }, ''); });
   addEventListener('beforeunload', (e) => { if (dirty) e.preventDefault(); });
 
+  // ---------- Profil ----------
+  type Profile = { username: string; name: string; avatar: string };
+  let me: Profile | null = null;
+  let pfAvatar = '';
+  const paintAvatar = (el: HTMLElement, p: { name: string; avatar: string }) => {
+    el.style.backgroundImage = p.avatar ? `url("${p.avatar}")` : '';
+    el.textContent = p.avatar ? '' : (p.name.trim()[0] ?? '?').toUpperCase();
+  };
+  function setMe(p: Profile) {
+    me = p;
+    $('[data-me]').hidden = false;
+    $('[data-me-name]').textContent = p.name;
+    paintAvatar($('[data-me-av]'), p);
+  }
+  const pf = $<HTMLFormElement>('[data-pf]');
+  const pfIn = (n: string) => pf.elements.namedItem(n) as HTMLInputElement;
+  const syncCurrentField = () => {
+    $('[data-pf-current]').hidden = !(pfIn('newPassword').value || (me && pfIn('username').value.trim().toLowerCase() !== me.username));
+  };
+  $('[data-me]').addEventListener('click', () => {
+    if (!me || (!views.editor.hidden && dirty && !confirm('Perubahan proyek belum disimpan. Tinggalkan?'))) return;
+    dirty = false;
+    pf.reset();
+    pfIn('name').value = me.name;
+    pfIn('username').value = me.username;
+    pfAvatar = me.avatar;
+    paintAvatar($('[data-pf-av]'), { name: me.name, avatar: pfAvatar });
+    $('[data-pf-error]').hidden = true;
+    syncCurrentField();
+    show('profile');
+  });
+  $('[data-profile-back]').addEventListener('click', () => show('list'));
+  pf.addEventListener('input', syncCurrentField);
+  // Avatar: dipotong persegi di tengah & dikecilkan jadi 256px sebelum dikirim.
+  $<HTMLInputElement>('[data-pf-av-input]').addEventListener('change', async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    (e.target as HTMLInputElement).value = '';
+    if (!file) return;
+    try {
+      const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      const side = Math.min(bmp.width, bmp.height);
+      const c = document.createElement('canvas');
+      c.width = c.height = 256;
+      c.getContext('2d')!.drawImage(bmp, (bmp.width - side) / 2, (bmp.height - side) / 2, side, side, 0, 0, 256, 256);
+      bmp.close();
+      pfAvatar = c.toDataURL('image/jpeg', 0.85);
+      paintAvatar($('[data-pf-av]'), { name: pfIn('name').value || '?', avatar: pfAvatar });
+    } catch { toast('Foto tidak bisa dibaca — pakai JPG atau PNG.'); }
+  });
+  $('[data-pf-av-del]').addEventListener('click', () => {
+    pfAvatar = '';
+    paintAvatar($('[data-pf-av]'), { name: pfIn('name').value || '?', avatar: '' });
+  });
+  pf.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('[data-pf-error]');
+    const fail = (m: string) => { err.textContent = m; err.hidden = false; };
+    err.hidden = true;
+    if (pfIn('newPassword').value !== pfIn('confirmPassword').value) return fail('Ulangi password baru belum sama.');
+    const btn = $<HTMLButtonElement>('[data-pf-save]');
+    btn.disabled = true;
+    btn.textContent = 'Menyimpan…';
+    try {
+      const res = await fetch('/api/admin/me', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: pfIn('name').value,
+          username: pfIn('username').value,
+          avatar: pfAvatar,
+          newPassword: pfIn('newPassword').value || undefined,
+          currentPassword: pfIn('currentPassword').value || undefined,
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) return fail(body.error ?? 'Gagal menyimpan profil.');
+      setMe(body.profile);
+      pf.reset();
+      show('list');
+      toast(body.relogged ? 'Profil tersimpan. Perangkat lain yang memakai akun ini perlu masuk ulang.' : 'Profil tersimpan.');
+    } catch {
+      fail('Tidak bisa menghubungi server — cek koneksi internet.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Simpan profil';
+    }
+  });
+
   // ---------- Login ----------
   let started = false;
-  async function start(name?: string | null) {
-    if (name) $('[data-me]').innerHTML = `Masuk sebagai <b>${name.replace(/[<>&]/g, '')}</b>`;
+  async function start(p?: Profile | null) {
+    if (p) setMe(p);
     views.login.hidden = true;
     views.app.hidden = false;
     if (started) return;
@@ -1422,7 +1548,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
         body: JSON.stringify({ username: val('username'), password: val('password') }),
       });
       const body = await res.json().catch(() => ({}));
-      if (res.ok) { (form.elements.namedItem('password') as HTMLInputElement).value = ''; start(body.name); }
+      if (res.ok) { (form.elements.namedItem('password') as HTMLInputElement).value = ''; start(body.profile); }
       else showLogin(body.error ?? 'Gagal masuk.');
     } catch {
       showLogin('Tidak bisa menghubungi server — cek koneksi internet.');
@@ -1439,7 +1565,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
 
   fetch('/api/admin/login', { cache: 'no-store' })
     .then((r) => r.json())
-    .then((s: { configured: boolean; loggedIn: boolean; name?: string | null }) =>
-      s.loggedIn ? start(s.name) : showLogin(s.configured ? '' : 'Dashboard belum dikonfigurasi di server.'))
+    .then((s: { configured: boolean; loggedIn: boolean; profile?: Profile | null }) =>
+      s.loggedIn ? start(s.profile) : showLogin(s.configured ? '' : 'Dashboard belum dikonfigurasi di server.'))
     .catch(() => showLogin('Tidak bisa menghubungi server — cek koneksi internet.'));
 </script>

@@ -7,7 +7,7 @@ import { youtubeMeta } from '../../../lib/seo';
 export const prerender = false;
 
 export const GET: APIRoute = async ({ url, cookies }) => {
-  if (!isLoggedIn(cookies)) return new Response('Belum masuk', { status: 401 });
+  if (!(await isLoggedIn(cookies))) return new Response('Belum masuk', { status: 401 });
   const id = url.searchParams.get('id') ?? '';
   if (!/^[\w-]{11}$/.test(id)) return new Response('ID tidak valid', { status: 400 });
   const meta = await youtubeMeta(id);
