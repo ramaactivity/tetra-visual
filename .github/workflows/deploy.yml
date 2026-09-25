@@ -14,6 +14,9 @@ name: Deploy to Vercel (Production)
 on:
   push:
     branches: [main]
+    # Perubahan profil akun dashboard tidak perlu membangun ulang situs.
+    paths-ignore:
+      - 'data-admin/**'
   workflow_dispatch: # bisa dijalankan manual dari tab Actions
 
 concurrency:
