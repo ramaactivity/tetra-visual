@@ -80,6 +80,10 @@ export interface ProjectFile {
   city?: string;
   /** Tanggal proyek ditambahkan (ISO). Dipakai untuk urutan Terbaru/Terlama. */
   date?: string;
+  /** Diisi server dashboard dari akun yang login. Kosong = proyek dari data awal. */
+  addedBy?: string;
+  editedBy?: string;
+  editedAt?: string;
 }
 
 export interface Project {
