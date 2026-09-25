@@ -40,6 +40,8 @@ const HERO_PHOTOS = [
 const heroSlides = HERO_PHOTOS.map(asset).filter(Boolean);
 
 const { videos: totalVideos } = totals;
+const svcBanner = asset('work/event/photos/photo-35.jpg');
+const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
 ---
 
 <Base
@@ -117,13 +119,32 @@ const { videos: totalVideos } = totals;
     }
   </div>
 
-  <!-- LAYANAN -->
-  <section class="section wrap home-svc">
-    <div class="home-head">
-      <div>
-        <p class="eyebrow">Layanan</p>
-        <h2 class="home-title">Apa yang bisa kami kerjakan</h2>
+  <!-- LAYANAN: banner pembuka sebagai pemisah dari baris portofolio di atasnya -->
+  <section class="svc-banner" aria-labelledby="svc-banner-title">
+    {svcBanner && <Image class="svc-banner-bg" src={svcBanner} alt="" widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="lazy" />}
+    <div class="svc-banner-veil"></div>
+    <div class="wrap svc-banner-inner">
+      <p class="eyebrow svc-banner-eyebrow"><span></span>Layanan kami</p>
+      <h2 id="svc-banner-title" class="svc-banner-title">Satu tim untuk setiap momen — dari panggung sampai pelaminan.</h2>
+      <p class="svc-banner-lead">
+        Foto, video, drone, live streaming, hingga photobooth. Anda cukup menceritakan acaranya, sisanya kami yang urus.
+      </p>
+      <dl class="svc-stats">
+        <div><dt>Tahun berkarya</dt><dd>{years}+</dd></div>
+        <div><dt>Proyek terdokumentasi</dt><dd>{totalVideos}</dd></div>
+        <div><dt>Brand &amp; institusi</dt><dd>{clientLogos.length}+</dd></div>
+        <div><dt>Layanan</dt><dd>{services.length}</dd></div>
+      </dl>
+      <div class="svc-banner-actions">
+        <a class="btn btn-light" href="/layanan">Lihat semua layanan</a>
+        <a class="btn btn-info" href="/kontak">Konsultasi gratis</a>
       </div>
+    </div>
+  </section>
+
+  <section class="wrap home-svc">
+    <div class="home-head">
+      <h2 class="home-title">Apa yang bisa kami kerjakan</h2>
       <a class="home-more" href="/layanan">Semua layanan <span aria-hidden="true">→</span></a>
     </div>
     <ServiceGrid items={HOME_SERVICES.map((slug) => services.find((x) => x.slug === slug)!).filter(Boolean)} />
@@ -293,6 +314,62 @@ const { videos: totalVideos } = totals;
     position: relative;
     z-index: 3;
     margin-top: clamp(-4rem, -5vw, -2rem);
+  }
+
+  /* --- BANNER LAYANAN --- */
+  .svc-banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: min(78svh, 720px);
+    margin-top: var(--s-9);
+    padding-block: var(--s-9);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .svc-banner-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.62) saturate(1.1);
+    animation: svc-drift 24s ease-in-out infinite alternate;
+  }
+  @keyframes svc-drift { from { transform: scale(1.04); } to { transform: scale(1.14) translate(-1.5%, -1%); } }
+  /* Tepi atas & bawah melebur ke latar halaman; kiri gelap supaya teks terbaca */
+  .svc-banner-veil {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(to bottom, var(--bg) 0%, rgba(35, 35, 35, 0) 22%, rgba(35, 35, 35, 0) 70%, var(--bg) 100%),
+      linear-gradient(to right, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.55) 45%, rgba(20, 20, 20, 0.1) 80%);
+  }
+  .svc-banner-inner > * { max-width: 44rem; }
+  .svc-banner-eyebrow { display: flex; align-items: center; gap: var(--s-3); color: #fff; }
+  .svc-banner-eyebrow span { width: 2.5rem; height: 2px; background: var(--brand); }
+  .svc-banner-title {
+    margin-top: var(--s-4);
+    font-size: clamp(2rem, 4.6vw, 3.75rem);
+    font-weight: 800;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  }
+  .svc-banner-lead { margin-top: var(--s-5); max-width: 36rem; color: #e2e2e2; font-size: clamp(1rem, 1.3vw, 1.125rem); line-height: 1.7; }
+  .svc-stats { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: var(--s-7); margin: var(--s-7) 0 0; }
+  /* Angka di atas, sejajar walau labelnya patah dua baris */
+  .svc-stats div { display: flex; flex-direction: column; gap: var(--s-1); }
+  .svc-stats dd { order: -1; margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .svc-stats dt { font-size: var(--t-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); }
+  .svc-banner-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-7); }
+  .home-svc { padding-top: var(--s-4); padding-bottom: var(--s-9); }
+  @media (max-width: 700px) {
+    .svc-banner { min-height: 0; padding-block: var(--s-9) var(--s-8); }
+    .svc-stats { grid-template-columns: repeat(2, auto); gap: var(--s-5) var(--s-7); }
+    .svc-banner-actions .btn { flex: 1 1 auto; }
   }
 
   /* --- LAYANAN & PROFIL --- */

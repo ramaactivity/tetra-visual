@@ -298,7 +298,7 @@ export const services: Service[] = [
     ],
     includes: ['Video udara sinematik', 'Foto udara resolusi tinggi', 'Gabungan dengan dokumentasi darat'],
     forWho: ['Event besar & outdoor', 'Destinasi wisata', 'Properti & kawasan', 'Video company profile'],
-    projects: ['jarambah-kampung-wisata', 'jajaki-rasa-kota-bogor'],
+    projects: ['jajaki-rasa-kota-bogor', 'jarambah-kampung-wisata'],
     faq: [],
   },
   {
