@@ -67,6 +67,11 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
         </div>
         <div class="filters">
           <input class="input search" type="search" placeholder="Cari judul…" data-search />
+          <select class="input input-sm" data-sort aria-label="Urutkan">
+            <option value="">Urutan situs</option>
+            <option value="new">Terbaru ditambahkan</option>
+            <option value="old">Terlama ditambahkan</option>
+          </select>
           <div class="chips" data-chips></div>
         </div>
         <div class="grid" data-grid></div>
@@ -91,6 +96,10 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
                 <label class="field">
                   <span class="label">Kategori <em>*</em></span>
                   <select class="input" name="category" data-cat-select></select>
+                </label>
+                <label class="field field-date">
+                  <span class="label">Tanggal ditambahkan</span>
+                  <input class="input" name="date" type="date" />
                 </label>
                 <label class="field field-sm">
                   <span class="label">Urutan</span>
@@ -365,7 +374,8 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
   .ed-cols { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 2.5rem; }
   .ed-main { display: grid; gap: 1.25rem; align-content: start; }
   .field { display: grid; gap: 0.4rem; }
-  .field-row { display: grid; grid-template-columns: 1fr 140px; gap: 1rem; }
+  .field-row { display: grid; grid-template-columns: 1fr 170px 120px; gap: 1rem; }
+  .field-row .input[type='date'] { color-scheme: dark; }
   .label { font-size: 0.8125rem; font-weight: 600; color: #ddd; }
   .label em { color: var(--brand); font-style: normal; }
   .hint { font-size: 0.78rem; color: var(--text-faint); }
@@ -455,6 +465,8 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
   .ie-foot { display: flex; align-items: center; gap: 0.6rem; padding: 0.9rem 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.08); }
 
   @media (max-width: 800px) {
+    .field-row { grid-template-columns: 1fr 1fr; }
+    .field-row > :first-child { grid-column: 1 / -1; }
     .ie-body { grid-template-columns: 1fr; }
     /* Foto tetap terlihat di atas saat pengaturan di bawahnya digulir */
     .ie-stage { position: sticky; top: 0; z-index: 2; height: 42dvh; }
@@ -477,6 +489,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     cover: string; photos: string[]; order: number; featured: boolean;
     video?: { uploaded: string; duration?: string };
     city?: string;
+    date?: string;
   };
   type Entry = { slug: string; data: PF; thumbs: Record<string, string | null>; sha?: string; pending?: boolean };
   /** Hasil editor foto: area crop (0–1, setelah diputar), putaran, sisi terpanjang maks. (0 = asli), kualitas JPEG. */
@@ -734,10 +747,16 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
   // ---------- Daftar ----------
   let filterCat = '';
   let query = '';
+  let sortBy = '';
+  const time = (e: Entry) => Date.parse(e.data.date ?? '') || 0;
+  const fmtDay = (iso?: string) =>
+    iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'tanpa tanggal';
   function renderList() {
     const order = cats.map((c) => c.slug);
     const sorted = [...entries].sort((a, b) =>
-      order.indexOf(a.data.category) - order.indexOf(b.data.category) || a.data.order - b.data.order || a.data.title.localeCompare(b.data.title));
+      sortBy === 'new' ? time(b) - time(a)
+      : sortBy === 'old' ? time(a) - time(b)
+      : order.indexOf(a.data.category) - order.indexOf(b.data.category) || a.data.order - b.data.order || a.data.title.localeCompare(b.data.title));
     const shown = sorted.filter((e) => (!filterCat || e.data.category === filterCat) && e.data.title.toLowerCase().includes(query));
 
     $('[data-list-sub]').textContent = `${entries.length} proyek · ${entries.reduce((n, e) => n + e.data.photos.length, 0)} foto`;
@@ -778,13 +797,14 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
       title.textContent = e.data.title;
       const meta = document.createElement('span');
       meta.className = 'pcard-meta';
-      meta.textContent = `${catName(e.data.category)} · ${e.data.photos.length} foto`;
+      meta.textContent = `${catName(e.data.category)} · ${e.data.photos.length} foto · ${fmtDay(e.data.date)}`;
       b.append(media, title, meta);
       b.onclick = () => openEditor(e.slug);
       return b;
     }));
     $('[data-empty]').hidden = shown.length > 0;
   }
+  $<HTMLSelectElement>('[data-sort]').addEventListener('change', (e) => { sortBy = (e.target as HTMLSelectElement).value; renderList(); });
   $<HTMLInputElement>('[data-search]').addEventListener('input', (e) => { query = (e.target as HTMLInputElement).value.toLowerCase().trim(); renderList(); });
 
   // ---------- Editor ----------
@@ -830,6 +850,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
       f<HTMLTextAreaElement>('synopsis').value = orig.synopsis ?? '';
       f('featured').checked = Boolean(orig.featured);
       f<HTMLSelectElement>('city').value = orig.city ?? '';
+      f('date').value = orig.date ? localDay(orig.date) : '';
       cover = { name: orig.cover, url: thumbs[orig.cover] ?? '' };
       photos = (orig.photos ?? []).map((name) => ({ name, url: thumbs[name] ?? '' }));
       // Foto yang belum sempat tayang belum punya thumbnail — ambil langsung dari repo.
@@ -839,6 +860,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     } else {
       catSelect.value = filterCat || 'event';
       suggestOrder();
+      f('date').value = localDay(new Date().toISOString());
     }
     syncYoutube();
     syncSlugHint();
@@ -847,6 +869,12 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     show('editor');
     history.pushState({ editor: true }, '');
   }
+
+  // Tanggal (YYYY-MM-DD) menurut zona waktu browser, untuk kolom tanggal.
+  const localDay = (iso: string) => {
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
 
   // Proyek baru otomatis ditaruh paling akhir di kategorinya.
   function suggestOrder() {
@@ -1243,6 +1271,11 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
         order: Number(f('order').value) || 0,
         featured: f('featured').checked,
         ...(f<HTMLSelectElement>('city').value ? { city: f<HTMLSelectElement>('city').value } : {}),
+        // Tanggal tidak diubah → pertahankan jamnya; diubah/baru → simpan tanggal itu (jam saat ini untuk proyek baru).
+        date: !f('date').value ? orig?.date ?? new Date().toISOString()
+          : orig?.date && localDay(orig.date) === f('date').value ? orig.date
+          : !orig ? new Date().toISOString()
+          : new Date(`${f('date').value}T12:00:00`).toISOString(),
       };
       // Tanggal unggah video (untuk Google): pakai yang lama bila videonya sama, kalau baru ambil lewat server.
       const ytId = youtubeIdOf(data.youtube);

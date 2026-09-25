@@ -62,6 +62,9 @@ ok(`daftar proyek tampil (${n})`, n > 50);
 
 await p.click('.chip:has-text("Wedding")');
 ok('filter kategori', (await p.locator('.pcard').count()) < 10);
+await p.selectOption('[data-sort]', 'new');
+ok('urut terbaru: tanggal tampil di kartu', /\d{4}$/.test((await p.textContent('.pcard-meta >> nth=0')).trim()));
+await p.selectOption('[data-sort]', '');
 await p.click('.chip:has-text("Semua")');
 
 // --- Proyek baru ---
@@ -111,6 +114,7 @@ const t1 = commits[0] ?? [];
 const j1 = JSON.parse(t1.find((x) => x.path === 'src/content/projects/uji-coba-event-baru.json')?.content ?? '{}');
 ok('commit berisi file proyek baru', j1.title === 'Uji Coba Event Baru' && j1.category === 'sport');
 ok('kota tersimpan', j1.city === 'bogor');
+ok('tanggal ditambahkan tersimpan (hari ini)', !!j1.date && Math.abs(Date.parse(j1.date) - Date.now()) < 600000);
 ok('cover + 3 foto diunggah sebagai blob', t1.filter((x) => x.sha?.startsWith('blob')).length === 4 && blobs === 4);
 ok('nama foto berurutan', JSON.stringify(j1.photos) === '["01.jpg","02.jpg","03.jpg"]' && j1.cover === 'cover.jpg');
 ok('proyek baru langsung muncul di daftar', await p.isVisible('.pcard:has-text("Uji Coba Event Baru")'));

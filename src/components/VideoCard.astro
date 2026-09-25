@@ -6,17 +6,19 @@ interface Props {
   cover: ImageMetadata;
   /** Kunci proyek `<slug>-<nomor cover>` — dipakai popup detail (ProjectModal). */
   project: string;
+  /** Tanggal ISO untuk pengurutan Terbaru/Terlama di halaman kategori. */
+  date?: string;
   title: string;
   desc?: string;
   /** Gambar pertama tiap baris dimuat lebih awal, sisanya lazy. */
   eager?: boolean;
 }
-const { cover, project, title, desc, eager = false } = Astro.props;
+const { cover, project, title, desc, date, eager = false } = Astro.props;
 ---
 
 <!-- Tautan sungguhan ke /karya/<slug> supaya Google bisa menelusuri tiap proyek;
      di browser, klik biasa dicegat ProjectModal dan membuka popup. -->
-<a class="card" href={`/karya/${project}`} data-project={project} aria-label={`Lihat detail: ${title}`}>
+<a class="card" href={`/karya/${project}`} data-project={project} data-date={date} aria-label={`Lihat detail: ${title}`}>
   <span class="card-media">
     <Image
       src={cover}

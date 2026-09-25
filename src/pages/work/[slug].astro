@@ -81,9 +81,19 @@ const others = categories.filter((c) => c.slug !== cat.slug);
   {
     cat.projects.length > 0 && (
       <div class="stack">
+        <div class="wrap sort">
+          <label>
+            Urutkan
+            <select data-sort aria-label="Urutkan karya">
+              <option value="">Pilihan kami</option>
+              <option value="new">Terbaru</option>
+              <option value="old">Terlama</option>
+            </select>
+          </label>
+        </div>
         <Rail title="Video Dokumentasi" count={cat.projects.length}>
           {cat.projects.map((p, i) => (
-            <VideoCard cover={p.cover} project={p.slug} title={p.title} desc={p.desc} eager={i < 3} />
+            <VideoCard cover={p.cover} project={p.slug} title={p.title} desc={p.desc} date={p.date} eager={i < 3} />
           ))}
         </Rail>
       </div>
@@ -116,7 +126,25 @@ const others = categories.filter((c) => c.slug !== cat.slug);
   <Lightbox />
 </Base>
 
+<script>
+  // Urutkan kartu di baris video: Pilihan kami (urutan dashboard) / Terbaru / Terlama.
+  const sel = document.querySelector<HTMLSelectElement>('[data-sort]');
+  const rail = document.querySelector<HTMLElement>('.stack [data-rail]');
+  if (sel && rail) {
+    const original = Array.from(rail.children) as HTMLElement[];
+    const time = (el: HTMLElement) => Date.parse(el.dataset.date ?? '') || 0;
+    sel.addEventListener('change', () => {
+      const list = sel.value ? [...original].sort((a, b) => (sel.value === 'new' ? time(b) - time(a) : time(a) - time(b))) : original;
+      rail.replaceChildren(...list);
+      rail.scrollTo({ left: 0 });
+    });
+  }
+</script>
+
 <style>
+  .sort { display: flex; justify-content: flex-end; margin-bottom: calc(var(--s-6) * -1); position: relative; z-index: 4; }
+  .sort label { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--t-sm); color: var(--text-dim); }
+  .sort select { padding: 0.45rem 2rem 0.45rem 0.8rem; border-radius: var(--radius); border: 1px solid var(--line-strong); background: #1e1e1e url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.6rem center / 14px; color: #fff; font: inherit; font-size: var(--t-sm); appearance: none; cursor: pointer; }
   .chero {
     position: relative;
     min-height: min(72svh, 720px);

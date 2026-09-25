@@ -78,6 +78,8 @@ export interface ProjectFile {
   video?: { uploaded: string; duration?: string };
   /** Kota/area lokasi proyek (lihat CITY_NAMES di data/cities.ts). Kosong = tidak disebut. */
   city?: string;
+  /** Tanggal proyek ditambahkan (ISO). Dipakai untuk urutan Terbaru/Terlama. */
+  date?: string;
 }
 
 export interface Project {
@@ -93,6 +95,7 @@ export interface Project {
   featured: boolean;
   video?: { uploaded: string; duration?: string };
   city?: string;
+  date?: string;
 }
 
 export interface Category {
@@ -144,6 +147,7 @@ const projects: Project[] = Object.entries(files)
       featured: Boolean(f.featured),
       video: f.video,
       city: f.city || undefined,
+      date: f.date,
     }];
   })
   .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
