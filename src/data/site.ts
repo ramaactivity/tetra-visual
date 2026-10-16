@@ -14,6 +14,8 @@ export const site = {
   // Dipakai di halaman Kontak, footer, dan data terstruktur Google (LocalBusiness).
   // Harus sama persis dengan Google Business Profile — konsistensi ini sinyal SEO lokal.
   founded: '2021-06-24',
+  /** Tidak ada jam buka tetap (menyesuaikan jadwal acara); admin WhatsApp aktif jam ini. */
+  adminHours: { opens: '09:00', closes: '21:00', label: 'Admin WhatsApp aktif setiap hari, 09.00–21.00 WIB' },
   address: {
     street: 'Jl. Ciwaluya, RT.02/RW.08, Tegallega',
     district: 'Bogor Tengah',
@@ -26,7 +28,7 @@ export const site = {
   sister: { name: 'Tetra Photobooth', url: 'https://tetraphoto.com' },
 
   social: [
-    { label: 'Instagram', href: 'https://www.instagram.com/tetravisual.jpeg/' },
+    { label: 'Instagram', href: 'https://www.instagram.com/tetra.visual/' },
     { label: 'TikTok', href: 'https://www.tiktok.com/@tetra.visual' },
   ],
 } as const;

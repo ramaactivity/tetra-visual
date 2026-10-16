@@ -6,6 +6,8 @@ import Footer from '../components/Footer.astro';
 import Intro from '../components/Intro.astro';
 import { site, mapsUrl, waLink } from '../data/site';
 import logoFile from '../assets/brand/logo-tetra-master.png';
+import { founders } from '../data/team';
+import { clip } from '../lib/seo';
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { featuredProject } from '../data/work';
@@ -37,12 +39,15 @@ const {
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
+// Deskripsi > ±160 karakter terpotong di Google.
+const metaDescription = clip(description, 158);
 
 // Bikin versi kecil untuk pratinjau share (1200x630 standar Open Graph).
 const og = await getImage({ src: ogImage, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 const ogUrl = new URL(og.src, Astro.site);
 
-const fullTitle = rawTitle ? title : `${title} — ${site.name}`;
+// Judul > ±60 karakter terpotong di Google: nama merek hanya ditambahkan bila masih muat.
+const fullTitle = rawTitle || title.length + site.name.length + 3 > 62 ? title : `${title} | ${site.name}`;
 
 // Data terstruktur supaya Google menampilkan Tetra sebagai bisnis lokal di Bogor.
 // Nama, alamat, dan nomor harus sama persis dengan Google Business Profile.
@@ -62,6 +67,20 @@ const jsonLd = {
       email: site.email,
       telephone: `+${site.whatsapp}`,
       foundingDate: site.founded,
+      founder: founders.map((f) => ({ '@type': 'Person', name: f.name, jobTitle: f.role })),
+      // Tidak ada jam buka tetap (menyesuaikan acara) — yang tetap adalah jam admin WhatsApp.
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'customer service',
+        telephone: `+${site.whatsapp}`,
+        availableLanguage: ['id', 'en'],
+        hoursAvailable: {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+          opens: site.adminHours.opens,
+          closes: site.adminHours.closes,
+        },
+      },
       address: {
         '@type': 'PostalAddress',
         streetAddress: site.address.street,
@@ -85,7 +104,7 @@ const jsonLd = {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
     <link rel="canonical" href={canonical} />
     <!-- Verifikasi Google Search Console (cadangan selain file public/google99c30cf8ec0159b9.html) -->
     <meta name="google-site-verification" content="C05ZgMXVkU5C9efisJ3791vqxjkjgc-nFtkhqvdopEg" />
@@ -97,7 +116,7 @@ const jsonLd = {
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogUrl} />
     <meta property="og:image:width" content="1200" />
@@ -106,7 +125,7 @@ const jsonLd = {
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={ogUrl} />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
@@ -118,7 +137,7 @@ const jsonLd = {
   </head>
 
   <body>
-    <Intro />
+    {Astro.url.pathname === '/' && <Intro />}
     <a class="skip-link" href="#main">Lewati ke konten utama</a>
     <Header transparent={transparentHeader} />
     <main id="main">

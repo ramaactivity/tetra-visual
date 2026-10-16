@@ -7,19 +7,21 @@ import { clientLogos } from '../lib/images';
 import { site, fullAddress, mapsUrl } from '../data/site';
 import { services } from '../data/services';
 import ServiceGrid from '../components/ServiceGrid.astro';
+import { team } from '../data/team';
 import { breadcrumb, business } from '../lib/seo';
 
 const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
 const schema = [
   breadcrumb([['Beranda', '/'], ['Tentang', '/about']]),
   { '@type': 'AboutPage', name: `Tentang ${site.name}`, url: new URL('/about', Astro.site).href, about: business },
+  ...team.map((m) => ({ '@type': 'Person', name: m.name, jobTitle: m.role, knowsAbout: m.skills, worksFor: business })),
 ];
 
 const { videos: totalVideos, photos: totalPhotos } = totals;
 
 // Angka diambil langsung dari isi portofolio, jadi selalu akurat saat karya bertambah.
 const stats = [
-  { value: `${totalVideos}`, label: 'Video dokumentasi' },
+  { value: `${totalVideos}`, label: 'Proyek terdokumentasi' },
   { value: `${totalPhotos}`, label: 'Foto terpublikasi' },
   { value: `${clientLogos.length}`, label: 'Brand & institusi' },
   { value: `${services.length}`, label: 'Layanan' },
@@ -39,7 +41,8 @@ const stats = [
 
       <div class="intro-body">
         <p>
-          {site.name} adalah tim fotografi dan sinematografi yang berdiri di Kota Bogor pada 24 Juni 2021.
+          {site.name} adalah tim fotografi dan sinematografi yang didirikan oleh Ramadan Saputra dan
+          Muhamad Iqbal di Kota Bogor pada 24 Juni 2021.
           Kehangatan cerita pribadi, energi sebuah acara, hingga ambisi sebuah brand — semuanya kami rekam
           dengan teliti, supaya tetap hidup lama setelah momennya berlalu.
         </p>
@@ -63,13 +66,12 @@ const stats = [
     <figure class="portrait">
       <Image
         src={potret}
-        alt="Potret pendiri Tetra Visual"
+        alt="Arief Rohman, fotografer dan pilot drone Tetra Visual"
         widths={[400, 640, 900]}
         sizes="(max-width: 900px) 70vw, 32vw"
         loading="eager"
       />
-      {/* Ingin menambahkan nama & jabatan? Tulis di sini, mis:
-          <figcaption>Nama — Founder & Director</figcaption> */}
+      <figcaption><strong>Arief Rohman</strong> — Photographer &amp; Drone Pilot</figcaption>
     </figure>
   </section>
 
@@ -84,6 +86,25 @@ const stats = [
         ))
       }
     </dl>
+  </section>
+
+  <section class="section wrap team">
+    <p class="eyebrow">Tim kami</p>
+    <h2 class="team-title">Orang-orang di balik kamera</h2>
+    <p class="team-lead">
+      Tujuh orang dengan keahlian berbeda — tapi semua bisa memegang kamera, mengedit, dan turun sebagai kru
+      di hari acara. Jadi tim yang datang ke acara Anda selalu lengkap, apa pun kebutuhannya.
+    </p>
+    <ul class="team-grid">
+      {team.map((m) => (
+        <li class:list={['member', { 'is-founder': m.founder }]}>
+          <span class="member-av" aria-hidden="true">{m.name.split(' ').filter((w) => !/^muhamad$/i.test(w)).slice(0, 2).map((w) => w[0]).join('')}</span>
+          <h3 class="member-name">{m.name}</h3>
+          <p class="member-role">{m.role}</p>
+          <ul class="member-skills">{m.skills.map((k) => <li>{k}</li>)}</ul>
+        </li>
+      ))}
+    </ul>
   </section>
 
   <section class="section wrap fields">
@@ -104,6 +125,21 @@ const stats = [
   .intro-copy { max-width: 46rem; }
 
   .portrait { margin: 0; }
+  .portrait figcaption { margin-top: var(--s-3); font-size: var(--t-sm); color: var(--text-dim); }
+  .portrait figcaption strong { color: var(--text); }
+
+  /* --- TIM --- */
+  .team-title { font-size: var(--t-h2); margin: var(--s-2) 0 var(--s-3); }
+  .team-lead { color: var(--text-dim); max-width: 62ch; margin-bottom: var(--s-6); line-height: 1.7; }
+  .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); gap: var(--s-4); list-style: none; margin: 0; padding: 0; }
+  .member { padding: var(--s-5); border-radius: var(--radius-lg); background: var(--bg-elev); border: 1px solid var(--line); display: grid; gap: var(--s-2); align-content: start; }
+  .member.is-founder { border-color: rgba(229, 9, 20, 0.45); background: linear-gradient(160deg, rgba(229, 9, 20, 0.12), var(--bg-elev) 60%); }
+  .member-av { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: var(--s-2); border-radius: 50%; background: #3a3a3a; font-weight: 800; letter-spacing: 0.02em; }
+  .is-founder .member-av { background: var(--brand); }
+  .member-name { font-size: 1.0625rem; }
+  .member-role { font-size: var(--t-sm); color: var(--text-dim); }
+  .member-skills { display: flex; flex-wrap: wrap; gap: 0.35rem; list-style: none; margin: var(--s-2) 0 0; padding: 0; }
+  .member-skills li { padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid var(--line-strong); font-size: 0.75rem; color: #ddd; }
   .portrait :global(img) {
     width: 100%;
     height: auto;

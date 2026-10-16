@@ -13,10 +13,10 @@ const { title, href, hrefLabel = 'Lihat semua', count } = Astro.props;
   {
     title && (
       <div class="wrap row-head">
-        <h2 class="row-title">
-          {title}
-          {count !== undefined && <span class="row-count">{count}</span>}
-        </h2>
+        <div class="row-title">
+          <h2 class="row-h">{title}</h2>
+          {count !== undefined && <span class="row-count" aria-label={`${count} karya`}>{count}</span>}
+        </div>
         {href && (
           <a class="row-more" href={href}>
             {hrefLabel}
@@ -62,6 +62,7 @@ const { title, href, hrefLabel = 'Lihat semua', count } = Astro.props;
     font-size: var(--t-h2);
   }
 
+  .row-h { font-size: inherit; }
   .row-count {
     font-size: var(--t-xs);
     font-weight: 500;

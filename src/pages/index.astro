@@ -84,7 +84,7 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
       <div class="hero-copy">
         <!-- H1 memuat kata kunci (dibaca Google) lewat label kecil; tampilan judul besar tetap. -->
         <h1 class="hero-h1">
-          <span class="eyebrow hero-eyebrow">Jasa Foto &amp; Video Dokumentasi · Bogor &amp; Jakarta</span>
+          <span class="eyebrow hero-eyebrow">Jasa Foto &amp; Video Dokumentasi · Bogor &amp; Jakarta</span><span class="sr-only"> — </span>
           <span class="hero-title">Foto &amp; video yang membuat acara Anda dikenang.</span>
         </h1>
 
@@ -129,8 +129,8 @@ const years = new Date().getFullYear() - Number(site.founded.slice(0, 4));
     <div class="logos-track">
       {[0, 1].map((copy) => (
         <ul class="logos-list" aria-hidden={copy === 1 ? 'true' : undefined}>
-          {clientLogos.map((logo, i) => (
-            <li><Image src={logo} alt={copy === 0 ? `Logo klien ${i + 1}` : ''} widths={[240]} sizes="140px" loading="lazy" /></li>
+          {clientLogos.map((c) => (
+            <li><Image src={c.img} alt={copy === 0 ? `Logo ${c.name}` : ''} widths={[240]} sizes="140px" loading="lazy" /></li>
           ))}
         </ul>
       ))}

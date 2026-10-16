@@ -32,6 +32,9 @@ const rp = (n: number) => `Rp${n.toLocaleString('id-ID')}`;
 const gallery = serviceGallery(s);
 const prices = (s.packages ?? []).map((p) => p.price);
 const cities = cityPagesFor(s.slug);
+// 12 logo yang paling dikenal calon klien, bukan sekadar 12 file pertama.
+const TOP = ['Samsung', 'Bank Indonesia', 'Eiger', 'Pertamina Hulu Energi', 'Under Armour', 'Pelindo', 'Danantara Indonesia', 'The World Bank', 'Gojek', 'Grab', 'Kementerian Perindustrian Republik Indonesia', 'Universitas Indonesia'];
+const topClients = TOP.map((n) => clientLogos.find((c) => c.name === n)).filter((c) => c !== undefined);
 const reads = articlesFor(s.slug);
 const others = services.filter((x) => x.slug !== s.slug).slice(0, 4);
 const wa = waLink(`Halo Tetra Visual, saya butuh ${s.name.toLowerCase()} untuk acara/keperluan di [kota], tanggal [tanggal]. Boleh minta info paketnya?`);
@@ -173,8 +176,8 @@ const schema = [
   <section class="wrap trust">
     <p class="eyebrow">Dipercaya {clientLogos.length}+ brand &amp; institusi</p>
     <ul class="logos">
-      {clientLogos.slice(0, 12).map((logo, i) => (
-        <li><Image src={logo} alt={`Logo klien ${i + 1}`} widths={[200]} sizes="120px" loading="lazy" /></li>
+      {topClients.map((c) => (
+        <li><Image src={c.img} alt={`Logo ${c.name}`} widths={[200]} sizes="120px" loading="lazy" /></li>
       ))}
     </ul>
   </section>

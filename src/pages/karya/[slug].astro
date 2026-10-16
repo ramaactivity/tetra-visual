@@ -38,7 +38,8 @@ const KIND: Record<string, string> = {
 };
 const pageTitle = `${p.title} — ${p.desc && p.desc.length <= 48 ? p.desc : KIND[p.category] ?? 'Dokumentasi'}`;
 
-const description = clip(`${p.desc || story} Dokumentasi foto & video oleh ${site.name}, Bogor.`);
+const lead = (p.desc || story).trim().replace(/([^.!?])$/, '$1.');
+const description = clip(`${lead} Dokumentasi oleh ${site.name}.`);
 
 // VideoObject: membuat video bisa tampil di tab Video & hasil pencarian Google.
 const schema: Record<string, unknown>[] = [
@@ -106,14 +107,13 @@ if (p.youtubeId) {
     {
       p.youtubeId && (
         <section id="video" class="video">
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${p.youtubeId}?rel=0`}
-            title={`Video ${p.title}`}
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-            allowfullscreen
-            referrerpolicy="strict-origin-when-cross-origin"
-          />
+          {/* Poster dulu, pemutar YouTube baru dimuat saat diklik — hemat ±900 KB per halaman. */}
+          <button class="video-facade" type="button" data-yt={p.youtubeId} aria-label={`Putar video ${p.title}`}>
+            <Image src={p.cover} alt={`Cuplikan video ${p.title}`} widths={[640, 1100, 1600]} sizes="(max-width: 1100px) 100vw, 1100px" loading="lazy" />
+            <span class="video-play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="30" height="30"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+            </span>
+          </button>
         </section>
       )
     }
@@ -175,6 +175,19 @@ if (p.youtubeId) {
   <Lightbox />
 </Base>
 
+<script>
+  document.querySelector<HTMLButtonElement>('[data-yt]')?.addEventListener('click', (e) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    const f = document.createElement('iframe');
+    f.src = `https://www.youtube-nocookie.com/embed/${btn.dataset.yt}?autoplay=1&rel=0`;
+    f.title = btn.getAttribute('aria-label') ?? 'Video';
+    f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    btn.replaceWith(f);
+  });
+</script>
+
 <style>
   .phero {
     position: relative;
@@ -206,6 +219,13 @@ if (p.youtubeId) {
   .body { display: grid; gap: clamp(2.5rem, 6vw, 4rem); padding-block: var(--s-6) var(--s-4); }
   .video { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden; background: #000; box-shadow: var(--shadow-lg); max-width: 1100px; }
   .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .video-facade { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; cursor: pointer; }
+  .video-facade :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.32, 0.72, 0, 1), filter 0.3s; }
+  .video-facade:hover :global(img) { transform: scale(1.03); filter: brightness(0.85); }
+  .video-play { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; width: 78px; height: 78px; margin: -39px 0 0 -39px; border-radius: 50%; background: var(--brand); color: #fff; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); transition: transform 0.25s; }
+  .video-facade:hover .video-play { transform: scale(1.08); }
+  /* Tinggi hero dikunci supaya teks tidak bergeser saat font/gambar selesai dimuat */
+  .phero { contain: layout; }
   .h2 { font-size: var(--t-h2); margin-bottom: var(--s-4); }
   .about { display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: clamp(2rem, 5vw, 4rem); }
   .story { color: #dcdcdc; line-height: 1.8; max-width: 65ch; }

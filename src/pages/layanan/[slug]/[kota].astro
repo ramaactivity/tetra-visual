@@ -32,7 +32,10 @@ const related = (c.related ?? [])
   .filter((p): p is Project => p !== undefined);
 const shown = projects.length ? projects : related;
 const hero = shown.find((p) => p.photos.length)?.photos[0] ?? shown[0]?.cover ?? serviceCover(s);
-const faq = [...c.faq, ...s.faq, ...(s.packages ? [] : [costFaq]), ...commonFaq];
+// Pertanyaan yang sama dari beberapa sumber cukup tampil sekali.
+const faq = [...c.faq, ...s.faq, ...(s.packages ? [] : [costFaq]), ...commonFaq].filter(
+  ([q], i, all) => all.findIndex(([x]) => x === q) === i,
+);
 const siblings = cityPagesFor(s.slug).filter((x) => x.city !== c.city);
 const wa = waLink(`Halo Tetra Visual, saya butuh ${s.name.toLowerCase()} di ${city}, tanggal [tanggal]. Boleh minta info paketnya?`);
 const path = `/layanan/${s.slug}/${c.city}`;
@@ -78,7 +81,7 @@ const schema = [
       <ul class="checks">{s.includes.map((i) => <li>{i}</li>)}</ul>
       <p class="more-link">
         Selengkapnya tentang <a href={`/layanan/${s.slug}`}>{s.name.toLowerCase()}</a>.
-        {siblings.length > 0 && <>Juga melayani: {siblings.map((x, i) => <>{i > 0 && ', '}<a href={`/layanan/${s.slug}/${x.city}`}>{CITY_NAMES[x.city]}</a></>)}.</>}
+        {siblings.length > 0 && <>Juga melayani: {siblings.map((x, i) => <>{i > 0 && ', '}<a href={`/layanan/${s.slug}/${x.city}`}>{s.name} {CITY_NAMES[x.city]}</a></>)}.</>}
       </p>
     </div>
   </section>

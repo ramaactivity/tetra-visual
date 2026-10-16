@@ -142,18 +142,20 @@ export const cityPages: CityPage[] = [
   {
     service: 'gathering-outing-kantor',
     city: 'puncak',
-    title: 'Jasa Dokumentasi Family Gathering & Outbound Puncak Bogor',
+    title: 'Fotografer & Videografer Family Gathering Puncak Bogor',
     description: 'Jasa foto & video family gathering, outbound, dan acara corporate di villa dan hotel kawasan Puncak (Ciawi, Megamendung, Cisarua). Tim dari Bogor, siap sejak pagi.',
-    h1: 'Dokumentasi Family Gathering & Outbound di Puncak',
-    lead: 'Puncak adalah tujuan gathering favorit perusahaan Jabodetabek — dan hanya sepelemparan batu dari kantor kami di Bogor.',
+    h1: 'Fotografer & Videografer Family Gathering di Puncak',
+    lead: 'Sudah punya EO atau paket gathering di Puncak? Dokumentasi foto & videonya bisa Anda serahkan pada kami — tim dari Bogor, tak jauh dari lokasi acara.',
     body: [
       'Dari Ciawi, Megamendung, sampai Cisarua, kawasan Puncak dipenuhi villa dan hotel berkapasitas besar yang ideal untuk family gathering, outbound, rapat kerja, hingga malam keakraban perusahaan. Kami mendokumentasikan seluruh rangkaiannya: sesi pembukaan di aula hotel, permainan outbound di lapangan, api unggun, sampai foto bersama seluruh keluarga karyawan.',
       'Liputan di Puncak punya tantangan sendiri. Jalur Puncak memberlakukan sistem satu arah di akhir pekan, kabut bisa turun cepat, dan hujan sore cukup sering. Karena berangkat dari Bogor Tengah, tim kami bisa menyesuaikan jam berangkat dengan jadwal buka-tutup jalur dan tiba sebelum acara dimulai — tidak perlu berangkat dini hari dari Jakarta.',
+      'Banyak paket gathering dari EO atau venue di Puncak sudah mencakup acara, konsumsi, dan permainan outbound — tapi dokumentasinya sering seadanya. Tetra Visual bisa dipesan terpisah dan bekerja berdampingan dengan EO serta pengelola venue Anda: kami menyesuaikan diri dengan rundown mereka, sementara Anda mendapat foto dan video dengan standar yang sama seperti dokumentasi korporat kami untuk Nutrifood, Astra Isuzu, dan Vivere Hotel.',
       'Untuk acara di luar ruangan kami menyiapkan rencana cadangan bila hujan: titik foto dipindah ke area beratap, dan momen di dalam aula tetap terdokumentasi lengkap. Gambar udara dengan drone memperlihatkan hamparan kebun teh dan pegunungan di sekitar venue — latar yang membuat video highlight gathering Anda terasa istimewa.',
     ],
     projects: [],
     related: ['nutrifood', 'vivere-hotel', 'vitacimin', 'astra-izuzu', 'energi-prima-nusantara', 'pt-pharma-metric-labs', 'outing-dpmpd-tanggerang'],
     faq: [
+      ['Kami sudah memakai EO untuk gathering di Puncak. Apakah dokumentasi bisa dipesan terpisah?', 'Bisa. Kami terbiasa bekerja bersama EO dan pengelola venue — cukup kirimkan rundown dari EO Anda, tim kami menyesuaikan jadwal liputan dengannya.'],
       ['Apakah bisa meliput acara gathering 2 hari 1 malam di Puncak?', 'Bisa. Untuk acara lebih dari satu hari, durasi liputan dan akomodasi tim kami bahas bersama di penawaran.'],
       ['Bagaimana jika hujan saat outbound?', 'Kami menyiapkan perlindungan peralatan dan memindahkan titik foto ke area beratap. Rangkaian di dalam ruangan tetap terdokumentasi lengkap.'],
     ],
