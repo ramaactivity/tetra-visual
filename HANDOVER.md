@@ -4,7 +4,8 @@ Catatan serah-terima antar sesi. Perbarui setiap satu pekerjaan selesai.
 
 ## Dashboard bisnis `/admin/bisnis` (26 Nov 2026)
 
-**Status:** kode di `main` (commit a8fac14 + berikutnya). **Belum tayang** — lihat "Yang tertahan".
+**Status:** kode **tayang** (deploy Actions run 45761486402, commit 4d2babe, 26 Nov 2026). Halaman bisnis & Bahan internal
+masih menampilkan "belum dikonfigurasi" sampai env produksi diisi — lihat "Yang tertahan".
 
 - Dokumen quotation → invoice → pembayaran → kuitansi, Jadwal, Paket & harga. Keputusan: DR-067 di repo tetra-ops.
 - Logika murni `src/lib/bisnis.ts` (uji: `node scripts/test-bisnis.mts`), penyimpanan `src/lib/bisnis-store.ts`
@@ -20,12 +21,13 @@ Catatan serah-terima antar sesi. Perbarui setiap satu pekerjaan selesai.
 
 ### Yang tertahan (butuh Rama)
 
-1. **GitHub Actions tidak jalan** — "recent account payments have failed or your spending limit needs to be increased".
-   Deploy otomatis mati sampai billing GitHub beres (Settings → Billing and plans).
+1. ~~GitHub Actions diblok billing~~ — selesai: Rama menjadikan repo **publik** 26 Nov 2026 (Actions gratis).
+   Akibatnya hash password lama di riwayat `data-admin/users.json` ikut terbuka → **pindahkan akun ke R2 lalu keenam
+   akun ganti password** (setelah env R2 ada di produksi).
 2. **Env produksi belum diisi** di Vercel project `tetra-visual`: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
    `R2_BUCKET`, `DOC_RENDER_API_TOKEN` (nilai = `.env.local` repo ini). Vercel CLI di Mac belum login ke team
    `visualtetra-9970`; setelah Rama `vercel login` (visualtetra@gmail.com), Claude bisa `vercel env add` + deploy CLI
-   dari worktree bersih `origin/main`.
+   dari worktree bersih `origin/main`. Menyimpan kunci ke GitHub Secrets lewat `gh secret set` diblok pengaman otomatis.
 3. Tanpa env, `/admin/bisnis` produksi menampilkan "Penyimpanan R2 belum dikonfigurasi" — dashboard Karya tidak terpengaruh.
 
 ### Sesi paralel
