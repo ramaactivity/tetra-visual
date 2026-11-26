@@ -14,10 +14,10 @@ const PATH = `${ROOT}/bisnis.json`;
 const backupPath = () => `${ROOT}/cadangan/bisnis-${todayWIB()}.json`;
 
 export const storeConfigured = () => Boolean(R2_ACCOUNT_ID && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY && R2_BUCKET);
-const cfg = (): R2Config => ({ account: R2_ACCOUNT_ID!, key: R2_ACCESS_KEY_ID!, secret: R2_SECRET_ACCESS_KEY!, bucket: R2_BUCKET! });
+export const r2Config = (): R2Config => ({ account: R2_ACCOUNT_ID!, key: R2_ACCESS_KEY_ID!, secret: R2_SECRET_ACCESS_KEY!, bucket: R2_BUCKET! });
 
 export async function loadStore(): Promise<{ store: Store; etag: string | null }> {
-  const got = await r2GetText(cfg(), PATH);
+  const got = await r2GetText(r2Config(), PATH);
   if (!got) return { store: emptyStore(), etag: null };
   return { store: { ...emptyStore(), ...JSON.parse(got.text) }, etag: got.etag };
 }
@@ -33,9 +33,9 @@ export async function updateStore<T>(mutate: (s: Store) => T): Promise<{ store: 
     const { store, etag } = await loadStore();
     const result = mutate(store);
     const text = JSON.stringify(store);
-    if (await r2PutText(cfg(), PATH, text, etag)) {
+    if (await r2PutText(r2Config(), PATH, text, etag)) {
       // Cadangan gagal tidak membatalkan simpanan utama, tapi tetap tercatat di log.
-      await r2PutText(cfg(), backupPath(), text).catch((e) => console.error('[bisnis] cadangan gagal', e));
+      await r2PutText(r2Config(), backupPath(), text).catch((e) => console.error('[bisnis] cadangan gagal', e));
       return { store, result };
     }
   }

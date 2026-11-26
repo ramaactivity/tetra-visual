@@ -1,17 +1,21 @@
-// Akun dashboard. Sumber kebenaran: data-admin/users.json di repo GitHub (privat), dibaca &
+// Akun dashboard. Sumber kebenaran: tetra-visual/akun/users.json di R2 (bucket Tetra Ops), dibaca &
 // ditulis HANYA oleh server — password disimpan sebagai hash scrypt, bukan teks asli.
-// Perantara /api/admin/github menolak akses ke folder itu dari browser.
-// Cadangan: bila file belum ada/tak terbaca, akun dari env ADMIN_USERS ("user:pass;user:pass").
+// Dulu di data-admin/users.json di repo; dipindah 26 Nov 2026 karena repo dijadikan publik
+// (hash lama di riwayat git tidak berlaku lagi setelah semua password diganti).
+// Cadangan: bila R2 tak terbaca, akun dari env ADMIN_USERS ("user:pass;user:pass").
 // Sesi = cookie bertanda tangan HMAC berisi id akun + versi; ganti password/username menaikkan
 // versi sehingga sesi lama di perangkat lain otomatis keluar.
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import type { AstroCookies } from 'astro';
 import { ADMIN_USERS, ADMIN_SESSION_SECRET, TETRA_DASHBOARD_GITHUB_TOKEN } from 'astro:env/server';
+import { r2GetText, r2PutText } from './r2';
+import { r2Config, storeConfigured } from './bisnis-store';
 
 export const COOKIE = 'tv_admin';
 const DAYS = 30;
-const REPO = 'ramaactivity/tetra-visual';
+/** Folder lama di repo — perantara /api/admin/github tetap menolak akses ke sana. */
 export const USERS_PATH = 'data-admin/users.json';
+const R2_USERS = 'tetra-visual/akun/users.json';
 
 export interface Account {
   id: string;
@@ -24,7 +28,7 @@ export interface Account {
   ver: number;
   /**
    * Peran (RBAC). 'owner' = boleh membuka dokumen, keuangan, dan harga paket (dashboard bisnis).
-   * Kosong = tim biasa: hanya karya + jadwal (tanpa angka uang). Diatur di data-admin/users.json.
+   * Kosong = tim biasa: hanya karya + jadwal (tanpa angka uang). Diatur di tetra-visual/akun/users.json (R2).
    */
   role?: 'owner';
 }
@@ -45,18 +49,6 @@ function same(a: string, b: string) {
   return A.length === B.length && timingSafeEqual(A, B);
 }
 
-const gh = (path: string, init: RequestInit = {}) =>
-  fetch(`https://api.github.com/repos/${REPO}/${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${githubToken()}`,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'tetra-visual-dashboard',
-      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
-    },
-  });
-
 const fromEnv = (): Account[] =>
   (ADMIN_USERS ?? '')
     .split(';')
@@ -68,39 +60,30 @@ const fromEnv = (): Account[] =>
       return { id: username, username, name: username, ...hashPassword(pair.slice(i + 1)), ver: 0 };
     });
 
-// Cache singkat: setiap request dashboard memeriksa sesi, tapi GitHub tak perlu ditanya tiap kali.
+// Cache singkat: setiap request dashboard memeriksa sesi, tapi R2 tak perlu ditanya tiap kali.
 let cache: { at: number; users: Account[]; sha?: string } | null = null;
 
 export async function loadAccounts(fresh = false): Promise<{ users: Account[]; sha?: string }> {
   if (!fresh && cache && Date.now() - cache.at < 30_000) return cache;
   try {
-    const res = await gh(`contents/${USERS_PATH}?ref=main`, { cache: 'no-store' } as RequestInit);
-    if (res.ok) {
-      const file = await res.json();
-      const users = JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')) as Account[];
-      cache = { at: Date.now(), users, sha: file.sha };
+    const got = storeConfigured() ? await r2GetText(r2Config(), R2_USERS) : null;
+    if (got) {
+      cache = { at: Date.now(), users: JSON.parse(got.text) as Account[], sha: got.etag };
       return cache;
     }
-  } catch {
-    /* jatuh ke cadangan */
+    console.error('[admin-auth] akun R2 tidak ada / R2 belum dikonfigurasi — memakai ADMIN_USERS');
+  } catch (e) {
+    console.error('[admin-auth] gagal membaca akun dari R2 — memakai ADMIN_USERS', e);
   }
   cache = { at: Date.now(), users: fromEnv() };
   return cache;
 }
 
-export async function saveAccounts(users: Account[], sha: string | undefined, message: string) {
-  const res = await gh(`contents/${USERS_PATH}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      message,
-      content: Buffer.from(JSON.stringify(users, null, 2) + '\n').toString('base64'),
-      branch: 'main',
-      ...(sha ? { sha } : {}),
-    }),
-  });
-  if (!res.ok) throw new Error(`GitHub ${res.status}`);
-  const json = await res.json();
-  cache = { at: Date.now(), users, sha: json.content?.sha };
+/** Simpan dengan kunci versi (ETag); bentrok → melempar, pemanggil membaca ulang lalu mencoba lagi. */
+export async function saveAccounts(users: Account[], sha: string | undefined, _message?: string) {
+  if (!storeConfigured() || !sha) throw new Error('Akun cadangan (ADMIN_USERS) tidak bisa diubah dari dashboard.');
+  if (!(await r2PutText(r2Config(), R2_USERS, JSON.stringify(users, null, 2), sha))) throw new Error('Bentrok — coba lagi');
+  cache = null;
 }
 
 /** Akun yang cocok, atau null. */

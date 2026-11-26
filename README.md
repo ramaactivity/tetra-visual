@@ -49,14 +49,14 @@ tampil di pojok kanan atas dashboard.
 
 Setiap anggota tim punya akun sendiri (tetravisual, rama, wahab, arief, iqbal, bowo).
 Masing-masing bisa mengubah nama, username, password, dan foto lewat tombol nama di
-pojok kanan atas dashboard. Akun tersimpan di `data-admin/users.json` (password berupa
+pojok kanan atas dashboard. Akun tersimpan di R2 Tetra Ops `tetra-visual/akun/users.json` (password berupa
 hash, hanya bisa dibaca server). `ADMIN_USERS` di `.env.local`/Vercel hanya cadangan
 bila file itu tak terbaca. Tiap proyek mencatat siapa yang
 mengunggah dan terakhir mengedit; riwayat GitHub juga atas nama orang itu. Sesi bertahan 30 hari per browser. Token GitHub hanya disimpan
 di server (Environment Variables Vercel), tidak pernah dikirim ke browser —
 browser berbicara ke `/api/admin/*`, satu-satunya bagian situs yang berjalan di server.
 
-**Menambah atau menghapus orang:** minta Claude menambah/menghapus entri di `data-admin/users.json` (tidak perlu deploy ulang). Lupa password: minta Claude membuatkan password sementara. Cadangan lama: ubah `ADMIN_USERS` di `.env.local` dan di Vercel
+**Menambah atau menghapus orang:** minta Claude menambah/menghapus entri di `tetra-visual/akun/users.json` di R2 (tidak perlu deploy ulang). Lupa password: minta Claude membuatkan password sementara. Cadangan lama: ubah `ADMIN_USERS` di `.env.local` dan di Vercel
 (Project → Settings → Environment Variables), lalu deploy ulang.
 
 Di balik layar, tiap proyek = satu file `src/content/projects/<slug>.json` + folder
@@ -66,7 +66,7 @@ manual kalau perlu; skema isinya ada di `ProjectFile` pada `src/data/work.ts`.
 ### Bahan internal (logo, pricelist, template) — `/admin/internal`
 
 Semua akun dashboard bisa membuka **<https://visual.tetraphoto.com/admin/internal>** dan klik
-**Unduh**. Akun berperan owner (`"role": "owner"` di `data-admin/users.json`) bisa **Tambah file**
+**Unduh**. Akun berperan owner (`"role": "owner"` di `tetra-visual/akun/users.json`, R2) bisa **Tambah file**
 per kategori (maks. 200 MB per file; nama sama = menggantikan file lama) dan **Hapus**.
 File disimpan di bucket R2 milik Tetra Ops (`tetra-ops-portal`), awalan `tetra-visual/internal/<kategori>/`
 (saat `npm run dev`: `tetra-visual/internal-dev/`). Browser mengunggah dan mengunduh langsung ke R2
