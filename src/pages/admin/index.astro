@@ -53,6 +53,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
         <div class="top-right">
           <span class="deploy" data-deploy hidden></span>
           <a class="btn btn-ghost btn-sm" href="/admin/bisnis" data-biz-link hidden>Jadwal</a>
+          <a class="btn btn-ghost btn-sm" href="/admin/internal" data-int-link hidden>Bahan internal</a>
           <button class="me" type="button" data-me hidden><span class="me-av" data-me-av></span><span data-me-name></span></button>
           <a class="btn btn-ghost btn-sm" href="/" target="_blank" rel="noopener">Lihat situs ↗</a>
           <button class="btn btn-ghost btn-sm" type="button" data-logout>Keluar</button>
@@ -1374,6 +1375,7 @@ import logo from '../../assets/brand/logo-tetra-visual.png';
     const biz = $<HTMLAnchorElement>('[data-biz-link]');
     biz.textContent = p.owner ? 'Dokumen & Jadwal' : 'Jadwal';
     biz.hidden = false;
+    $('[data-int-link]').hidden = false;
   }
   const pf = $<HTMLFormElement>('[data-pf]');
   const pfIn = (n: string) => pf.elements.namedItem(n) as HTMLInputElement;

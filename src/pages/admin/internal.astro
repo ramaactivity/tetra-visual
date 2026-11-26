@@ -1,0 +1,269 @@
+---
+// Bahan internal Tetra Visual: logo, pricelist, template, dokumen yang sering dibutuhkan tim,
+// tinggal unduh. File di R2 bucket Tetra Ops lewat /api/admin/internal. Semua akun yang masuk
+// bisa mengunduh; menambah & menghapus hanya akun berperan owner.
+import '@fontsource-variable/inter';
+import '../../styles/global.css';
+import '../../styles/admin.css';
+import { Image } from 'astro:assets';
+import logo from '../../assets/brand/logo-tetra-visual.png';
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Bahan internal — Tetra Visual</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <header class="top">
+      <a href="/admin" class="top-brand">
+        <Image src={logo} alt="Tetra Visual" widths={[180]} sizes="72px" />
+        <span>Dashboard</span>
+      </a>
+      <nav class="tabs" aria-label="Bagian dashboard">
+        <a href="/admin">Karya</a>
+        <a href="/admin/bisnis" data-biz-link>Jadwal</a>
+        <a href="/admin/internal" class="is-on" aria-current="page">Bahan internal</a>
+      </nav>
+      <div class="top-right">
+        <button class="btn btn-ghost btn-sm" type="button" data-logout>Keluar</button>
+      </div>
+    </header>
+
+    <main class="wrap bahan" data-main>
+      <p class="muted">Memuat daftar file…</p>
+    </main>
+
+    <input type="file" multiple hidden data-file />
+
+    <dialog class="cf" data-cf>
+      <p data-cf-msg></p>
+      <div class="cf-actions">
+        <button class="btn btn-ghost btn-sm" type="button" data-cf-no>Batal</button>
+        <button class="btn btn-brand btn-sm" type="button" data-cf-yes>Ya</button>
+      </div>
+    </dialog>
+  </body>
+</html>
+
+<style is:global>
+  body { background: #141414; }
+  .tabs { display: flex; gap: 0.25rem; margin-right: auto; margin-left: 1rem; }
+  .tabs a { flex: none; white-space: nowrap; padding: 0.45rem 0.85rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600; color: var(--text-dim); transition: color 0.2s, background-color 0.2s; }
+  .tabs a:hover { color: #fff; }
+  .tabs a.is-on { background: #fff; color: #000; }
+
+  .bahan { padding-block: 2rem 7rem; }
+  .bahan-head { margin-bottom: 2rem; }
+  .bahan-head h1 { font-size: var(--t-h1); }
+  .bahan-head p { margin-top: 0.4rem; color: var(--text-dim); max-width: 60ch; }
+
+  .kat { margin-bottom: 2.75rem; }
+  .kat-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+  .kat-head h2 { font-size: 1.15rem; }
+  .kat-head h2 small { margin-left: 0.4rem; font-size: 0.8125rem; font-weight: 600; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+  .kat-head p { margin-top: 0.2rem; font-size: 0.875rem; color: var(--text-faint); }
+
+  .files { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 1rem; }
+  .file { display: flex; flex-direction: column; min-width: 0; border-radius: 12px; background: #1b1b1b; overflow: hidden; }
+  /* Papan catur abu-abu tengah = konvensi "latar transparan" di aplikasi desain; logo putih dan hitam sama-sama terlihat. */
+  .file-prev { display: grid; place-items: center; height: 150px; padding: 1.25rem; background: repeating-conic-gradient(#7d7d7d 0 25%, #8c8c8c 0 50%) 0 0 / 16px 16px; }
+  .file-prev img { width: 100%; height: 100%; min-height: 0; object-fit: contain; }
+  .file-prev.doc { background: #232323; }
+  .file-ext { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.02em; color: #e8e8e8; }
+  .file-body { display: grid; gap: 0.75rem; padding: 0.9rem 1rem 1rem; flex: 1; align-content: space-between; }
+  .file-name { font-weight: 600; font-size: 0.9rem; line-height: 1.35; overflow-wrap: anywhere; }
+  .file-meta { margin-top: 0.15rem; font-size: 0.78rem; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+  .file-act { display: flex; gap: 0.4rem; }
+  .file-act .btn-brand { flex: 1; justify-content: center; }
+
+  .empty-state { padding: 1.25rem 1.5rem; border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.14); color: var(--text-dim); font-size: 0.9rem; }
+
+  .cf { width: min(420px, 92vw); padding: 1.5rem; border: 0; border-radius: 12px; background: #1b1b1b; color: #fff; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8); }
+  .cf::backdrop { background: rgba(0, 0, 0, 0.7); }
+  .cf p { line-height: 1.6; margin-bottom: 1.25rem; }
+  .cf-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+
+  @media (max-width: 900px) {
+    .top { flex-wrap: wrap; }
+    .top-brand span { display: none; }
+    .tabs { order: 3; width: 100%; margin: 0; overflow-x: auto; }
+  }
+</style>
+
+<script>
+  import { KATEGORI, MAKS_BYTE, namaAman, ukuran, type Kategori } from '../../lib/bahan';
+
+  type File = { key: string; kat: Kategori; nama: string; size: number; modified: string; view: string; dl: string };
+  type Data = { owner: boolean; files: File[] };
+
+  const API = '/api/admin/internal';
+  const $ = <T extends HTMLElement = HTMLElement,>(sel: string) => document.querySelector<T>(sel)!;
+  const main = $('[data-main]');
+  const picker = $<HTMLInputElement>('[data-file]');
+  let data: Data = { owner: false, files: [] };
+  let loadedAt = 0;
+
+  const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const tgl = (iso: string) => {
+    const d = new Date(new Date(iso).getTime() + 7 * 3600e3); // WIB
+    return `${d.getUTCDate()} ${BLN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  };
+  const ext = (n: string) => (n.includes('.') ? n.split('.').pop()!.toUpperCase().slice(0, 5) : 'FILE');
+  const isImg = (n: string) => /\.(png|jpe?g|webp|gif|svg)$/i.test(n);
+
+  function toast(msg: string) {
+    document.querySelector('.toast')?.remove();
+    const el = Object.assign(document.createElement('div'), { className: 'toast', textContent: msg });
+    el.setAttribute('role', 'status');
+    document.body.append(el);
+    setTimeout(() => el.remove(), 4500);
+  }
+  const cf = $<HTMLDialogElement>('[data-cf]');
+  function confirmBox(msg: string, yes = 'Ya'): Promise<boolean> {
+    $('[data-cf-msg]').textContent = msg;
+    $('[data-cf-yes]').textContent = yes;
+    cf.showModal();
+    return new Promise((res) => {
+      const done = (v: boolean) => { cf.close(); res(v); };
+      $('[data-cf-yes]').onclick = () => done(true);
+      $('[data-cf-no]').onclick = () => done(false);
+      cf.oncancel = () => res(false);
+    });
+  }
+
+  async function load() {
+    const res = await fetch(API, { cache: 'no-store', credentials: 'same-origin' }).catch(() => null);
+    if (res?.status === 401) { location.href = '/admin'; return; }
+    const body = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) { main.innerHTML = `<p class="form-error">${esc(body.error ?? 'Koneksi terputus — muat ulang halaman.')}</p>`; return; }
+    data = body;
+    loadedAt = Date.now();
+    if (data.owner) $('[data-biz-link]').textContent = 'Dokumen & Jadwal';
+    render();
+  }
+
+  function card(f: File) {
+    const prev = isImg(f.nama)
+      ? `<div class="file-prev"><img src="${esc(f.view)}" alt="" loading="lazy" decoding="async"></div>`
+      : `<div class="file-prev doc"><span class="file-ext">${esc(ext(f.nama))}</span></div>`;
+    return `<li class="file">${prev}<div class="file-body">
+      <div><p class="file-name">${esc(f.nama)}</p><p class="file-meta">${ukuran(f.size)} · ${tgl(f.modified)}</p></div>
+      <div class="file-act">
+        <a class="btn btn-brand btn-sm" href="${esc(f.dl)}" data-dl="${esc(f.key)}">Unduh</a>
+        ${data.owner ? `<button class="btn btn-danger-ghost btn-sm" type="button" data-del="${esc(f.key)}" aria-label="Hapus ${esc(f.nama)}">Hapus</button>` : ''}
+      </div></div></li>`;
+  }
+
+  function render() {
+    const y = scrollY;
+    const parts = KATEGORI.map((k) => {
+      const list = data.files.filter((f) => f.kat === k.id).sort((a, b) => b.modified.localeCompare(a.modified));
+      if (!list.length && !data.owner) return '';
+      return `<section class="kat" id="${k.id}">
+        <div class="kat-head">
+          <div><h2>${esc(k.label)}${list.length ? `<small>${list.length}</small>` : ''}</h2>${k.hint ? `<p>${esc(k.hint)}</p>` : ''}</div>
+          ${data.owner ? `<button class="btn btn-ghost btn-sm" type="button" data-add="${k.id}">Tambah file</button>` : ''}
+        </div>
+        ${list.length ? `<ul class="files">${list.map(card).join('')}</ul>`
+          : `<p class="empty-state">Belum ada file ${esc(k.label.toLowerCase())}. Klik “Tambah file” untuk mengunggah — maks. ${ukuran(MAKS_BYTE)} per file.</p>`}
+      </section>`;
+    }).join('');
+    main.innerHTML = `<div class="bahan-head"><h1>Bahan internal</h1>
+      <p>Logo, pricelist, dan file lain yang sering dibutuhkan tim. Klik Unduh, file langsung tersimpan di perangkat.</p></div>
+      ${parts || '<p class="empty-state">Belum ada file. Minta pemilik akun mengunggah logo dan pricelist di halaman ini.</p>'}`;
+    scrollTo(0, y);
+  }
+
+  // Unggah: server memberi link PUT bertanda tangan, browser mengirim file langsung ke R2.
+  function put(url: string, file: globalThis.File, type: string, onProgress: (p: number) => void) {
+    return new Promise<void>((res, rej) => {
+      const x = new XMLHttpRequest();
+      x.open('PUT', url);
+      x.setRequestHeader('content-type', type);
+      x.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total);
+      x.onload = () => (x.status < 300 ? res() : rej(new Error(`R2 ${x.status}`)));
+      // Gagal tanpa status = diblokir browser (CORS bucket belum mengizinkan alamat ini) atau koneksi putus.
+      x.onerror = () => rej(new Error('blokir'));
+      x.send(file);
+    });
+  }
+
+  let addKat: Kategori = 'logo';
+  picker.addEventListener('change', async () => {
+    const files = [...(picker.files ?? [])];
+    picker.value = '';
+    if (!files.length) return;
+    const big = files.find((f) => f.size > MAKS_BYTE);
+    if (big) { toast(`${big.name} terlalu besar (maks. ${ukuran(MAKS_BYTE)}).`); return; }
+    const dup = files.map((f) => namaAman(f.name)).filter((n) => data.files.some((x) => x.kat === addKat && x.nama === n));
+    if (dup.length && !(await confirmBox(`${dup.join(', ')} sudah ada. Ganti dengan file baru?`, 'Ganti'))) return;
+
+    const busy = Object.assign(document.createElement('div'), { className: 'busy' });
+    busy.innerHTML = '<div class="busy-card"><div class="spinner"></div><p data-busy-msg></p><div class="busy-bar"><span data-busy-bar></span></div></div>';
+    document.body.append(busy);
+    let ok = 0;
+    try {
+      for (const [i, f] of files.entries()) {
+        busy.querySelector('[data-busy-msg]')!.textContent = `Mengunggah ${f.name}${files.length > 1 ? ` (${i + 1}/${files.length})` : ''}…`;
+        const res = await fetch(API, {
+          method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ action: 'upload', kat: addKat, nama: f.name, type: f.type, size: f.size }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (res.status === 401) { location.href = '/admin'; return; }
+        if (!res.ok) { toast(body.error ?? `Gagal (${res.status}).`); break; }
+        const bar = busy.querySelector<HTMLElement>('[data-busy-bar]')!;
+        await put(body.url, f, body.type, (p) => (bar.style.width = `${Math.round(p * 100)}%`));
+        ok++;
+      }
+    } catch (e) {
+      toast((e as Error).message === 'blokir'
+        ? 'Upload diblokir: bucket R2 belum mengizinkan alamat situs ini (setelan CORS), atau koneksi terputus.'
+        : `Upload gagal (${(e as Error).message}) — coba lagi.`);
+    } finally {
+      busy.remove();
+    }
+    if (ok) toast(`${ok} file tersimpan.`);
+    await load();
+  });
+
+  main.addEventListener('click', async (e) => {
+    const t = e.target as HTMLElement;
+    const add = t.closest<HTMLElement>('[data-add]');
+    if (add) { addKat = add.dataset.add as Kategori; picker.click(); return; }
+    // Link unduh berlaku 1 jam: halaman yang dibiarkan terbuka lama memuat ulang daftar dulu.
+    const dl = t.closest<HTMLAnchorElement>('[data-dl]');
+    if (dl && Date.now() - loadedAt > 50 * 60e3) {
+      e.preventDefault();
+      await load();
+      const fresh = data.files.find((f) => f.key === dl.dataset.dl)?.dl;
+      if (fresh) location.href = fresh;
+      else toast('File ini sudah tidak ada.');
+      return;
+    }
+    const del = t.closest<HTMLButtonElement>('[data-del]');
+    if (del) {
+      const f = data.files.find((x) => x.key === del.dataset.del);
+      if (!f || !(await confirmBox(`Hapus ${f.nama}? File tidak bisa dikembalikan.`, 'Hapus'))) return;
+      del.disabled = true;
+      const res = await fetch(API, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'delete', key: f.key }) }).catch(() => null);
+      const body = res ? await res.json().catch(() => ({})) : {};
+      if (!res?.ok) { del.disabled = false; toast(body.error ?? 'Koneksi terputus — file belum terhapus.'); return; }
+      toast(`${f.nama} dihapus.`);
+      await load();
+    }
+  });
+
+  $('[data-logout]').addEventListener('click', async () => {
+    await fetch('/api/admin/login', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
+    location.href = '/admin';
+  });
+
+  load();
+</script>

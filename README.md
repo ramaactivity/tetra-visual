@@ -63,6 +63,18 @@ Di balik layar, tiap proyek = satu file `src/content/projects/<slug>.json` + fol
 `src/assets/projects/<slug>/` (`cover.jpg`, `01.jpg`, `02.jpg`, …). Boleh juga diedit
 manual kalau perlu; skema isinya ada di `ProjectFile` pada `src/data/work.ts`.
 
+### Bahan internal (logo, pricelist, template) — `/admin/internal`
+
+Semua akun dashboard bisa membuka **<https://visual.tetraphoto.com/admin/internal>** dan klik
+**Unduh**. Akun berperan owner (`"role": "owner"` di `data-admin/users.json`) bisa **Tambah file**
+per kategori (maks. 200 MB per file; nama sama = menggantikan file lama) dan **Hapus**.
+File disimpan di bucket R2 milik Tetra Ops (`tetra-ops-portal`), awalan `tetra-visual/internal/<kategori>/`
+(saat `npm run dev`: `tetra-visual/internal-dev/`). Browser mengunggah dan mengunduh langsung ke R2
+lewat link bertanda tangan, jadi bucket wajib mengizinkan alamat situs ini di setelan CORS
+(Cloudflare → R2 → `tetra-ops-portal` → Settings → CORS Policy): `https://visual.tetraphoto.com`
+dan `http://localhost:4321`, metode GET + PUT, header `content-type`. Tanpa itu, unduh tetap jalan
+tapi tambah file gagal dengan pesan "Upload diblokir". Uji aturan nama file: `node scripts/test-bahan.mts`.
+
 ### Foto lama yang belum diketahui proyeknya
 
 Tersimpan di `src/assets/work/<kategori>/photos/`. Tetap tampil di galeri kategori
