@@ -21,6 +21,13 @@ export default defineConfig({
       // Kunci YouTube Data API (gratis, Google Cloud). Tanpa ini tanggal video proyek baru
       // tidak bisa diisi otomatis, karena YouTube memblokir server Vercel.
       YOUTUBE_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Dashboard bisnis (dokumen, paket, jadwal): data dititipkan di bucket R2 milik Tetra Ops
+      // (awalan tetra-visual/), PDF dicetak oleh API Tetra Ops. Nilainya sama dengan .env.local tetra-ops.
+      R2_ACCOUNT_ID: envField.string({ context: 'server', access: 'secret', optional: true }),
+      R2_ACCESS_KEY_ID: envField.string({ context: 'server', access: 'secret', optional: true }),
+      R2_SECRET_ACCESS_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
+      R2_BUCKET: envField.string({ context: 'server', access: 'secret', optional: true }),
+      DOC_RENDER_API_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
   // Alamat produksi. Dipakai untuk sitemap, canonical, dan tag Open Graph

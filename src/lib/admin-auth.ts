@@ -22,7 +22,14 @@ export interface Account {
   hash: string;
   salt: string;
   ver: number;
+  /**
+   * Peran (RBAC). 'owner' = boleh membuka dokumen, keuangan, dan harga paket (dashboard bisnis).
+   * Kosong = tim biasa: hanya karya + jadwal (tanpa angka uang). Diatur di data-admin/users.json.
+   */
+  role?: 'owner';
 }
+
+export const isOwner = (u: Account) => u.role === 'owner';
 
 export const configured = () => Boolean(ADMIN_SESSION_SECRET && TETRA_DASHBOARD_GITHUB_TOKEN);
 export const githubToken = () => TETRA_DASHBOARD_GITHUB_TOKEN!;
@@ -135,4 +142,4 @@ export async function sessionUser(cookies: AstroCookies): Promise<Account | null
 export const isLoggedIn = async (cookies: AstroCookies) => (await sessionUser(cookies)) !== null;
 
 /** Data profil yang aman dikirim ke browser. */
-export const publicProfile = (u: Account) => ({ username: u.username, name: u.name, avatar: u.avatar ?? '' });
+export const publicProfile = (u: Account) => ({ username: u.username, name: u.name, avatar: u.avatar ?? '', owner: isOwner(u) });
