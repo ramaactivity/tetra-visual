@@ -15,7 +15,8 @@
     "avatar": "",
     "hash": "95aae7f20f9e0573872a9b89b6149ab5abc8f99ef144ae40f77bd910703cea22",
     "salt": "9a7ef710846f3d5eea5d51aeed2c846b",
-    "ver": 0
+    "ver": 0,
+    "role": "owner"
   },
   {
     "id": "wahab",
